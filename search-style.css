@@ -1,0 +1,34 @@
+.ufs-icon-li .t-menuwidgeticons__link{cursor:pointer}
+#ufs-overlay{position:fixed;inset:0;z-index:9998;display:none;font-family:'NeutralFace','Helvetica Neue',Arial,sans-serif}
+#ufs-overlay.uf-open{display:block}
+#ufs-overlay *{box-sizing:border-box}
+.ufs-overlay__backdrop{position:absolute;inset:0;background:rgba(0,0,0,.45)}
+.ufs-overlay__panel{position:relative;background:#fff;margin:0 auto;width:100%;height:100%;display:flex;flex-direction:column;overflow:hidden}
+.ufs-overlay__bar{display:flex;align-items:center;gap:12px;padding:18px 20px;border-bottom:1px solid #eee;flex:none}
+.ufs-overlay__input{flex:1;border:none;outline:none;font-family:inherit;font-size:18px;color:#111;background:transparent;min-width:0}
+.ufs-overlay__close{background:none;border:none;font-size:26px;line-height:1;color:#333;cursor:pointer;padding:11px 13px;flex:none;min-width:44px;min-height:44px}
+.ufs-overlay__body{flex:1;overflow-y:auto;padding:16px 20px 32px}
+.ufs-overlay__side{margin-bottom:18px}
+.ufs-suggestions{display:flex;flex-direction:column}
+.ufs-suggestion{display:block;padding:12px 0;font-size:14px;color:#333;text-decoration:none;border-bottom:1px solid #f2f2f2}
+.ufs-suggestion b{font-weight:700;color:#111}
+.ufs-suggestion:hover{color:#000}
+.ufs-chips-label{font-size:11px;color:#767676;text-transform:uppercase;letter-spacing:.4px;margin:14px 0 8px}
+.ufs-chips{display:flex;flex-wrap:wrap;gap:8px}
+.ufs-chip{font-family:inherit;font-size:12px;color:#333;background:#f3f1ec;border:1px solid #e4e0d6;border-radius:20px;padding:11px 16px;cursor:pointer;white-space:nowrap}
+.ufs-chip.uf-active{background:#111;color:#fff;border-color:#111}
+.ufs-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.ufs-card{display:block;text-decoration:none;color:#111}
+.ufs-card__img{width:100%;aspect-ratio:3/4;background-size:cover;background-position:center;background-color:#f3f1ec;margin-bottom:8px}
+.ufs-card__title{font-size:12px;line-height:1.35;margin-bottom:4px;text-transform:uppercase}
+.ufs-card__price{font-size:13px;font-weight:600}
+.ufs-card__old{margin-left:6px;font-weight:400;color:#767676;text-decoration:line-through}
+.ufs-empty{display:none;padding:24px 0;color:#767676;font-size:13px;text-align:center}
+@media (min-width:980px){
+.ufs-overlay__panel{max-width:1100px;height:auto;max-height:82vh;margin:64px auto 0;box-shadow:0 20px 60px rgba(0,0,0,.18)}
+.ufs-overlay__input{font-size:20px}
+.ufs-overlay__body{display:flex;gap:36px;align-items:flex-start}
+.ufs-overlay__side{width:260px;flex:none;margin-bottom:0}
+.ufs-overlay__results{flex:1;min-width:0}
+.ufs-grid{grid-template-columns:repeat(4,1fr);gap:20px}
+}
