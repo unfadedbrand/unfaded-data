@@ -25,9 +25,10 @@
 .ufs-card__old{margin-left:6px;font-size:14px;font-weight:300;color:#bdbdbd;text-decoration:line-through}
 .ufs-empty{display:none;padding:24px 0;color:#767676;font-size:13px;text-align:center}
 @media (min-width:980px){
-.ufs-overlay__panel{max-width:1100px;height:auto;max-height:82vh;margin:64px auto 0;box-shadow:0 20px 60px rgba(0,0,0,.18)}
+.ufs-overlay__panel{position:absolute;left:0;right:0;top:0;margin:0;width:auto;height:auto;box-shadow:0 16px 32px rgba(0,0,0,.12);border-top:1px solid #eee}
+.ufs-overlay__bar{padding:20px 40px}
 .ufs-overlay__input{font-size:20px}
-.ufs-overlay__body{display:flex;gap:36px;align-items:flex-start}
+.ufs-overlay__body{display:flex;gap:36px;align-items:flex-start;padding:24px 40px 40px}
 .ufs-overlay__side{width:260px;flex:none;margin-bottom:0}
 .ufs-overlay__results{flex:1;min-width:0}
 .ufs-grid{grid-template-columns:repeat(4,1fr);gap:20px}
