@@ -19,10 +19,10 @@
 .ufs-chip.uf-active{background:#111;color:#fff;border-color:#111}
 .ufs-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
 .ufs-card{display:block;text-decoration:none;color:#111}
-.ufs-card__img{width:100%;aspect-ratio:3/4;background-size:cover;background-position:center;background-color:#f3f1ec;margin-bottom:8px}
-.ufs-card__title{font-size:12px;line-height:1.35;margin-bottom:4px;text-transform:uppercase}
-.ufs-card__price{font-size:13px;font-weight:600}
-.ufs-card__old{margin-left:6px;font-weight:400;color:#767676;text-decoration:line-through}
+.ufs-card__img{width:100%;aspect-ratio:2/3;background-size:cover;background-position:center;background-color:#f3f1ec;margin-bottom:8px}
+.ufs-card__title{font-size:14px;font-weight:400;line-height:1.35;margin-bottom:6px;text-transform:uppercase;color:#262626}
+.ufs-card__price{font-size:14px;font-weight:700;color:#262626}
+.ufs-card__old{margin-left:6px;font-size:14px;font-weight:300;color:#bdbdbd;text-decoration:line-through}
 .ufs-empty{display:none;padding:24px 0;color:#767676;font-size:13px;text-align:center}
 @media (min-width:980px){
 .ufs-overlay__panel{max-width:1100px;height:auto;max-height:82vh;margin:64px auto 0;box-shadow:0 20px 60px rgba(0,0,0,.18)}
