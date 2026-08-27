@@ -498,6 +498,14 @@
   background: var(--uf-color-ink) !important;
   gap: 3px !important;
 }
+/* Tilda вставляет между рядами служебные разделители .t-store__grid-separator
+   с margin-bottom = значению «Вертикальный отступ между карточками» из настроек
+   блока (в каталоге стоит 90px). Из-за них между рядами появляются широкие
+   тёмные пустоты, хотя gap задан 3px. Разделители нужны только для float-раскладки,
+   а список — flex, поэтому просто прячем их (в DOM остаются, JS Tilda не ломается). */
+.t-store__card-list .t-store__grid-separator {
+  display: none !important;
+}
 .t-store__card-list .t-store__card {
   box-sizing: border-box !important;
   width: calc(50% - 1.5px) !important;   /* 2 в ряд — как в макете (ширина макета 1440) */
