@@ -472,3 +472,54 @@
      клавиатурной навигации, не видна обычному пользователю, на бренд не влияет
    - всё внутри .digi-dolyame-* — сторонний виджет рассрочки, вне нашего кода
    -------------------------------------------------------------------------- */
+/* === UNFADED — Этап 2: цвет + карточка «как у Namelazz» (27.08.2026) === */
+:root {
+  --uf-color-ink: #17090B;      /* oxblood-black — hero/футер/тёмные секции */
+  --uf-color-paper: #F7F4EF;    /* бледный — весь путь покупки */
+  --uf-color-accent: #7A1F2A;   /* бордовый — ТОЛЬКО заливка/бордер/подчёркивание, никогда текстом на тёмном фоне */
+}
+
+/* --- Карточка каталога/главной: тёмная плашка названия+цены под фото --- */
+/* .t-store__card подтверждён живым осмотром (unfaded-widget-status.md).
+   Название/цена/старая цена и сама плашка ниже — по уже найденным классам. */
+.t-store__card__textwrapper {
+  background: var(--uf-color-ink) !important;
+  padding: 14px 16px 16px !important;
+  border-top: 1px solid rgba(247,244,239,.14) !important;
+}
+.t-store__card__title {
+  color: var(--uf-color-paper) !important;
+  font-family: var(--uf-font-body) !important; /* PT Serif — как у остальных названий в сетке */
+  text-transform: none !important;
+}
+.t-store__card__price-wrapper,
+.t-store__card .price-wrapper {
+  color: rgba(247,244,239,.7) !important;
+}
+.t-store__card__price { color: rgba(247,244,239,.85) !important; }
+.t-store__card__price_old { color: rgba(247,244,239,.45) !important; }
+
+/* Кружки цвета, которые вставляет JS-виджет внутрь price-wrapper — оставляем позицию,
+   только чиним обводку под тёмный фон (сейчас скорее всего рассчитана на светлый). */
+.t-store__card .price-wrapper [class*="swatch"],
+.t-store__card .price-wrapper [class*="color"] {
+  box-shadow: 0 0 0 1px rgba(247,244,239,.35) !important;
+}
+
+/* Сетка карточек — сплошной тёмный фон, чтобы промежутки между карточками читались
+   как единое тёмное пятно (эффект Namelazz). ⚠️ ТОЧНЫЙ класс обёртки сетки нужно
+   снять живым осмотром — см. «Как найти класс» ниже. Ставим общий, часто верный
+   вариант — если не сработает, замените селектор на найденный. */
+.t-store__list, .t-store__grid {
+  background: var(--uf-color-ink) !important;
+  gap: 3px !important;
+}
+
+/* --- Общие цветовые токены на путь покупки (Этап 2) --- */
+body, .t-body { background: var(--uf-color-paper); }
+/* Хиро/промо-баннер и футер — тёмный регистр (уже задан в вёрстке блока Tilda,
+   здесь только гарантируем текст поверх): */
+.t-card__title.t-title, .t-card__title.t-title * ,
+#rec1717044771 .tn-atom, #rec1717044771 .tn-atom * {
+  color: var(--uf-color-paper) !important;
+}
