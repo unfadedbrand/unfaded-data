@@ -38,11 +38,29 @@
   --uf-pale-secondary: #C9B9A8;  /* вторичный текст на тёмном фоне */
 
   /* --- роли шрифтов (Figma: 8 текстовых стилей) --- */
-  --uf-font-display: 'Cormorant', Georgia, 'Times New Roman', serif; /* H1/H2 — кампейны, заголовки разделов */
+  --uf-font-display: 'Cormorant', Georgia, 'Times New Roman', serif; /* Дисплейный сериф — ТОЛЬКО принт/брендбук/Figma, на сайте НЕ используется (см. v5 ниже) */
+  --uf-font-heading: 'PT Sans', Arial, sans-serif;                   /* Заголовки на сайте — жирный UI-шрифт вместо серифа, см. «Заголовки на сайте» ниже */
   --uf-font-body: 'PT Serif', Georgia, serif;                        /* Body — описание, состав, «О бренде» */
   --uf-font-ui: 'PT Sans', Arial, sans-serif;                        /* UI — навигация, кнопки, плитки, футер */
   --uf-font-mono: 'PT Mono', 'Courier New', monospace;               /* Meta — цена, размер, артикул */
 }
+
+/* --------------------------------------------------------------------------
+   v5 РЕШЕНИЕ (27.08.2026): заголовки на сайте — БЕЗ засечек.
+   Клиент проверил Cormorant на реальных заголовках сайта и счёл его
+   нечитаемым/некрасивым в вебе (в отличие от принта/брендбука, где он
+   остаётся). Дисплейный сериф с сайта убираем полностью, заменяем на
+   --uf-font-heading (PT Sans, font-weight: 700) — та же гарнитура, что и
+   в UI, но жирнее и без леттерспейсинга/изменения кегля (кегль — этап 4).
+   Так у крупных заголовков остаётся визуальный вес, при этом сайт не
+   держит два несовместимых голоса (сериф на баннерах / санс везде ещё).
+   Все 4 селектора, где раньше стоял --uf-font-display, переведены на
+   --uf-font-heading ниже. Заодно на этих же селекторах добавлен
+   wildcard-потомок (`SELECTOR *`), чтобы разово закрыть постоянно
+   всплывающий баг: вложенный <span>/тег внутри уже пофикшенного
+   контейнера держит своё собственное правило Tilda и не наследует
+   гарнитуру предка (см. «Урок 3» в site_migration_plan_corset_2026-08-27.md).
+   -------------------------------------------------------------------------- */
 
 /* --------------------------------------------------------------------------
    Мегаменю (шапка) — .uf-dm-link / .uf-dm-panel-link, наш собственный код
@@ -60,16 +78,20 @@
    Промо-баннер на главной — «НОВАЯ КОЛЛЕКЦИЯ SS26» (.t-card__title.t-title.t-title_xxs)
    Крупный текст на тёмной подложке — безопасно переводить в дисплейный шрифт
    -------------------------------------------------------------------------- */
-.t-card__title.t-title.t-title_xxs {
-  font-family: var(--uf-font-display) !important;
+.t-card__title.t-title.t-title_xxs,
+.t-card__title.t-title.t-title_xxs * {
+  font-family: var(--uf-font-heading) !important;
+  font-weight: 700 !important;
   color: var(--uf-pale) !important;
 }
 
 /* --------------------------------------------------------------------------
    Заголовок раздела «Категории товаров» (.js-block-header-title.t-section__title)
    -------------------------------------------------------------------------- */
-.js-block-header-title.t-section__title {
-  font-family: var(--uf-font-display) !important;
+.js-block-header-title.t-section__title,
+.js-block-header-title.t-section__title * {
+  font-family: var(--uf-font-heading) !important;
+  font-weight: 700 !important;
   color: var(--uf-oxblood) !important;
 }
 
@@ -134,8 +156,10 @@
    .t-store__card__*), поэтому правила выше её не касались вообще, это не
    баг применения, а изначально не покрытые селекторы.
    -------------------------------------------------------------------------- */
-.t-store__prod-popup__name {
-  font-family: var(--uf-font-display) !important;
+.t-store__prod-popup__name,
+.t-store__prod-popup__name * {
+  font-family: var(--uf-font-heading) !important;
+  font-weight: 700 !important;
   color: var(--uf-oxblood) !important;
 }
 
@@ -195,12 +219,15 @@
   font-family: var(--uf-font-ui) !important;
 }
 
-/* Заголовки «НОВИНКИ» и «BESTSELLER» над секциями на главной — свободный
-   Zero-блок Tilda (.tn-atom), поэтому селектор нарочно завязан на ID
-   конкретного блока, а не на общий .tn-atom (тот класс используется
-   для любого текста в конструкторе Tilda и трогать его глобально нельзя) */
+/* Заголовки «НОВИНКИ», «BESTSELLER» и «HOT SALE» над секциями на главной —
+   свободный Zero-блок Tilda (.tn-atom), поэтому селектор нарочно завязан
+   на ID конкретного блока, а не на общий .tn-atom (тот класс используется
+   для любого текста в конструкторе Tilda и трогать его глобально нельзя).
+   HOT SALE (#rec1123618876) добавлен в v5 — раньше не был покрыт вообще,
+   поэтому оставался NeutralFace несмотря на все предыдущие правки. */
 #rec1123623861 .tn-atom,
-#rec504664503 .tn-atom {
+#rec504664503 .tn-atom,
+#rec1123618876 .tn-atom {
   font-family: var(--uf-font-ui) !important;
 }
 
@@ -212,8 +239,10 @@
 /* Баннер «Доставка с примеркой по всей России» — крупный заголовок на
    тёмной подложке, тот же приём, что у промо-баннера главной (дисплейный
    шрифт + бледный цвет вместо чистого белого) */
-#rec1717044771 .tn-atom {
-  font-family: var(--uf-font-display) !important;
+#rec1717044771 .tn-atom,
+#rec1717044771 .tn-atom * {
+  font-family: var(--uf-font-heading) !important;
+  font-weight: 700 !important;
   color: var(--uf-pale) !important;
 }
 
@@ -224,10 +253,12 @@
 }
 
 /* Подпись-тег под названием товара в карточке каталога, напр.
-   «[ драматичная штучка ]» — голос бренда, роль Body, курсивом */
+   «[ драматичная штучка ]» — голос бренда, роль Body. В v4 стоял курсив,
+   клиент попросил убрать («было лучше без курсива») — в v5 прямое
+   начертание, гарнитура Body (PT Serif) остаётся */
 .js-store-prod-descr {
   font-family: var(--uf-font-body) !important;
-  font-style: italic;
+  font-style: normal !important;
 }
 
 /* Страница товара: подпись «р.» рядом с ценой — тот же ряд, что и цена */
