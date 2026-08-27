@@ -506,6 +506,21 @@
 .t-store__card-list .t-store__grid-separator {
   display: none !important;
 }
+
+/* Карточки должны доходить до самого края экрана (как в макете и у Namelazz).
+   На мобильном Tilda добавляет свои боковые отступы через медиазапросы, поэтому
+   обнуляем их явно на всех ширинах — на десктопе это уже 0, так что там no-op. */
+.t951,
+.js-store-cont-w-filter,
+.t951__cont-wrapper,
+.t-store__card-list {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+.t-store__card-list .t-store__card {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
 .t-store__card-list .t-store__card {
   box-sizing: border-box !important;
   width: calc(50% - 1.5px) !important;   /* 2 в ряд — как в макете (ширина макета 1440) */
