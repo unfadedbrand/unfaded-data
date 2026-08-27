@@ -544,6 +544,18 @@
 .uf-dm-panel {
   margin-top: 13px !important;
 }
+/* Отступ выше создаёт зазор между пунктом меню и панелью, на котором курсор
+   терял наведение и панель закрывалась. Перекрываем зазор прозрачным
+   «мостиком» — панель остаётся на месте, но наведение не рвётся. */
+.uf-dm-panel::before {
+  content: '' !important;
+  position: absolute !important;
+  top: -14px !important;
+  left: 0 !important;
+  right: 0 !important;
+  height: 14px !important;
+  background: transparent !important;
+}
 
 /* В макете в шапке только поиск и корзина. Личного кабинета нет, избранное
    пока не согласовано — прячем иконку «сердце» вместе с её пунктом списка,
@@ -564,10 +576,10 @@
       поиск и корзина). WhatsApp при этом остаётся доступен — плавающая кнопка
       в правом нижнем углу никуда не девается. */
 #uf-desktop-menu {
-  background: var(--uf-color-paper) !important;
+  background: #FFFFFF !important;
 }
 .t451__container__bg {
-  background-color: var(--uf-color-paper) !important;
+  background-color: #FFFFFF !important;
 }
 .t-menuwidgeticons__icon-counter.js-carticon-counter {
   background-color: var(--uf-color-accent) !important;
@@ -587,7 +599,7 @@
    настроек блока (#rec788252636). Цвет кнопки меняется в редакторе Tilda,
    в настройках блока корзины, а не здесь. */
 .t706__cartpage {
-  background: var(--uf-color-paper) !important;
+  background: #FFFFFF !important;
 }
 .t706__cartpage .t-input,
 .t706__cartpage .t-input-title,
@@ -596,7 +608,7 @@
   font-family: var(--uf-font-ui) !important;
 }
 .t706__cartpage .t-input {
-  background: var(--uf-color-paper) !important;
+  background: #FFFFFF !important;
   border: 1px solid rgba(23,9,11,.25) !important;
   color: var(--uf-color-ink) !important;
 }
@@ -639,8 +651,8 @@
 .t-store__card__title:not(#uf-spec-boost) {
   color: var(--uf-color-paper) !important;
   font-family: var(--uf-font-body) !important;
-  font-size: 10px !important;
-  line-height: 14px !important;
+  font-size: 13px !important;
+  line-height: 18px !important;
   letter-spacing: 0.064em !important;
   font-weight: 400 !important;
   text-transform: none !important;
@@ -652,14 +664,14 @@
 }
 .t-store__card__price:not(#uf-spec-boost) {
   color: rgba(247,244,239,.55) !important;
-  font-size: 10px !important;
-  line-height: 14px !important;
+  font-size: 13px !important;
+  line-height: 18px !important;
   letter-spacing: 0.064em !important;
 }
 .t-store__card__price_old:not(#uf-spec-boost2) {
   color: rgba(247,244,239,.4) !important;
-  font-size: 10px !important;
-  line-height: 14px !important;
+  font-size: 13px !important;
+  line-height: 18px !important;
   text-decoration: line-through !important;
   margin-right: 8px !important;
 }
@@ -670,19 +682,31 @@
 
 /* --- Общие цветовые токены (Этап 2) --- */
 /* Фон страниц: на карточке товара Tilda ставит белый, поэтому !important. */
-body:not(#uf-bg-boost), .t-body { background: var(--uf-color-paper) !important; }
+/* Ред.: бежевый фон убран по решению клиента — везде, где он стоял, теперь белый.
+   Токен --uf-color-paper при этом остаётся бледным: он же используется как ЦВЕТ
+   ТЕКСТА на тёмной плашке карточек, там менять ничего не нужно. */
+body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
 
 /* Подзаголовок-тег товара «[ дерзкая грация ]» (поле «Описание» в Tilda,
    .t-store__card__descr) выводился тёмным #262626 на тёмной плашке и сливался
    с фоном. Ведём его как вторичный текст на тёмном. */
 .t-store__card .t-store__card__descr {
   color: rgba(247,244,239,.45) !important;
-  font-size: 10px !important;
-  line-height: 14px !important;
+  font-size: 12px !important;
+  line-height: 17px !important;
   letter-spacing: 0.064em !important;
   margin-bottom: 4px !important;
 }
 .t-card__title.t-title, .t-card__title.t-title *,
 #rec1717044771 .tn-atom, #rec1717044771 .tn-atom * {
   color: var(--uf-color-paper) !important;
+}
+
+/* На мобильном возвращаем размеры Namelazz (10px/14px) — там карточка вдвое
+   уже, и 13px уже не помещается в две строки названия. */
+@media (max-width: 640px) {
+  .t-store__card__title:not(#uf-spec-boost) { font-size: 10px !important; line-height: 14px !important; }
+  .t-store__card__price:not(#uf-spec-boost) { font-size: 10px !important; line-height: 14px !important; }
+  .t-store__card__price_old:not(#uf-spec-boost2) { font-size: 10px !important; line-height: 14px !important; }
+  .t-store__card .t-store__card__descr { font-size: 10px !important; line-height: 14px !important; }
 }
