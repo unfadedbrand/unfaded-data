@@ -541,6 +541,16 @@
 .uf-dm-panel {
   margin-top: 13px !important;
 }
+
+/* В макете в шапке только поиск и корзина. Личного кабинета нет, избранное
+   пока не согласовано — прячем иконку «сердце» вместе с её пунктом списка,
+   иначе от него остаётся пустое место шириной 24px. */
+.t-menuwidgeticons__icon:has(.t-menuwidgeticons__link_wishlist) {
+  display: none !important;
+}
+.t-menuwidgeticons__link_wishlist {
+  display: none !important;
+}
 .t-store__card-list .t-store__card {
   box-sizing: border-box !important;
   width: calc(50% - 1.5px) !important;   /* 2 в ряд — как в макете (ширина макета 1440) */
