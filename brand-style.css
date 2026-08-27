@@ -499,7 +499,10 @@
 }
 .t-store__card-list {
   background: var(--uf-color-ink) !important;
-  gap: 3px !important;
+  /* Ред.: вертикальный зазор убран полностью — как у Namelazz, где ряды идут
+     сплошняком. По горизонтали оставлен тонкий разрез 3px. */
+  column-gap: 3px !important;
+  row-gap: 0 !important;
 }
 /* Tilda вставляет между рядами служебные разделители .t-store__grid-separator
    с margin-bottom = значению «Вертикальный отступ между карточками» из настроек
@@ -606,15 +609,20 @@
 /* --- Плашка названия+цены под фото (в макете padding 16/20/22, линия сверху) */
 .t-store__card__textwrapper {
   background: var(--uf-color-ink) !important;
-  padding: 16px 20px 22px !important;
+  padding: 12px 15px 14px !important;
   border-top: 1px solid rgba(247,244,239,.14) !important;
 }
+/* Размеры сняты живым осмотром namelazz.com: название и цена 10px/14px,
+   разрядка 0.064em, обычное начертание. */
 .t-store__card__title:not(#uf-spec-boost) {
   color: var(--uf-color-paper) !important;
   font-family: var(--uf-font-body) !important;
-  font-size: 14px !important;
+  font-size: 10px !important;
+  line-height: 14px !important;
+  letter-spacing: 0.064em !important;
+  font-weight: 400 !important;
   text-transform: none !important;
-  margin-bottom: 8px !important;
+  margin-bottom: 4px !important;
 }
 .t-store__card__price-wrapper,
 .t-store__card .price-wrapper {
@@ -622,11 +630,14 @@
 }
 .t-store__card__price:not(#uf-spec-boost) {
   color: rgba(247,244,239,.55) !important;
-  font-size: 12px !important;
+  font-size: 10px !important;
+  line-height: 14px !important;
+  letter-spacing: 0.064em !important;
 }
 .t-store__card__price_old:not(#uf-spec-boost2) {
   color: rgba(247,244,239,.4) !important;
-  font-size: 12px !important;
+  font-size: 10px !important;
+  line-height: 14px !important;
   text-decoration: line-through !important;
   margin-right: 8px !important;
 }
