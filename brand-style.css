@@ -252,8 +252,11 @@
 #rec1123623861 .tn-atom,
 #rec504664503 .tn-atom,
 #rec1123618876 .tn-atom {
-  font-family: var(--uf-font-tag) !important;
-  letter-spacing: 0.08em !important;
+  /* Ред. 27.08 (вечер): в макете заголовки разделов — жирный PT Sans
+     (.uf-section-title), моноширинный PT Mono на них читался чужеродно. */
+  font-family: var(--uf-font-heading) !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.06em !important;
 }
 
 /* Полоса «При заказе от 30.000р доставка бесплатно!» под шапкой */
@@ -520,6 +523,16 @@
 .t-store__card-list .t-store__card {
   padding-left: 0 !important;
   padding-right: 0 !important;
+}
+
+/* «Нет в наличии» на карточке: у Tilda это ярко-оранжевый (#f95d51) шрифтом
+   NeutralFace — чужой и цвету, и типографике бренда. На тёмной плашке ведём
+   его как вторичный текст. */
+.t-store__card .t-store__card__sold-out-msg,
+.t-store__card .js-store-prod-sold-out {
+  color: rgba(247,244,239,.55) !important;
+  font-family: var(--uf-font-ui) !important;
+  font-size: 12px !important;
 }
 .t-store__card-list .t-store__card {
   box-sizing: border-box !important;
