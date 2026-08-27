@@ -651,12 +651,9 @@
 .t-store__card__title:not(#uf-spec-boost) {
   color: var(--uf-color-paper) !important;
   font-family: var(--uf-font-body) !important;
-  font-size: 13px !important;
-  line-height: 18px !important;
-  letter-spacing: 0.064em !important;
-  font-weight: 400 !important;
+  font-size: 14px !important;
   text-transform: none !important;
-  margin-bottom: 4px !important;
+  margin-bottom: 8px !important;
 }
 .t-store__card__price-wrapper,
 .t-store__card .price-wrapper {
@@ -664,14 +661,11 @@
 }
 .t-store__card__price:not(#uf-spec-boost) {
   color: rgba(247,244,239,.55) !important;
-  font-size: 13px !important;
-  line-height: 18px !important;
-  letter-spacing: 0.064em !important;
+  font-size: 12px !important;
 }
 .t-store__card__price_old:not(#uf-spec-boost2) {
   color: rgba(247,244,239,.4) !important;
-  font-size: 13px !important;
-  line-height: 18px !important;
+  font-size: 12px !important;
   text-decoration: line-through !important;
   margin-right: 8px !important;
 }
@@ -693,20 +687,12 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
 .t-store__card .t-store__card__descr {
   color: rgba(247,244,239,.45) !important;
   font-size: 12px !important;
-  line-height: 17px !important;
-  letter-spacing: 0.064em !important;
-  margin-bottom: 4px !important;
+  margin-bottom: 6px !important;
 }
 .t-card__title.t-title, .t-card__title.t-title *,
 #rec1717044771 .tn-atom, #rec1717044771 .tn-atom * {
   color: var(--uf-color-paper) !important;
 }
 
-/* На мобильном возвращаем размеры Namelazz (10px/14px) — там карточка вдвое
-   уже, и 13px уже не помещается в две строки названия. */
-@media (max-width: 640px) {
-  .t-store__card__title:not(#uf-spec-boost) { font-size: 10px !important; line-height: 14px !important; }
-  .t-store__card__price:not(#uf-spec-boost) { font-size: 10px !important; line-height: 14px !important; }
-  .t-store__card__price_old:not(#uf-spec-boost2) { font-size: 10px !important; line-height: 14px !important; }
-  .t-store__card .t-store__card__descr { font-size: 10px !important; line-height: 14px !important; }
-}
+/* Размеры текста в карточке возвращены к прежним (14px название / 12px цена):
+   эксперимент с размерами Namelazz (10px) вживую оказался слишком мелким. */
