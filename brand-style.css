@@ -669,7 +669,19 @@
 }
 
 /* --- Общие цветовые токены (Этап 2) --- */
-body, .t-body { background: var(--uf-color-paper); }
+/* Фон страниц: на карточке товара Tilda ставит белый, поэтому !important. */
+body:not(#uf-bg-boost), .t-body { background: var(--uf-color-paper) !important; }
+
+/* Подзаголовок-тег товара «[ дерзкая грация ]» (поле «Описание» в Tilda,
+   .t-store__card__descr) выводился тёмным #262626 на тёмной плашке и сливался
+   с фоном. Ведём его как вторичный текст на тёмном. */
+.t-store__card .t-store__card__descr {
+  color: rgba(247,244,239,.45) !important;
+  font-size: 10px !important;
+  line-height: 14px !important;
+  letter-spacing: 0.064em !important;
+  margin-bottom: 4px !important;
+}
 .t-card__title.t-title, .t-card__title.t-title *,
 #rec1717044771 .tn-atom, #rec1717044771 .tn-atom * {
   color: var(--uf-color-paper) !important;
