@@ -534,6 +534,13 @@
   font-family: var(--uf-font-ui) !important;
   font-size: 12px !important;
 }
+
+/* Выпадающая панель меню привязана к тексту пункта (top: 100%), а сам пункт —
+   15px внутри 42px полосы меню, поэтому панель открывалась на 13px выше нижнего
+   края меню и наезжала на белую полосу. Опускаем её вровень с краем меню. */
+.uf-dm-panel {
+  margin-top: 13px !important;
+}
 .t-store__card-list .t-store__card {
   box-sizing: border-box !important;
   width: calc(50% - 1.5px) !important;   /* 2 в ряд — как в макете (ширина макета 1440) */
