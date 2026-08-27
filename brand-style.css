@@ -472,54 +472,74 @@
      клавиатурной навигации, не видна обычному пользователю, на бренд не влияет
    - всё внутри .digi-dolyame-* — сторонний виджет рассрочки, вне нашего кода
    -------------------------------------------------------------------------- */
-/* === UNFADED — Этап 2: цвет + карточка «как у Namelazz» (27.08.2026) === */
+/* === UNFADED — Этап 2: цвет + карточка «как у Namelazz» (27.08.2026, ред. 2) === */
 :root {
-  --uf-color-ink: #17090B;      /* oxblood-black — hero/футер/тёмные секции */
-  --uf-color-paper: #F7F4EF;    /* бледный — весь путь покупки */
-  --uf-color-accent: #7A1F2A;   /* бордовый — ТОЛЬКО заливка/бордер/подчёркивание, никогда текстом на тёмном фоне */
+  --uf-color-ink: #17090B;      /* oxblood-black */
+  --uf-color-paper: #F7F4EF;    /* бледный */
+  --uf-color-accent: #7A1F2A;   /* бордовый — только заливка/бордер */
 }
 
-/* --- Карточка каталога/главной: тёмная плашка названия+цены под фото --- */
-/* .t-store__card подтверждён живым осмотром (unfaded-widget-status.md).
-   Название/цена/старая цена и сама плашка ниже — по уже найденным классам. */
+/* --- СЕТКА КАРТОЧЕК ---------------------------------------------------
+   Селекторы и размеры сняты живым осмотром 27.08 (не угаданы):
+   .js-store-grid-cont — t-container, max-width 1200px. В макете сетка идёт
+   во всю ширину экрана, поэтому ограничение снимаем.
+   .t-store__card-list — flex-wrap, реальный родитель карточек.
+   .t-store__card — t-col_6: width 560px + margin 0 20px = 600px, две ровно
+   1200px. Любой column-gap сверху даёт 1203 > 1200 и карточки срываются по
+   одной в ряд — поэтому поля обнуляем и задаём ширину calc(50% - 1.5px).
+   -------------------------------------------------------------------- */
+.js-store-grid-cont {
+  max-width: 100% !important;
+  width: 100% !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+.t-store__card-list {
+  background: var(--uf-color-ink) !important;
+  gap: 3px !important;
+}
+.t-store__card-list .t-store__card {
+  box-sizing: border-box !important;
+  width: calc(50% - 1.5px) !important;
+  max-width: none !important;
+  margin: 0 !important;
+}
+
+/* --- Плашка названия+цены под фото (в макете padding 16/20/22, линия сверху) */
 .t-store__card__textwrapper {
   background: var(--uf-color-ink) !important;
-  padding: 14px 16px 16px !important;
+  padding: 16px 20px 22px !important;
   border-top: 1px solid rgba(247,244,239,.14) !important;
 }
 .t-store__card__title:not(#uf-spec-boost) {
   color: var(--uf-color-paper) !important;
-  font-family: var(--uf-font-body) !important; /* PT Serif — как у остальных названий в сетке */
+  font-family: var(--uf-font-body) !important;
+  font-size: 14px !important;
   text-transform: none !important;
+  margin-bottom: 8px !important;
 }
 .t-store__card__price-wrapper,
 .t-store__card .price-wrapper {
-  color: rgba(247,244,239,.7) !important;
+  color: rgba(247,244,239,.55) !important;
 }
-.t-store__card__price { color: rgba(247,244,239,.85) !important; }
-.t-store__card__price_old:not(#uf-spec-boost2) { color: rgba(247,244,239,.45) !important; text-decoration: line-through !important; }
-
-/* Кружки цвета, которые вставляет JS-виджет внутрь price-wrapper — оставляем позицию,
-   только чиним обводку под тёмный фон (сейчас скорее всего рассчитана на светлый). */
+.t-store__card__price:not(#uf-spec-boost) {
+  color: rgba(247,244,239,.55) !important;
+  font-size: 12px !important;
+}
+.t-store__card__price_old:not(#uf-spec-boost2) {
+  color: rgba(247,244,239,.4) !important;
+  font-size: 12px !important;
+  text-decoration: line-through !important;
+  margin-right: 8px !important;
+}
 .t-store__card .price-wrapper [class*="swatch"],
 .t-store__card .price-wrapper [class*="color"] {
   box-shadow: 0 0 0 1px rgba(247,244,239,.35) !important;
 }
 
-/* Сетка карточек — сплошной тёмный фон, чтобы промежутки между карточками читались
-   как единое тёмное пятно (эффект Namelazz). ⚠️ ТОЧНЫЙ класс обёртки сетки нужно
-   снять живым осмотром — см. «Как найти класс» ниже. Ставим общий, часто верный
-   вариант — если не сработает, замените селектор на найденный. */
-.t-store__card-list {
-  background: var(--uf-color-ink) !important;
-  gap: 3px !important;
-}
-
-/* --- Общие цветовые токены на путь покупки (Этап 2) --- */
+/* --- Общие цветовые токены (Этап 2) --- */
 body, .t-body { background: var(--uf-color-paper); }
-/* Хиро/промо-баннер и футер — тёмный регистр (уже задан в вёрстке блока Tilda,
-   здесь только гарантируем текст поверх): */
-.t-card__title.t-title, .t-card__title.t-title * ,
+.t-card__title.t-title, .t-card__title.t-title *,
 #rec1717044771 .tn-atom, #rec1717044771 .tn-atom * {
   color: var(--uf-color-paper) !important;
 }
