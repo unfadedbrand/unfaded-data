@@ -551,6 +551,41 @@
 .t-menuwidgeticons__link_wishlist {
   display: none !important;
 }
+
+/* --- ЧЕКАУТ (страница корзины .t706__cartpage) -----------------------------
+   Этап 1 сознательно не трогал нативную форму Tilda, поэтому весь чекаут
+   оставался на дефолтном NeutralFace и белом фоне. Здесь приводим его к макету
+   (Cart.dc.html): бледный фон, PT Sans в интерфейсе, поля в бренд-цветах.
+   Меняем только оформление — разметку и JS-хуки Tilda не трогаем.
+   ВАЖНО: тёмный фон кнопки «Оформить заказ» через CSS не переопределяется —
+   проверено вплоть до максимальной специфичности, Tilda навязывает его из
+   настроек блока (#rec788252636). Цвет кнопки меняется в редакторе Tilda,
+   в настройках блока корзины, а не здесь. */
+.t706__cartpage {
+  background: var(--uf-color-paper) !important;
+}
+.t706__cartpage .t-input,
+.t706__cartpage .t-input-title,
+.t706__cartpage .t-descr,
+.t706__cartpage .t-name {
+  font-family: var(--uf-font-ui) !important;
+}
+.t706__cartpage .t-input {
+  background: var(--uf-color-paper) !important;
+  border: 1px solid rgba(23,9,11,.25) !important;
+  color: var(--uf-color-ink) !important;
+}
+.t706__cartpage .t-name_md {
+  font-family: var(--uf-font-heading) !important;
+  font-weight: 700 !important;
+  color: var(--uf-color-ink) !important;
+}
+.t706__cartpage .t-submit .t-btnflex__text {
+  font-family: var(--uf-font-ui) !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.06em !important;
+  text-transform: uppercase !important;
+}
 .t-store__card-list .t-store__card {
   box-sizing: border-box !important;
   width: calc(50% - 1.5px) !important;   /* 2 в ряд — как в макете (ширина макета 1440) */
