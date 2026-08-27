@@ -500,9 +500,19 @@
 }
 .t-store__card-list .t-store__card {
   box-sizing: border-box !important;
-  width: calc(50% - 1.5px) !important;
+  width: calc(50% - 1.5px) !important;   /* 2 в ряд — как в макете (ширина макета 1440) */
   max-width: none !important;
   margin: 0 !important;
+}
+/* На широких мониторах держим ФИЗИЧЕСКИЙ размер карточки близким к макетному
+   (~640-720px по ширине), а не растягиваем две карточки на весь экран: иначе на
+   2560px карточка выходит 1271x1700px и до цены нужно долго скроллить.
+   Зазор 3px учтён в calc: N колонок => (N-1)*3px суммарно. */
+@media (min-width: 1601px) {
+  .t-store__card-list .t-store__card { width: calc(33.3333% - 2px) !important; }
+}
+@media (min-width: 2200px) {
+  .t-store__card-list .t-store__card { width: calc(25% - 2.25px) !important; }
 }
 
 /* --- Плашка названия+цены под фото (в макете padding 16/20/22, линия сверху) */
