@@ -497,7 +497,7 @@
   color: rgba(247,244,239,.7) !important;
 }
 .t-store__card__price { color: rgba(247,244,239,.85) !important; }
-.t-store__card__price_old { color: rgba(247,244,239,.45) !important; }
+.t-store__card__price_old { color: rgba(247,244,239,.45) !important; text-decoration: line-through !important; }
 
 /* Кружки цвета, которые вставляет JS-виджет внутрь price-wrapper — оставляем позицию,
    только чиним обводку под тёмный фон (сейчас скорее всего рассчитана на светлый). */
