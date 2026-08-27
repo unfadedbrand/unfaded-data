@@ -16,6 +16,15 @@
    Проверено живым осмотром unfadedstore.com 27.08.2026 (только чтение
    опубликованного сайта, без входа в админку) — все селекторы ниже сняты
    с реальных элементов, а не предположены.
+
+   ВАЖНО (найдено живой проверкой после первой установки 27.08.2026):
+   часть блоков Tilda стилизует через встроенный <style> с селектором вида
+   "#recXXXXXXX .t-card__title" — то есть с ID блока. ID в CSS всегда
+   перевешивает любое число классов, поэтому обычные классовые правила
+   ниже проигрывают. Все объявления помечены !important, чтобы гарантированно
+   выигрывать независимо от того, сколько классов или ID использует Tilda —
+   правила Tilda нигде не помечены !important (проверено), так что конфликта
+   не будет. Это же правило справедливо для всех следующих этапов (2–4).
    ========================================================================== */
 
 @import url('https://fonts.googleapis.com/css2?family=Cormorant:wght@400;500;600&family=PT+Serif:ital,wght@0,400;1,400&family=PT+Sans:wght@400;700&family=PT+Mono&display=swap');
@@ -39,12 +48,12 @@
    Мегаменю (шапка) — .uf-dm-link / .uf-dm-panel-link, наш собственный код
    -------------------------------------------------------------------------- */
 .uf-dm-link {
-  font-family: var(--uf-font-ui);
-  color: var(--uf-oxblood);
+  font-family: var(--uf-font-ui) !important;
+  color: var(--uf-oxblood) !important;
 }
 .uf-dm-panel-link {
-  font-family: var(--uf-font-ui);
-  color: var(--uf-ink-secondary);
+  font-family: var(--uf-font-ui) !important;
+  color: var(--uf-ink-secondary) !important;
 }
 
 /* --------------------------------------------------------------------------
@@ -52,16 +61,16 @@
    Крупный текст на тёмной подложке — безопасно переводить в дисплейный шрифт
    -------------------------------------------------------------------------- */
 .t-card__title.t-title.t-title_xxs {
-  font-family: var(--uf-font-display);
-  color: var(--uf-pale);
+  font-family: var(--uf-font-display) !important;
+  color: var(--uf-pale) !important;
 }
 
 /* --------------------------------------------------------------------------
    Заголовок раздела «Категории товаров» (.js-block-header-title.t-section__title)
    -------------------------------------------------------------------------- */
 .js-block-header-title.t-section__title {
-  font-family: var(--uf-font-display);
-  color: var(--uf-oxblood);
+  font-family: var(--uf-font-display) !important;
+  color: var(--uf-oxblood) !important;
 }
 
 /* --------------------------------------------------------------------------
@@ -69,8 +78,8 @@
    (.t-card__title.t-name.t-name_md) — мелкий текст, оставляем в UI-гарнитуре
    -------------------------------------------------------------------------- */
 .t-card__title.t-name.t-name_md {
-  font-family: var(--uf-font-ui);
-  color: var(--uf-ink-secondary);
+  font-family: var(--uf-font-ui) !important;
+  color: var(--uf-ink-secondary) !important;
 }
 
 /* --------------------------------------------------------------------------
@@ -79,8 +88,8 @@
    меняем отдельным этапом вместе с высотой карточки)
    -------------------------------------------------------------------------- */
 .js-store-prod-name.t-store__card__title {
-  font-family: var(--uf-font-ui);
-  color: var(--uf-oxblood);
+  font-family: var(--uf-font-ui) !important;
+  color: var(--uf-oxblood) !important;
 }
 
 /* --------------------------------------------------------------------------
@@ -90,7 +99,7 @@
 .t-store__card__price,
 .t-store__card__price_old,
 .t-store__card__sku {
-  font-family: var(--uf-font-mono);
+  font-family: var(--uf-font-mono) !important;
   font-variant-numeric: tabular-nums;
 }
 
@@ -99,7 +108,7 @@
    Цвет НЕ трогаем на этом этапе — не проверяли фон футера живьём под WCAG
    -------------------------------------------------------------------------- */
 .t420__title.t-name.t-name_xs {
-  font-family: var(--uf-font-ui);
+  font-family: var(--uf-font-ui) !important;
 }
 
 /* --------------------------------------------------------------------------
@@ -107,7 +116,7 @@
    по единому компоненту кнопки, сейчас 3 разных радиуса и 4 разных веса)
    -------------------------------------------------------------------------- */
 .t-btn {
-  font-family: var(--uf-font-ui);
+  font-family: var(--uf-font-ui) !important;
 }
 
 /* --------------------------------------------------------------------------
@@ -115,7 +124,7 @@
    Times New Roman (стиль не задан вообще) — чиним заодно
    -------------------------------------------------------------------------- */
 .t-store__relevants__title-wrapper {
-  font-family: var(--uf-font-ui);
+  font-family: var(--uf-font-ui) !important;
 }
 
 /* --------------------------------------------------------------------------
