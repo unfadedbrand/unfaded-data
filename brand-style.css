@@ -555,6 +555,28 @@
   display: none !important;
 }
 
+/* --- ШАПКА ------------------------------------------------------------------
+   1. Единый фон. Полоса меню (#uf-desktop-menu, из JS-виджета) была белой
+      rgba(255,255,255,.94), а блок с логотипом (.t451__container__bg) —
+      прозрачным, отсюда «на одних страницах белая, на других бежевая».
+   2. Счётчик корзины у Tilda тёмно-серый (#262626) — в макете он бордовый.
+   3. Кружки WhatsApp и почты в шапке в макете не предусмотрены (там только
+      поиск и корзина). WhatsApp при этом остаётся доступен — плавающая кнопка
+      в правом нижнем углу никуда не девается. */
+#uf-desktop-menu {
+  background: var(--uf-color-paper) !important;
+}
+.t451__container__bg {
+  background-color: var(--uf-color-paper) !important;
+}
+.t-menuwidgeticons__icon-counter.js-carticon-counter {
+  background-color: var(--uf-color-accent) !important;
+  color: var(--uf-color-paper) !important;
+}
+.t451__side_socials {
+  display: none !important;
+}
+
 /* --- ЧЕКАУТ (страница корзины .t706__cartpage) -----------------------------
    Этап 1 сознательно не трогал нативную форму Tilda, поэтому весь чекаут
    оставался на дефолтном NeutralFace и белом фоне. Здесь приводим его к макету
