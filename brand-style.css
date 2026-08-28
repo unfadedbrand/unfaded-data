@@ -591,9 +591,21 @@
    иконки поиска/корзины пропадали, а колонка схлопывалась в 0px и логотип
    (центрированный внутри своей центральной колонки) визуально уезжал вправо.
    Теперь скрываем только соцссылки внутри этой колонки, саму колонку
-   оставляем на месте. */
-.t451__side_socials {
-  display: flex !important;
+   оставляем на месте.
+   ИСПРАВЛЕНО ЕЩЁ РАЗ (28.08, ночь #3): display:flex!important был БЕЗ
+   медиа-условия, то есть действовал и на мобильном. На мобильном у Тильды
+   .t451__side_socials в норме СКРЫТА своим же адаптивным CSS — иконки
+   поиска/корзины там дублируются другим виджетом внутри
+   .t451__burger-wrapper__mobile (рядом с гамбургером). Форсируя
+   display:flex на этой колонке безусловно, мы вернули её на мобильном
+   тоже — получились ДВА набора иконок поиска+корзины рядом в шапке
+   (подтверждено скриншотом пользователя и живой проверкой на 390px).
+   Правило нужно ТОЛЬКО на десктопе (где своя мобильная копия иконок
+   вообще не существует в DOM) — сужаем через min-width. */
+@media screen and (min-width: 640px) {
+  .t451__side_socials {
+    display: flex !important;
+  }
 }
 .t451__side_socials .t-sociallinks {
   display: none !important;
@@ -866,7 +878,8 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
     display: none !important;
   }
   .t-store__card__title:not(#uf-spec-boost),
-  .t-store__card__price:not(#uf-spec-boost) {
+  .t-store__card__price:not(#uf-spec-boost),
+  .t-store__card__price_old:not(#uf-spec-boost2) {
     font-size: 10px !important;
     line-height: 14px !important;
     letter-spacing: 0.064em !important;
@@ -876,6 +889,23 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
   }
   .t-store__card__price-currency {
     --uf-currency-fs: 10px;
+  }
+  /* НАЙДЕНО 28.08 (правка №3): правило выше исторически задавало 10px только
+     текущей цене (.t-store__card__price) — у зачёркнутой старой цены
+     (.t-store__card__price_old) оставался безусловный десктопный размер
+     12px (см. правило выше по файлу), поэтому на карточке со скидкой текущая
+     и старая цена были разного кегля и визуально "прыгали" друг относительно
+     друга в одной строке (разная высота строки при одинаковом контейнере).
+     .t-store__card__price_old добавлен в правило выше; здесь дополнительно
+     выравниваем всю строку цены по единой базовой линии и даём внятный зазор
+     между текущей и зачёркнутой ценой (было почти впритык, 2-3px). */
+  .t-store__card__price-wrapper,
+  .t-store__card .price-wrapper {
+    align-items: center !important;
+  }
+  .t-store__card__price_old:not(#uf-spec-boost2) {
+    margin-left: 6px !important;
+    margin-right: 0 !important;
   }
 }
 
