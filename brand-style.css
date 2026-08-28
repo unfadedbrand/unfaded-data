@@ -1085,3 +1085,9 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
 #rec1542845921 .t396__filter {
   display: none !important;
 }
+
+/* Форма попапа подписки — .tn-atom__form у Тильды display:table, из-за чего добавленная JS-ссылка
+   "Нет, спасибо" (uf-popup-dismiss) вставала как таблица-ячейка рядом с email, а не под кнопкой. */
+#rec1542845921 .tn-atom__form {
+  display: block !important;
+}
