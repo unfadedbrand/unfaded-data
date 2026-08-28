@@ -12,10 +12,39 @@
   var HEADING_SEL = '.tn-elem__15428459211762791192110 .tn-atom';
   var SUB_SEL = '.tn-elem__15428459211762791328198 .tn-atom';
   var FORM_SEL = '.tn-elem__15428459211762791428253';
-  var HEADING_TEXT = 'Ранний доступ к новым дропам и \u221210% на первый заказ';
-  var SUB_TEXT = 'Подпишитесь на письма UNFADED \u2014 без спама, только новые коллекции и закрытые продажи.';
+  var FORM_TAG_SEL = '#rec1542845921 form';
+  var HEADING_TEXT = 'Ранний доступ к новым дропам и −10% на первый заказ';
+  var SUB_TEXT = 'Подпишитесь на письма UNFADED — без спама, только новые коллекции и закрытые продажи.';
   var EYEBROW_TEXT = 'Будьте первыми';
   var DISMISS_TEXT = 'Нет, спасибо';
+
+  // Поле "Имя" скрыто через CSS (в макете попапа его нет — только email и
+  // согласие), но само ПОЛЕ УДАЛЕНО НЕ БЫЛО, и форма настроена в Тильде как
+  // обязательное для заполнения на СТОРОНЕ СЕРВЕРА (проверяется бэкендом
+  // forms.tildaapi.com/procces/, а не JS-атрибутом data-tilda-req на самом
+  // input — того на этом поле никогда не было). Поэтому реальная отправка
+  // с пустым скрытым полем "Имя" падала с ошибкой "Заполните обязательные
+  // поля: name", хотя в браузере всё выглядело заполненным. Перед отправкой
+  // подставляем туда часть email до @ (или заглушку, если email не похож на
+  // почту) — так сервер получает непустое значение и форма проходит.
+  function ensureNameFallback(form) {
+    if (!form || form.__ufNameFallbackBound) return;
+    form.__ufNameFallbackBound = true;
+    form.addEventListener(
+      'submit',
+      function () {
+        var nameInput = form.querySelector('input[name="name"]');
+        if (!nameInput || nameInput.value.trim()) return;
+        var emailInput = form.querySelector('input[name="email"]');
+        var fallback = 'Подписчик';
+        if (emailInput && emailInput.value && emailInput.value.indexOf('@') > -1) {
+          fallback = emailInput.value.split('@')[0];
+        }
+        nameInput.value = fallback;
+      },
+      true
+    );
+  }
 
   function apply() {
     var heading = document.querySelector(HEADING_SEL);
@@ -52,6 +81,8 @@
       });
       formElem.appendChild(link);
     }
+
+    ensureNameFallback(document.querySelector(FORM_TAG_SEL));
 
     return true;
   }
