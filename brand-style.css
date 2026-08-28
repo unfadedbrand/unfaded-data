@@ -786,3 +786,18 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
   fill: var(--uf-color-paper) !important;
   stroke: var(--uf-color-paper) !important;
 }
+
+
+/* === UNFADED — попап подписки: доп. фикс крестика и логотипа (28.08.2026) === */
+/* Крестик закрытия — заливка на вложенных <g>/<rect>, не только на <svg> */
+.t-popup[data-popup-rec-ids="rec1542845921"] .t-popup__close-wrapper svg,
+.t-popup[data-popup-rec-ids="rec1542845921"] .t-popup__close-wrapper svg g,
+.t-popup[data-popup-rec-ids="rec1542845921"] .t-popup__close-wrapper svg * {
+  fill: var(--uf-color-paper) !important;
+  stroke: var(--uf-color-paper) !important;
+}
+
+/* Логотип UNFADED в попапе — тёмная PNG-версия, на тёмном фоне невидима: инвертируем в светлую */
+#rec1542845921 .tn-elem[data-elem-id="1762791157921"] img {
+  filter: invert(1) brightness(1.6) !important;
+}
