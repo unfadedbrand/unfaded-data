@@ -17,6 +17,10 @@
   var SUB_TEXT = 'Подпишитесь на письма UNFADED — без спама, только новые коллекции и закрытые продажи.';
   var EYEBROW_TEXT = 'Будьте первыми';
   var DISMISS_TEXT = 'Нет, спасибо';
+  var FOOTER_SEL = '#t-footer';
+  var POPUP_WRAP_SEL = '#rec1542842021';
+  var CONTAINER_SEL = '.t-popup[data-popup-rec-ids="rec1542845921"] .t-popup__container';
+  var MOBILE_BREAKPOINT = 639;
 
   // Поле "Имя" скрыто через CSS (в макете попапа его нет — только email и
   // согласие), но само ПОЛЕ УДАЛЕНО НЕ БЫЛО. Оно required с ДВУХ независимых
@@ -71,6 +75,75 @@
     }
   }
 
+  // Попап подписки (rec1542845921) живёт внутри своей обёртки rec1542842021
+  // (T1093, popup-модуль) — она подключена как один из глобальных блоков
+  // сайта и физически лежит внутри <footer id="t-footer">, вместе с
+  // остальными глобальными записями (боковая корзина, чекаут-панель и т.д.).
+  // На мобильном (≤639px) попап превращается в статичный блок в потоке
+  // документа (position:static — см. brand-style.css), поэтому его порядок
+  // в DOM определяет, где он визуально появится. По умолчанию Тильда ставит
+  // его ПОСЛЕ настоящего футера (rec1777413841 — логотип, колонки, копирайт),
+  // из-за чего блок подписки оказывается в самом низу страницы, после всего
+  // остального, а не над футером, как задумано в макете. Переставляем
+  // обёртку попапа на первое место внутри <footer>, чтобы на мобильном она
+  // рисовалась НАД настоящим футером. На десктопе попап — position:fixed
+  // модалка поверх всего экрана, её порядок в DOM визуально ни на что не
+  // влияет, поэтому переставлять безопасно независимо от ширины экрана.
+  function ensureFooterPosition() {
+    var footer = document.querySelector(FOOTER_SEL);
+    var popupWrap = document.querySelector(POPUP_WRAP_SEL);
+    if (!footer || !popupWrap) return;
+    if (footer.firstElementChild !== popupWrap) {
+      footer.insertBefore(popupWrap, footer.firstElementChild);
+    }
+  }
+
+  // НАЙДЕНО живой проверкой 28.08 (ночь): на мобильном блок занимал место в
+  // layout (правильная высота), но был полностью невидим — просто белое
+  // пустое пространство. Причина: класс "t-popup-anim-fadein" у Тильды
+  // навешивает на .t-popup__container CSS-transition для opacity, и элемент
+  // стартует с opacity:0 — в норме JS Тильды при РЕАЛЬНОМ триггере попапа
+  // меняет значение, и transition плавно доводит opacity до 1. На мобильном
+  // блок никогда не триггерится штатным образом (мы просто форсируем
+  // display:block через CSS), поэтому transition остаётся "подвешенным" на
+  // opacity:0 навсегда. Важный нюанс: пока CSS-transition в таком состоянии
+  // активен, он перебивает ЛЮБОЕ правило author-стилей на opacity — даже
+  // с !important и даже если добавить его позже по каскаду (проверено:
+  // добавление <style>opacity:1!important</style> эффекта не дало). Реально
+  // помогает только отменить сам transition через Web Animations API
+  // (element.getAnimations()[0].cancel()) — после этого браузер берёт
+  // значение из обычных CSS-правил, и opacity:1 из brand-style.css
+  // применяется. Строго ограничено мобильной шириной — на десктопе этот
+  // же transition отвечает за штатную плавную анимацию появления попапа
+  // по реальному триггеру (скролл), трогать его там нельзя.
+  function ensureMobileVisible() {
+    if (window.innerWidth > MOBILE_BREAKPOINT) return;
+    var container = document.querySelector(CONTAINER_SEL);
+    if (!container) return;
+    if (getComputedStyle(container).opacity !== '1') {
+      // ВАЖНО: порядок операций имеет значение. Установка inline opacity САМА
+      // ПО СЕБЕ запускает новый CSS-transition (т.к. на элементе есть
+      // transition-property: opacity от класса Тильды), поэтому если сначала
+      // отменить старый transition, а потом установить style — созданный этим
+      // же вызовом НОВЫЙ transition остаётся активным и снова держит opacity
+      // на 0 до следующего тика (проверено вживую — с порядком
+      // cancel()-затем-set() opacity бесконечно "подвисает" на 0, тик за
+      // тиком). Правильный порядок — сначала установить style (что создаёт
+      // transition), затем сразу отменить именно его — тогда browser
+      // мгновенно берёт значение из style-каскада (opacity:1) без анимации.
+      container.style.setProperty('opacity', '1', 'important');
+      if (container.getAnimations) {
+        container.getAnimations().forEach(function (a) {
+          try {
+            a.cancel();
+          } catch (e) {
+            /* noop */
+          }
+        });
+      }
+    }
+  }
+
   function apply() {
     var heading = document.querySelector(HEADING_SEL);
     var sub = document.querySelector(SUB_SEL);
@@ -108,6 +181,8 @@
     }
 
     ensureNameFallback(document.querySelector(FORM_TAG_SEL));
+    ensureFooterPosition();
+    ensureMobileVisible();
 
     return true;
   }
@@ -123,4 +198,16 @@
     tries += 1;
     if (tries > 40) clearInterval(iv);
   }, 500);
+
+  // Подстраховка на смену ориентации/ресайз уже после того, как основной
+  // интервал выше остановился (40 тиков ~20с) — на случай, если другой
+  // скрипт Тильды переставит DOM обратно.
+  var resizeTimer;
+  window.addEventListener('resize', function () {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(function () {
+      ensureFooterPosition();
+      ensureMobileVisible();
+    }, 300);
+  });
 })();
