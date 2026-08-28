@@ -696,3 +696,93 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
 
 /* Размеры текста в карточке возвращены к прежним (14px название / 12px цена):
    эксперимент с размерами Namelazz (10px) вживую оказался слишком мелким. */
+
+
+/* === UNFADED — попап подписки (Zero Block T396, rec1542845921): тёмный регистр + фирменные шрифты (28.08.2026) === */
+
+/* Фон canvas попапа */
+#rec1542845921 .t396__artboard,
+#rec1542845921 .t396__filter {
+  background-color: var(--uf-color-ink) !important;
+}
+
+/* Заголовок "Твой промокод..." */
+#rec1542845921 .tn-elem[data-elem-id="1762791192110"] .tn-atom {
+  font-family: var(--uf-font-heading) !important;
+  color: var(--uf-color-paper) !important;
+}
+
+/* Подзаголовок "Подпишись на рассылку..." */
+#rec1542845921 .tn-elem[data-elem-id="1762791328198"] .tn-atom {
+  font-family: var(--uf-font-body) !important;
+  font-style: italic !important;
+  color: rgba(247,244,239,.65) !important;
+}
+
+/* Поля формы: Имя / E-mail / Дата рождения (инлайновые стили Тильды — только !important их бьёт) */
+#rec1542845921 .t-input {
+  background-color: transparent !important;
+  border: none !important;
+  border-bottom: 1px solid rgba(247,244,239,.35) !important;
+  color: var(--uf-color-paper) !important;
+  font-family: var(--uf-font-ui) !important;
+}
+#rec1542845921 .t-input::placeholder {
+  color: rgba(247,244,239,.45) !important;
+}
+
+/* Телефон — отдельная обёртка с флагом (тоже инлайновые стили) */
+#rec1542845921 .t-input-phonemask__wrap {
+  background-color: transparent !important;
+  border: none !important;
+  border-bottom: 1px solid rgba(247,244,239,.35) !important;
+  color: var(--uf-color-paper) !important;
+}
+#rec1542845921 .t-input-phonemask__wrap input {
+  color: var(--uf-color-paper) !important;
+  font-family: var(--uf-font-ui) !important;
+}
+#rec1542845921 .t-input-phonemask__wrap input::placeholder {
+  color: rgba(247,244,239,.45) !important;
+}
+#rec1542845921 .t-input-phonemask__select-code,
+#rec1542845921 .t-input-phonemask__select-triangle {
+  color: var(--uf-color-paper) !important;
+}
+
+/* Иконка календаря у "Дата рождения" (SVG-атрибут fill, а не style) */
+#rec1542845921 .t-datepicker__icon {
+  fill: rgba(247,244,239,.55) !important;
+}
+
+/* Чекбокс согласия на обработку персональных данных */
+#rec1542845921 .t-checkbox__indicator {
+  border: 1px solid rgba(247,244,239,.45) !important;
+  background-color: transparent !important;
+}
+#rec1542845921 .t-checkbox__control {
+  color: rgba(247,244,239,.5) !important;
+  font-family: var(--uf-font-ui) !important;
+}
+#rec1542845921 .t-checkbox__control a {
+  color: rgba(247,244,239,.75) !important;
+  border-bottom: 1px solid rgba(247,244,239,.35) !important;
+}
+
+/* Кнопка "Подписаться" */
+#rec1542845921 .t-submit {
+  background-color: var(--uf-color-accent) !important;
+  color: var(--uf-color-paper) !important;
+  font-family: var(--uf-font-heading) !important;
+  text-transform: uppercase !important;
+  letter-spacing: .06em !important;
+}
+
+/* Крестик закрытия — светлый на тёмном фоне (только у этого попапа, по data-popup-rec-ids) */
+.t-popup[data-popup-rec-ids="rec1542845921"] .t-popup__close-wrapper {
+  color: var(--uf-color-paper) !important;
+}
+.t-popup[data-popup-rec-ids="rec1542845921"] .t-popup__close-wrapper svg {
+  fill: var(--uf-color-paper) !important;
+  stroke: var(--uf-color-paper) !important;
+}
