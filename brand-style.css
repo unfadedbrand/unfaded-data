@@ -887,8 +887,14 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
 .t-store__card__price-currency {
   --uf-currency-fs: 12px;
   font-size: 0 !important;
+  margin-left: 4px !important;
 }
 .t-store__card__price-currency::after {
   content: "RUB" !important;
   font-size: var(--uf-currency-fs) !important;
+}
+@media screen and (max-width: 639px) {
+  .t-store__card__price-currency {
+    margin-left: 3px !important;
+  }
 }
