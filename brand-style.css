@@ -929,3 +929,138 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
 .t-store__card__price-currency:not(#uf-spec-boost) {
   font-weight: 400 !important;
 }
+
+/* ============================================================
+   Попап подписки — структурная пересборка под утверждённый макет
+   (SubscribePopup.dc.html / SubscribePopupMobile.dc.html): один
+   email, без фото, маленькое тёмное окно на десктопе. На мобильном
+   больше НЕ попап по скроллу, а статичный блок, встроенный в самое
+   начало подвала (физически это первая запись внутри <footer> —
+   rec1542842021 — см. заметку в проектном докладе).
+   ============================================================ */
+
+/* Прячем фото и два декоративных изображения — в макете их нет */
+.tn-elem__15428459211762792255556,
+.tn-elem__15428459211762791979584,
+.tn-elem__15428459211762791157921 { display: none !important; }
+
+/* Оставляем только email — Имя/Телефон/Дату рождения прячем (везде) */
+#rec1542845921 .t-input-group_nm,
+#rec1542845921 .t-input-group_ph,
+#rec1542845921 .t-input-group_da { display: none !important; }
+
+/* ДЕСКТОП: маленькое центрированное окно с затемнением фона вместо
+   широкого сплита на весь экран. */
+.t-popup[data-popup-rec-ids="rec1542845921"] {
+  background: rgba(23,9,11,0.55) !important;
+}
+.t-popup[data-popup-rec-ids="rec1542845921"] .t-popup__container {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  transform: none !important;
+  top: auto !important;
+  left: auto !important;
+}
+#rec1542845921 .t396__artboard {
+  position: relative !important;
+  width: 460px !important;
+  max-width: 90vw !important;
+  height: auto !important;
+  margin: 0 auto !important;
+  padding: 52px 44px 40px !important;
+  box-sizing: border-box !important;
+  overflow: visible !important;
+}
+.tn-elem__15428459211762791192110,
+.tn-elem__15428459211762791328198,
+.tn-elem__15428459211762791428253 {
+  position: static !important;
+  width: 100% !important;
+  height: auto !important;
+  left: auto !important;
+  top: auto !important;
+  text-align: center !important;
+}
+.tn-elem__15428459211762791192110 { margin-bottom: 14px !important; }
+.tn-elem__15428459211762791328198 { margin-bottom: 24px !important; }
+
+/* Заголовок/подзаголовок: прячем старый текст ("Твой промокод...")
+   и выводим утверждённый текст через ::before/::after — тот же
+   приём, что и для подмены "р." на "RUB" в карточках товара. */
+.tn-elem__15428459211762791192110 .tn-atom { font-size: 0 !important; }
+.tn-elem__15428459211762791192110 .tn-atom::before {
+  content: "Будьте первыми";
+  display: inline-block;
+  font-family: 'Onest', sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #FAFAFA;
+  border-bottom: 1px solid #7A1F2A;
+  padding-bottom: 8px;
+  margin: 0 auto 18px;
+}
+.tn-elem__15428459211762791192110 .tn-atom::after {
+  content: "Ранний доступ к новым дропам и −10% на первый заказ";
+  display: block;
+  font-family: 'Onest', sans-serif;
+  font-weight: 700;
+  font-size: 24px;
+  line-height: 1.25;
+  color: #FAFAFA;
+}
+.tn-elem__15428459211762791328198 .tn-atom { font-size: 0 !important; }
+.tn-elem__15428459211762791328198 .tn-atom::before {
+  content: "Подпишитесь на письма UNFADED — без спама, только новые коллекции и закрытые продажи.";
+  display: block;
+  font-family: 'Onest', sans-serif;
+  font-style: italic;
+  font-size: 14px;
+  line-height: 1.6;
+  color: rgba(250,250,250,0.65);
+}
+
+/* МОБИЛЬНЫЙ (≤639px): больше не попап по скроллу — статичный блок,
+   встроенный в начало подвала. Без затемнения фона, без крестика
+   закрытия — это не модалка, а постоянный блок. */
+@media screen and (max-width: 639px) {
+  .t-popup[data-popup-rec-ids="rec1542845921"] {
+    display: block !important;
+    position: static !important;
+    background: none !important;
+    inset: auto !important;
+    z-index: auto !important;
+  }
+  .t-popup[data-popup-rec-ids="rec1542845921"] .t-popup__container {
+    display: block !important;
+    position: static !important;
+    width: 100% !important;
+    height: auto !important;
+    transform: none !important;
+  }
+  .t-popup[data-popup-rec-ids="rec1542845921"] .t-popup__close {
+    display: none !important;
+  }
+  #rec1542845921 .t396__artboard {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 28px 24px 32px !important;
+  }
+  .tn-elem__15428459211762791192110 .tn-atom::before {
+    font-size: 10px !important;
+    letter-spacing: 0.08em !important;
+  }
+  .tn-elem__15428459211762791192110 .tn-atom::after {
+    font-size: 19px !important;
+    line-height: 1.3 !important;
+  }
+  .tn-elem__15428459211762791328198 .tn-atom::before {
+    font-size: 12px !important;
+    line-height: 1.5 !important;
+  }
+}
