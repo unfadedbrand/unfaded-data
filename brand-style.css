@@ -585,7 +585,17 @@
   background-color: var(--uf-color-accent) !important;
   color: var(--uf-color-paper) !important;
 }
+/* ИСПРАВЛЕНО 28.08: правило ниже раньше скрывало ВСЮ правую колонку шапки
+   (.t451__side_socials), а не только кружки WhatsApp/почты — в этой же
+   колонке лежит .t-menuwidgeticons__wrapper (поиск и корзина), поэтому
+   иконки поиска/корзины пропадали, а колонка схлопывалась в 0px и логотип
+   (центрированный внутри своей центральной колонки) визуально уезжал вправо.
+   Теперь скрываем только соцссылки внутри этой колонки, саму колонку
+   оставляем на месте. */
 .t451__side_socials {
+  display: flex !important;
+}
+.t451__side_socials .t-sociallinks {
   display: none !important;
 }
 
