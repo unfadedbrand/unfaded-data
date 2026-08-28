@@ -1056,10 +1056,36 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
   .t-popup[data-popup-rec-ids="rec1542845921"] .t-popup__close {
     display: none !important;
   }
+  /* НАЙДЕНО 28.08 (ночь #2): блок был видимым, но email/чекбокс/кнопка не
+     реагировали ни на клик, ни на ввод текста. Причина — у закрытого Tilda
+     popup вся ветка (.t-popup, .t-popup__container, артборд, форма, поля)
+     несёт pointer-events:none по умолчанию; в норме это снимается классом
+     .t396__artboard_pointer-events-auto, который Тильда добавляет вместе с
+     классом-триггером ПРИ РЕАЛЬНОМ открытии попапа (.t-popup_show). На
+     мобильном блок никогда штатно не "открывается" (мы просто форсируем
+     display:block), поэтому этот класс-триггер так и не добавляется, а
+     правило pointer-events:none (лежит в стилях самой Тильды, не в этом
+     файле — не переопределяется через инспекцию DOM с того же origin)
+     остаётся в силе несмотря на opacity:1 и видимый контент. Форсируем
+     pointer-events:auto явно на каждом уровне, вплоть до самих полей. */
+  .t-popup[data-popup-rec-ids="rec1542845921"],
+  .t-popup[data-popup-rec-ids="rec1542845921"] .t-popup__container {
+    pointer-events: auto !important;
+  }
+  #rec1542845921 .t396__artboard,
+  #rec1542845921 .t396__artboard * {
+    pointer-events: auto !important;
+  }
   #rec1542845921 .t396__artboard {
     width: 100% !important;
     max-width: 100% !important;
     padding: 28px 24px 32px !important;
+    /* Закруглённые верхние углы — как в макете SubscribePopupMobile.dc.html.
+       Только верхние: низ сливается с настоящим подвалом того же тёмного
+       цвета сразу под блоком, скруглять там нечего. overflow:hidden обрезает
+       контент по этой форме. */
+    border-radius: 24px 24px 0 0 !important;
+    overflow: hidden !important;
   }
   .tn-elem__15428459211762791192110 .tn-atom {
     font-size: 19px !important;
@@ -1072,6 +1098,36 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
   .uf-popup-eyebrow {
     font-size: 10px !important;
     letter-spacing: 0.08em !important;
+  }
+  /* Порядок и отступы полей формы — по макету: email → кнопка "Подписаться"
+     (на всю ширину, текст по центру) → чекбокс согласия под кнопкой.
+     .t-form__inputsbox у Тильды уже display:flex (колонкой по умолчанию),
+     поэтому просто переставляем через order + задаём внятные отступы между
+     блоками вместо стандартных 11px (кнопка "прилипала" к соседнему полю). */
+  #rec1542845921 .t-form__inputsbox {
+    display: flex !important;
+    flex-direction: column !important;
+  }
+  #rec1542845921 .t-input-group_em {
+    order: 1 !important;
+    margin-bottom: 20px !important;
+  }
+  #rec1542845921 .tn-form__submit {
+    order: 2 !important;
+    margin-bottom: 18px !important;
+  }
+  #rec1542845921 .t-input-group_cb {
+    order: 3 !important;
+    margin-bottom: 0 !important;
+  }
+  #rec1542845921 .t-form__errorbox-middle {
+    order: 4 !important;
+  }
+  /* Кнопка — на всю ширину поля (на десктопе она фиксированной ширины и
+     центрирована через margin:auto, см. 4 точечные правки выше; на мобильном
+     по макету она растянута на всю ширину контейнера). */
+  #rec1542845921 .t-submit {
+    width: 100% !important;
   }
 }
 
