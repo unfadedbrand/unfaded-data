@@ -814,6 +814,24 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
 
 
 /* === UNFADED — карточка товара: закреплённая кнопка "В корзину" на мобильном (утверждено по мокапу ProductMobile, 28.08.2026) === */
+/* Раздел «Новинки» на главной (rec504664503): по утверждённому мокапу (Main.dc.html)
+   заголовок раздела выровнен по левому краю без декоративной линии под ним —
+   а не по центру с линией, как ставит Tilda-блок T396 по умолчанию.
+   Обе части — абсолютно спозиционированные элементы Zero Block (инлайн-стили,
+   пересчитываются JS Тильды по брейкпоинтам), поэтому здесь их не подвинуть
+   обычной специфичностью — только !important поверх инлайна. */
+#rec504664503 .tn-elem__5046645031666434308985 {
+  left: 48px !important;
+}
+#rec504664503 .tn-elem__5046645031666446597843 {
+  display: none !important;
+}
+@media screen and (max-width: 639px) {
+  #rec504664503 .tn-elem__5046645031666434308985 {
+    left: 16px !important;
+  }
+}
+
 @media screen and (max-width: 639px) {
   .t-store__prod-popup__btn-wrapper {
     position: sticky !important;
