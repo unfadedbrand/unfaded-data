@@ -144,7 +144,152 @@
     }
   }
 
+  // ==========================================================================
+  // UNFADED — карточка товара (PDP), перенос мобильного макета ProductMobile
+  // (28.08.2026, ночь #4). У Тильды/виджета нет готовых полей для хлебной
+  // крошки, счётчика фото в галерее и переключателя таблицы размеров —
+  // вставляем их явным DOM, стили — в brand-style.css (секция "PDP мобильная
+  // версия"). Работает на любой карточке товара сайта (общие классы, без
+  // привязки к конкретному товару/rec-id).
+  // ==========================================================================
+
+  var PDP_CONTAINER_SEL = '.t-store__prod-snippet__container';
+
+  // Слаг категории берём из самого URL страницы товара
+  // (/catalog/<slug>/tproduct/...), а человекочитаемое название категории —
+  // из первой же ссылки на эту категорию, которая уже есть где-то на
+  // странице (меню/футер) — так брейдкрамб не нужно вручную прописывать на
+  // каждый товар и он не разъезжается с реальным названием раздела в меню.
+  function getCategorySlugFromUrl() {
+    var m = location.pathname.match(/\/catalog\/([^\/]+)\/tproduct\//);
+    return m ? m[1] : null;
+  }
+
+  function ensureBreadcrumb() {
+    // ВАЖНО: .t-container с галереей+инфо — ПОТОМОК .t-store__prod-snippet__container
+    // (не предок), поэтому .closest('.t-container') от prodContainer ничего не
+    // находит (closest ищет вверх по дереву). Вставляем крошку прямо первым
+    // ребёнком самого prodContainer — он оборачивает всю строку "галерея + инфо",
+    // так что крошка встаёт над ней, как в макете.
+    var prodContainer = document.querySelector(PDP_CONTAINER_SEL);
+    if (!prodContainer) return; // не страница товара — ничего не делаем
+    var wrap = prodContainer;
+    if (wrap.querySelector('.uf-breadcrumb')) return;
+    var slug = getCategorySlugFromUrl();
+    if (!slug) return;
+    var catLink = document.querySelector('a[href="/catalog/' + slug + '"]');
+    var catName = catLink ? catLink.textContent.trim() : null;
+    if (!catName) return;
+
+    var bc = document.createElement('div');
+    bc.className = 'uf-breadcrumb';
+    var svgNS = 'http://www.w3.org/2000/svg';
+    var svg = document.createElementNS(svgNS, 'svg');
+    svg.setAttribute('viewBox', '0 0 24 24');
+    svg.setAttribute('fill', 'none');
+    svg.setAttribute('stroke', 'currentColor');
+    svg.setAttribute('stroke-width', '1.5');
+    svg.setAttribute('stroke-linecap', 'round');
+    svg.setAttribute('stroke-linejoin', 'round');
+    var path = document.createElementNS(svgNS, 'path');
+    path.setAttribute('d', 'M15 18l-6-6 6-6');
+    svg.appendChild(path);
+    var a = document.createElement('a');
+    a.href = '/catalog/' + slug;
+    a.textContent = catName;
+    bc.appendChild(svg);
+    bc.appendChild(a);
+    wrap.insertBefore(bc, wrap.firstElementChild);
+  }
+
+  // Счётчик фото "N / M · смахните →" + полоски-индикаторы поверх галереи
+  // (.t-slds). Свайп у Тильды в этом компоненте уже штатно работает — сам
+  // слайдер не трогаем, только читаем его состояние. Активный слайд Тильда
+  // помечает классом .t-slds__bullet_active на соответствующем .t-slds__bullet
+  // — вешаем MutationObserver на class каждого bullet, чтобы держать счётчик
+  // и полоски синхронными с реальным положением слайдера без опроса по таймеру.
+  function ensureGalleryOverlay() {
+    if (window.innerWidth > MOBILE_BREAKPOINT) return;
+    var sliders = document.querySelectorAll('.t-slds');
+    sliders.forEach(function (slider) {
+      if (slider.__ufGalleryDone) return;
+      var bullets = slider.querySelectorAll('.t-slds__bullet');
+      if (!bullets.length) return;
+      slider.__ufGalleryDone = true;
+
+      var progress = document.createElement('div');
+      progress.className = 'uf-gallery-progress';
+      var segs = [];
+      bullets.forEach(function () {
+        var seg = document.createElement('span');
+        progress.appendChild(seg);
+        segs.push(seg);
+      });
+
+      var hint = document.createElement('div');
+      hint.className = 'uf-gallery-hint';
+
+      function render() {
+        var activeIdx = 0;
+        bullets.forEach(function (b, i) {
+          var active = b.classList.contains('t-slds__bullet_active');
+          segs[i].classList.toggle('uf-active', active);
+          if (active) activeIdx = i;
+        });
+        hint.textContent =
+          (activeIdx + 1) + ' / ' + bullets.length + ' · смахните →';
+      }
+
+      slider.appendChild(progress);
+      slider.appendChild(hint);
+      render();
+
+      var observer = new MutationObserver(render);
+      bullets.forEach(function (b) {
+        observer.observe(b, { attributes: true, attributeFilter: ['class'] });
+      });
+    });
+  }
+
+  // Таблица размеров (.uf-sizebox) — сворачиваема по умолчанию (см.
+  // brand-style.css: .uf-sizebox{display:none}), раскрывается по клику на
+  // "Таблица размеров ▾" — точно как указано в собственном примечании
+  // макета ("на сайте — сворачивается по клику"). Строка-переключатель
+  // вставляется перед самой панелью.
+  function ensureSizeTableToggle() {
+    var boxes = document.querySelectorAll('.uf-sizebox');
+    boxes.forEach(function (box) {
+      if (box.__ufToggleDone) return;
+      box.__ufToggleDone = true;
+
+      var row = document.createElement('div');
+      row.className = 'uf-size-toggle-row';
+      var label = document.createElement('span');
+      label.textContent = 'Размер';
+      var link = document.createElement('a');
+      link.href = '#';
+      link.textContent = 'Таблица размеров ▾';
+      row.appendChild(label);
+      row.appendChild(link);
+      box.parentElement.insertBefore(row, box);
+
+      link.addEventListener('click', function (e) {
+        e.preventDefault();
+        var open = box.classList.toggle('uf-open');
+        link.textContent = open ? 'Таблица размеров ▴' : 'Таблица размеров ▾';
+      });
+    });
+  }
+
   function apply() {
+    // PDP-фиксы (хлебная крошка / галерея / таблица размеров) не зависят от
+    // попапа подписки и элементов ниже — запускаем их до возможного раннего
+    // return, иначе на странице без загруженного попапа подписки (или до
+    // его загрузки) PDP-функции вообще не выполнились бы.
+    ensureBreadcrumb();
+    ensureGalleryOverlay();
+    ensureSizeTableToggle();
+
     var heading = document.querySelector(HEADING_SEL);
     var sub = document.querySelector(SUB_SEL);
     if (!heading || !sub) return false;
@@ -208,6 +353,7 @@
     resizeTimer = setTimeout(function () {
       ensureFooterPosition();
       ensureMobileVisible();
+      ensureGalleryOverlay();
     }, 300);
   });
 })();
