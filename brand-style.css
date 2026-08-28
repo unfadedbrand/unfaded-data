@@ -801,3 +801,16 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
 #rec1542845921 .tn-elem[data-elem-id="1762791157921"] img {
   filter: invert(1) brightness(1.6) !important;
 }
+
+
+/* === UNFADED — карточка товара: закреплённая кнопка "В корзину" на мобильном (утверждено по мокапу ProductMobile, 28.08.2026) === */
+@media screen and (max-width: 639px) {
+  .t-store__prod-popup__btn-wrapper {
+    position: sticky !important;
+    bottom: 0 !important;
+    z-index: 20 !important;
+    background: var(--uf-color-paper) !important;
+    padding: 10px 0 !important;
+    border-top: 1px solid rgba(23,9,11,0.12) !important;
+  }
+}
