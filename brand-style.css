@@ -1363,53 +1363,69 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
     padding: 16px 0 !important;
   }
 
-  /* --- Кнопки выбора размера. Было: 32px высотой, обычным начертанием
-     16px, тонкая серая рамка #ddd, без выделения выбранного размера
-     заливкой. Макет: 44px высотой, 12px/700, рамка #17090B 30% альфа,
-     выбранный размер — заливка #17090B со светлым текстом. */
-  .t-product__option-item_buttons {
-    height: 44px !important;
-    flex: 1 !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    border: 1px solid rgba(23, 9, 11, 0.3) !important;
-    border-radius: 0 !important;
-    padding: 0 !important;
+  /* === ИСПРАВЛЕНИЕ 28.08 (утро, аварийный фикс после жалобы клиента) ===
+     Предыдущая версия этого блока стилизовала ГОЛЫЙ класс
+     .t-product__option-variants и ГОЛЫЙ класс .t-product__option-item_buttons.
+     У Тильды оба эти класса используются СРАЗУ в нескольких разных местах:
+       1. .t-product__option-variants — общий wrapper, который существует
+          ДВАЖДЫ в каждой группе опций (Размер/Цвет): один раз с модификатором
+          _regular (обычный нативный <select>, в норме скрыт Тильдой) и один
+          раз с модификатором _buttons (кнопки/кружки, видимый UI). Голое
+          правило display:flex!important сняло сокрытие у ОБОИХ сразу — на
+          сайте одновременно показывались и выпадающий список, и кнопки.
+       2. .t-product__option-item_buttons — используется и для кнопок размера
+          (t-product__option-item_simple), и для кружков цвета
+          (t-product__option-item_color). Голые height:44px/flex:1/border
+          растянули кружок цвета в прямоугольник на всю ширину, а активное
+          состояние (_active) с заливкой #17090B перекрасило кружок цвета в
+          тёмный вместо его настоящего цвета (кружок — вложенный div с
+          собственным inline background-color, задаётся Тильдой).
+     Исправлено: скрываем _regular явно, кнопки-стили даём только _buttons,
+     а состояние/заливку — только _simple (размер), кружки цвета (_color)
+     теперь не трогаем вообще — рендерятся нативным способом Тильды.
+     Заодно, по прямому запросу клиента: кнопкам размера возвращены
+     исходные (доредизайновые) 32px/обычное начертание — из макета берём
+     ТОЛЬКО цвет заливки выбранного размера, не размеры/паддинги. */
+  .t-product__option-variants_regular {
+    display: none !important;
   }
-  .t-product__option-item_buttons .t-product__option-title_buttons {
-    font-family: 'Onest', sans-serif !important;
-    font-weight: 700 !important;
-    font-size: 12px !important;
-    color: #17090B !important;
-  }
-  .t-product__option-variants {
+  .t-product__option-variants_buttons {
     display: flex !important;
     gap: 8px !important;
     flex-wrap: nowrap !important;
   }
-  /* Выбранный размер — Tilda переключает состояние классом на самом label
+  .t-product__option-item_buttons.t-product__option-item_simple
+    .t-product__option-title_buttons {
+    color: #17090B !important;
+  }
+  /* Выбранный размер — Тильда переключает состояние классом на самом label
      (не только через :checked на скрытом input), поэтому дублируем оба
-     хука: и через состояние инпута, и через модификатор-класс Тильды. */
-  .t-product__option-item_buttons.t-product__option-item_active,
-  .t-product__option-item_buttons .t-product__option-input_buttons:checked
+     хука: и через состояние инпута, и через модификатор-класс Тильды.
+     Строго только .t-product__option-item_simple — кружков цвета
+     (.t-product__option-item_color) это не касается. */
+  .t-product__option-item_buttons.t-product__option-item_simple.t-product__option-item_active,
+  .t-product__option-item_buttons.t-product__option-item_simple
+    .t-product__option-input_buttons:checked
     ~ .t-product__option-checkmark_buttons {
     background-color: #17090B !important;
     border-color: #17090B !important;
   }
-  .t-product__option-item_buttons.t-product__option-item_active
+  .t-product__option-item_buttons.t-product__option-item_simple.t-product__option-item_active
     .t-product__option-title_buttons,
-  .t-product__option-item_buttons
+  .t-product__option-item_buttons.t-product__option-item_simple
     .t-product__option-input_buttons:checked
     ~ .t-product__option-title_buttons {
     color: #FAFAFA !important;
   }
 
-  /* --- Цветовые свопы — размер кружков как в макете (28px). */
-  .uf-catalog-swatches [class*="swatch"] {
-    width: 28px !important;
-    height: 28px !important;
-    border-radius: 50% !important;
+  /* --- Кружки "Вопрос по размеру? WhatsApp" в макете — обычная текстовая
+     строка без плашки/рамки (виджет #uf-auto-widget вшит в описание
+     каждого товара в Тильде отдельным <style>, у него своя рамка/паддинг —
+     перебиваем здесь глобально одним правилом на все товары). */
+  #uf-auto-widget .uf-wa {
+    border: none !important;
+    padding: 0 !important;
+    background: transparent !important;
   }
 
   /* --- Галерея фото: счётчик "N / M · смахните →" + полоски-индикаторы,
