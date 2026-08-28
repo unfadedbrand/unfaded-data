@@ -1043,6 +1043,15 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
     width: 100% !important;
     height: auto !important;
     transform: none !important;
+    /* НАЙДЕНО 28.08 (ночь): класс .t-popup-anim-fadein у Тильды даёт
+       .t-popup__container стартовый opacity:0 — flip в opacity:1 обычно
+       делает JS-анимация открытия ПРИ РЕАЛЬНОМ триггере попапа. На мобильном
+       блок статичный и никогда не триггерится штатным образом (мы просто
+       форсируем display:block), поэтому opacity так и остаётся 0 навсегда —
+       блок занимает место в layout (высота есть), но визуально невидим.
+       Без этой строки контент отрисовывался как пустое белое пространство
+       над футером — подтверждено живой проверкой через iframe на 390px. */
+    opacity: 1 !important;
   }
   .t-popup[data-popup-rec-ids="rec1542845921"] .t-popup__close {
     display: none !important;
@@ -1104,4 +1113,26 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
 #rec1542845921 .t-submit {
   margin-left: auto !important;
   margin-right: auto !important;
+}
+
+/* === UNFADED — мобильный статичный блок подписки: фон футера + позиция (28.08.2026, ночь) ===
+   Настоящий видимый футер (логотип, колонки "Покупателям"/"О нас", копирайт) —
+   отдельная запись #rec1777413841 внутри <footer id="t-footer">, со своим
+   собственным background-color: rgb(17,17,17) (почти чёрный, задан вёрсткой
+   Тильды). Меняем на тот же тёмный регистр бренда (--uf-color-ink, #17090B —
+   oxblood), который уже используется для попапа/hero-баннеров — единая тёмная
+   палитра вместо нейтрального чёрного. */
+#rec1777413841 {
+  background-color: var(--uf-color-ink) !important;
+}
+
+/* Порядок DOM (обёртка попапа #rec1542842021 переставляется ПЕРЕД #rec1777413841
+   через brand-popup-fix.js — см. функцию ensureFooterPosition) визуально даёт
+   на мобильном "блок подписки НАД футером". Здесь — только тонкая настройка
+   отступов статичного блока на мобильном, чтобы он не сливался с футером под
+   ним (у обоих теперь одинаковый тёмный фон). */
+@media screen and (max-width: 639px) {
+  #rec1542845921 .t396__artboard {
+    border-bottom: 1px solid rgba(250,250,250,0.12) !important;
+  }
 }
