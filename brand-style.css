@@ -911,3 +911,21 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
     --uf-currency-fs: 10px !important;
   }
 }
+
+/* Фикс: между рядами карточек был широкий тёмный зазор (60px) на десктопе и мобильном.
+   Причина — родной стиль Tilda .t-store__grid-cont .t-store__card-list{row-gap:60px!important}
+   (и .t951__grid-cont ...): у него ДВА класса в селекторе, это выше по специфичности,
+   чем наше .t-store__card-list{row-gap:0} с одним классом (см. выше в файле) — Tilda
+   побеждает независимо от порядка в файле. Поднимаем специфичность через :not(#id-заглушка),
+   как и для других полей ниже. */
+.t-store__card-list:not(#uf-spec-boost) {
+  row-gap: 0 !important;
+  column-gap: 3px !important;
+}
+
+/* Фикс: цена и RUB были жирными (font-weight:700 из дефолтных стилей Tilda) — делаем
+   обычное начертание, одного размера, на одной линии, на всех разделах сайта. */
+.t-store__card__price-value:not(#uf-spec-boost),
+.t-store__card__price-currency:not(#uf-spec-boost) {
+  font-weight: 400 !important;
+}
