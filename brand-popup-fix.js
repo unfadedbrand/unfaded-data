@@ -19,31 +19,56 @@
   var DISMISS_TEXT = 'Нет, спасибо';
 
   // Поле "Имя" скрыто через CSS (в макете попапа его нет — только email и
-  // согласие), но само ПОЛЕ УДАЛЕНО НЕ БЫЛО, и форма настроена в Тильде как
-  // обязательное для заполнения на СТОРОНЕ СЕРВЕРА (проверяется бэкендом
-  // forms.tildaapi.com/procces/, а не JS-атрибутом data-tilda-req на самом
-  // input — того на этом поле никогда не было). Поэтому реальная отправка
-  // с пустым скрытым полем "Имя" падала с ошибкой "Заполните обязательные
-  // поля: name", хотя в браузере всё выглядело заполненным. Перед отправкой
-  // подставляем туда часть email до @ (или заглушку, если email не похож на
-  // почту) — так сервер получает непустое значение и форма проходит.
+  // согласие), но само ПОЛЕ УДАЛЕНО НЕ БЫЛО. Оно required с ДВУХ независимых
+  // сторон:
+  // 1) на клиенте — у input остаётся атрибут data-tilda-req="1", который
+  //    Тильда проверяет прямо в момент клика по "Подписаться", ДО отправки
+  //    формы: если поле пустое, форма даже не пытается уйти в сеть
+  //    (ошибка "Пожалуйста, заполните все обязательные поля", без запроса
+  //    к forms.tildaapi.com вообще);
+  // 2) на сервере — бэкенд forms.tildaapi.com/procces/ независимо от
+  //    клиентской проверки тоже требует непустое "Имя" и, если каким-то
+  //    образом запрос всё же ушёл пустым, отвечает отдельной ошибкой
+  //    "Заполните обязательные поля: name".
+  // Поэтому подставляем в скрытое поле значение (часть email до @, или
+  // заглушку) СРАЗУ, как только оно появляется в DOM, и держим его
+  // актуальным по мере ввода email — так обе проверки проходят.
+  function fillNameFallback(nameInput, emailInput) {
+    var fallback = 'Подписчик';
+    if (emailInput && emailInput.value && emailInput.value.indexOf('@') > -1) {
+      fallback = emailInput.value.split('@')[0];
+    }
+    if (!nameInput.value.trim() || nameInput.value === nameInput.__ufAutoValue) {
+      nameInput.value = fallback;
+      nameInput.__ufAutoValue = fallback;
+    }
+  }
+
   function ensureNameFallback(form) {
-    if (!form || form.__ufNameFallbackBound) return;
-    form.__ufNameFallbackBound = true;
-    form.addEventListener(
-      'submit',
-      function () {
-        var nameInput = form.querySelector('input[name="name"]');
-        if (!nameInput || nameInput.value.trim()) return;
-        var emailInput = form.querySelector('input[name="email"]');
-        var fallback = 'Подписчик';
-        if (emailInput && emailInput.value && emailInput.value.indexOf('@') > -1) {
-          fallback = emailInput.value.split('@')[0];
-        }
-        nameInput.value = fallback;
-      },
-      true
-    );
+    if (!form) return;
+    var nameInput = form.querySelector('input[name="name"]');
+    var emailInput = form.querySelector('input[name="email"]');
+    if (!nameInput) return;
+
+    fillNameFallback(nameInput, emailInput);
+
+    if (!form.__ufNameFallbackBound) {
+      form.__ufNameFallbackBound = true;
+      if (emailInput) {
+        emailInput.addEventListener('input', function () {
+          fillNameFallback(nameInput, emailInput);
+        });
+      }
+      // Финальная подстраховка на случай, если 500-мс тик apply() уже
+      // остановился к моменту реальной отправки формы.
+      form.addEventListener(
+        'submit',
+        function () {
+          fillNameFallback(nameInput, emailInput);
+        },
+        true
+      );
+    }
   }
 
   function apply() {
