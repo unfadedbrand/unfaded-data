@@ -842,3 +842,53 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
     border-top: 1px solid rgba(23,9,11,0.12) !important;
   }
 }
+
+/* Мобильная сетка карточек товара (главная «Новинки», каталог, кросс-селл — общий
+   класс .t-store__card-list) — размер шрифта названия/цены и зазоры между карточками
+   как у Namelazz. Раскладка (flex, gap 3px, тёмный фон, margin/padding 0) уже задана
+   выше и одинакова на всех ширинах; здесь она закреплена ещё раз на случай локального
+   переопределения на узких экранах, плюс сам шрифт уменьшен под мобильный размер
+   карточки — на десктопе карточка физически намного шире, крупный шрифт там уместен
+   и не трогается. Значения 10px/14px (line-height) и letter-spacing 0.064em сняты
+   живым осмотром namelazz.com/new/ (.like-good-name/.like-good-price). */
+@media screen and (max-width: 639px) {
+  .t-store__card-list {
+    background: var(--uf-color-ink) !important;
+    column-gap: 3px !important;
+    row-gap: 0 !important;
+  }
+  .t-store__card-list .t-store__card {
+    width: calc(50% - 1.5px) !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  .t-store__card-list > *:not(.t-store__card) {
+    display: none !important;
+  }
+  .t-store__card__title:not(#uf-spec-boost),
+  .t-store__card__price:not(#uf-spec-boost) {
+    font-size: 10px !important;
+    line-height: 14px !important;
+    letter-spacing: 0.064em !important;
+  }
+  .t-store__card__price:not(#uf-spec-boost) {
+    text-transform: uppercase !important;
+  }
+  .t-store__card__price-currency {
+    --uf-currency-fs: 10px;
+  }
+}
+
+/* Валюта в карточке товара — «RUB» вместо «р.» (как у Namelazz), на всех сетках карточек
+   сайта (общий класс .t-store__card__price-currency — главная/каталог/кросс-селл).
+   Сам текст узла управляется настройкой валюты Тильды, поэтому исходный текст визуально
+   прячем (font-size:0), а «RUB» подставляем через ::after; размер ::after держим в
+   переменной, чтобы не зависеть от обнулённого font-size родителя. */
+.t-store__card__price-currency {
+  --uf-currency-fs: 12px;
+  font-size: 0 !important;
+}
+.t-store__card__price-currency::after {
+  content: "RUB" !important;
+  font-size: var(--uf-currency-fs) !important;
+}
