@@ -27,23 +27,23 @@
    не будет. Это же правило справедливо для всех следующих этапов (2–4).
    ========================================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Cormorant:wght@400;500;600&family=PT+Serif:ital,wght@0,400;1,400&family=PT+Sans:wght@400;700&family=PT+Mono&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700;800&display=swap');
 
 :root {
   /* --- примитивы (Figma: коллекция Primitives) --- */
   --uf-oxblood: #17090B;
-  --uf-pale: #F7F4EF;
+  --uf-pale: #FAFAFA;
   --uf-burgundy: #7A1F2A;
-  --uf-ink-secondary: #4A3A37;   /* вторичный текст на бледном фоне */
-  --uf-pale-secondary: #C9B9A8;  /* вторичный текст на тёмном фоне */
+  --uf-ink-secondary: #55575A;   /* вторичный текст на бледном фоне */
+  --uf-pale-secondary: #9A9D9F;  /* вторичный текст на тёмном фоне */
 
   /* --- роли шрифтов (Figma: 8 текстовых стилей) --- */
-  --uf-font-display: 'Cormorant', Georgia, 'Times New Roman', serif; /* Дисплейный сериф — ТОЛЬКО принт/брендбук/Figma, на сайте НЕ используется (см. v5 ниже) */
-  --uf-font-heading: 'PT Sans', Arial, sans-serif;                   /* Крупные заголовки-баннеры на сайте — жирный UI-шрифт вместо серифа, см. «Заголовки на сайте» ниже */
-  --uf-font-tag: 'PT Mono', 'Courier New', monospace;                /* Мелкие теги/заголовки разделов (HOT SALE, НОВИНКИ, «Категории товаров») — см. v6 ниже */
-  --uf-font-body: 'PT Serif', Georgia, serif;                        /* Body — описание, состав, «О бренде» */
-  --uf-font-ui: 'PT Sans', Arial, sans-serif;                        /* UI — навигация, кнопки, плитки, футер */
-  --uf-font-mono: 'PT Mono', 'Courier New', monospace;               /* Meta — цена, размер, артикул */
+  --uf-font-display: 'Onest', Arial, sans-serif; /* Дисплейный сериф — ТОЛЬКО принт/брендбук/Figma, на сайте НЕ используется (см. v5 ниже) */
+  --uf-font-heading: 'Onest', Arial, sans-serif;                   /* Крупные заголовки-баннеры на сайте — жирный UI-шрифт вместо серифа, см. «Заголовки на сайте» ниже */
+  --uf-font-tag: 'Onest', Arial, sans-serif;                /* Мелкие теги/заголовки разделов (HOT SALE, НОВИНКИ, «Категории товаров») — см. v6 ниже */
+  --uf-font-body: 'Onest', Arial, sans-serif;                        /* Body — описание, состав, «О бренде» */
+  --uf-font-ui: 'Onest', Arial, sans-serif;                        /* UI — навигация, кнопки, плитки, футер */
+  --uf-font-mono: 'Onest', Arial, sans-serif;               /* Meta — цена, размер, артикул */
 }
 
 /* --------------------------------------------------------------------------
@@ -478,7 +478,7 @@
 /* === UNFADED — Этап 2: цвет + карточка «как у Namelazz» (27.08.2026, ред. 2) === */
 :root {
   --uf-color-ink: #17090B;      /* oxblood-black */
-  --uf-color-paper: #F7F4EF;    /* бледный */
+  --uf-color-paper: #FAFAFA;    /* бледный */
   --uf-color-accent: #7A1F2A;   /* бордовый — только заливка/бордер */
 }
 
@@ -533,7 +533,7 @@
    его как вторичный текст. */
 .t-store__card .t-store__card__sold-out-msg,
 .t-store__card .js-store-prod-sold-out {
-  color: rgba(247,244,239,.55) !important;
+  color: rgba(250,250,250,.55) !important;
   font-family: var(--uf-font-ui) !important;
   font-size: 12px !important;
 }
@@ -644,7 +644,7 @@
 .t-store__card__textwrapper {
   background: var(--uf-color-ink) !important;
   padding: 12px 15px 14px !important;
-  border-top: 1px solid rgba(247,244,239,.14) !important;
+  border-top: 1px solid rgba(250,250,250,.14) !important;
 }
 /* Размеры сняты живым осмотром namelazz.com: название и цена 10px/14px,
    разрядка 0.064em, обычное начертание. */
@@ -657,21 +657,21 @@
 }
 .t-store__card__price-wrapper,
 .t-store__card .price-wrapper {
-  color: rgba(247,244,239,.55) !important;
+  color: rgba(250,250,250,.55) !important;
 }
 .t-store__card__price:not(#uf-spec-boost) {
-  color: rgba(247,244,239,.55) !important;
+  color: rgba(250,250,250,.55) !important;
   font-size: 12px !important;
 }
 .t-store__card__price_old:not(#uf-spec-boost2) {
-  color: rgba(247,244,239,.4) !important;
+  color: rgba(250,250,250,.4) !important;
   font-size: 12px !important;
   text-decoration: line-through !important;
   margin-right: 8px !important;
 }
 .t-store__card .price-wrapper [class*="swatch"],
 .t-store__card .price-wrapper [class*="color"] {
-  box-shadow: 0 0 0 1px rgba(247,244,239,.35) !important;
+  box-shadow: 0 0 0 1px rgba(250,250,250,.35) !important;
 }
 
 /* --- Общие цветовые токены (Этап 2) --- */
@@ -685,7 +685,7 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
    .t-store__card__descr) выводился тёмным #262626 на тёмной плашке и сливался
    с фоном. Ведём его как вторичный текст на тёмном. */
 .t-store__card .t-store__card__descr {
-  color: rgba(247,244,239,.45) !important;
+  color: rgba(250,250,250,.45) !important;
   font-size: 12px !important;
   margin-bottom: 6px !important;
 }
@@ -716,26 +716,26 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
 #rec1542845921 .tn-elem[data-elem-id="1762791328198"] .tn-atom {
   font-family: var(--uf-font-body) !important;
   font-style: italic !important;
-  color: rgba(247,244,239,.65) !important;
+  color: rgba(250,250,250,.65) !important;
 }
 
 /* Поля формы: Имя / E-mail / Дата рождения (инлайновые стили Тильды — только !important их бьёт) */
 #rec1542845921 .t-input {
   background-color: transparent !important;
   border: none !important;
-  border-bottom: 1px solid rgba(247,244,239,.35) !important;
+  border-bottom: 1px solid rgba(250,250,250,.35) !important;
   color: var(--uf-color-paper) !important;
   font-family: var(--uf-font-ui) !important;
 }
 #rec1542845921 .t-input::placeholder {
-  color: rgba(247,244,239,.45) !important;
+  color: rgba(250,250,250,.45) !important;
 }
 
 /* Телефон — отдельная обёртка с флагом (тоже инлайновые стили) */
 #rec1542845921 .t-input-phonemask__wrap {
   background-color: transparent !important;
   border: none !important;
-  border-bottom: 1px solid rgba(247,244,239,.35) !important;
+  border-bottom: 1px solid rgba(250,250,250,.35) !important;
   color: var(--uf-color-paper) !important;
 }
 #rec1542845921 .t-input-phonemask__wrap input {
@@ -743,7 +743,7 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
   font-family: var(--uf-font-ui) !important;
 }
 #rec1542845921 .t-input-phonemask__wrap input::placeholder {
-  color: rgba(247,244,239,.45) !important;
+  color: rgba(250,250,250,.45) !important;
 }
 #rec1542845921 .t-input-phonemask__select-code,
 #rec1542845921 .t-input-phonemask__select-triangle {
@@ -752,21 +752,21 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
 
 /* Иконка календаря у "Дата рождения" (SVG-атрибут fill, а не style) */
 #rec1542845921 .t-datepicker__icon {
-  fill: rgba(247,244,239,.55) !important;
+  fill: rgba(250,250,250,.55) !important;
 }
 
 /* Чекбокс согласия на обработку персональных данных */
 #rec1542845921 .t-checkbox__indicator {
-  border: 1px solid rgba(247,244,239,.45) !important;
+  border: 1px solid rgba(250,250,250,.45) !important;
   background-color: transparent !important;
 }
 #rec1542845921 .t-checkbox__control {
-  color: rgba(247,244,239,.5) !important;
+  color: rgba(250,250,250,.5) !important;
   font-family: var(--uf-font-ui) !important;
 }
 #rec1542845921 .t-checkbox__control a {
-  color: rgba(247,244,239,.75) !important;
-  border-bottom: 1px solid rgba(247,244,239,.35) !important;
+  color: rgba(250,250,250,.75) !important;
+  border-bottom: 1px solid rgba(250,250,250,.35) !important;
 }
 
 /* Кнопка "Подписаться" */
