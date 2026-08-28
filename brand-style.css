@@ -989,13 +989,29 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
 .tn-elem__15428459211762791192110 { margin-bottom: 14px !important; }
 .tn-elem__15428459211762791328198 { margin-bottom: 24px !important; }
 
-/* Заголовок/подзаголовок: прячем старый текст ("Твой промокод...")
-   и выводим утверждённый текст через ::before/::after — тот же
-   приём, что и для подмены "р." на "RUB" в карточках товара. */
-.tn-elem__15428459211762791192110 .tn-atom { font-size: 0 !important; }
-.tn-elem__15428459211762791192110 .tn-atom::before {
-  content: "Будьте первыми";
-  display: inline-block;
+/* Заголовок/подзаголовок/эйбрау: реальный текст меняем через маленький
+   JS-файл (brand-popup-fix.js, подключён в HEAD рядом с brand-style.css) —
+   приём с CSS ::before/::after content оказался ненадёжным именно в этом
+   Zero Block попапе (в живом браузере пользователя текст не рисовался,
+   хотя getComputedStyle показывал всё верно — причину воспроизвести не
+   удалось, поэтому перешли на настоящий DOM-текст, который точно рисуется
+   везде на сайте). Эйбрау "Будьте первыми" и ссылка "Нет, спасибо" —
+   новые элементы, вставляются тем же JS-файлом. */
+.tn-elem__15428459211762791192110 .tn-atom {
+  font-family: 'Onest', sans-serif !important;
+  font-weight: 700 !important;
+  font-size: 24px !important;
+  line-height: 1.25 !important;
+  color: #FAFAFA !important;
+}
+.tn-elem__15428459211762791328198 .tn-atom {
+  font-family: 'Onest', sans-serif !important;
+  font-style: italic !important;
+  font-size: 14px !important;
+  line-height: 1.6 !important;
+  color: rgba(250,250,250,0.65) !important;
+}
+.uf-popup-eyebrow {
   font-family: 'Onest', sans-serif;
   font-size: 11px;
   letter-spacing: 0.12em;
@@ -1004,25 +1020,18 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
   border-bottom: 1px solid #7A1F2A;
   padding-bottom: 8px;
   margin: 0 auto 18px;
+  display: inline-block;
 }
-.tn-elem__15428459211762791192110 .tn-atom::after {
-  content: "Ранний доступ к новым дропам и −10% на первый заказ";
+.uf-popup-dismiss {
   display: block;
+  margin-top: 16px;
   font-family: 'Onest', sans-serif;
-  font-weight: 700;
-  font-size: 24px;
-  line-height: 1.25;
-  color: #FAFAFA;
-}
-.tn-elem__15428459211762791328198 .tn-atom { font-size: 0 !important; }
-.tn-elem__15428459211762791328198 .tn-atom::before {
-  content: "Подпишитесь на письма UNFADED — без спама, только новые коллекции и закрытые продажи.";
-  display: block;
-  font-family: 'Onest', sans-serif;
-  font-style: italic;
-  font-size: 14px;
-  line-height: 1.6;
-  color: rgba(250,250,250,0.65);
+  font-size: 12px;
+  color: rgba(250,250,250,0.45);
+  border-bottom: 1px solid rgba(250,250,250,0.25);
+  text-align: center;
+  cursor: pointer;
+  text-decoration: none;
 }
 
 /* МОБИЛЬНЫЙ (≤639px): больше не попап по скроллу — статичный блок,
@@ -1051,16 +1060,19 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
     max-width: 100% !important;
     padding: 28px 24px 32px !important;
   }
-  .tn-elem__15428459211762791192110 .tn-atom::before {
-    font-size: 10px !important;
-    letter-spacing: 0.08em !important;
-  }
-  .tn-elem__15428459211762791192110 .tn-atom::after {
+  .tn-elem__15428459211762791192110 .tn-atom {
     font-size: 19px !important;
     line-height: 1.3 !important;
   }
-  .tn-elem__15428459211762791328198 .tn-atom::before {
+  .tn-elem__15428459211762791328198 .tn-atom {
     font-size: 12px !important;
     line-height: 1.5 !important;
+  }
+  .uf-popup-eyebrow {
+    font-size: 10px !important;
+    letter-spacing: 0.08em !important;
+  }
+  .uf-popup-dismiss {
+    display: none !important;
   }
 }
