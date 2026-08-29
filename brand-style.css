@@ -1961,3 +1961,19 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
 .uf-note {
   font-family: 'Onest', Arial, sans-serif !important;
 }
+
+
+/* === UNFADED — пропадает буква в кнопке размера, если выбранный размер
+   становится недоступен (например при смене цвета) — найдено 29.08.2026.
+   Причина: у односимвольных значений (S, M, L) заголовок кнопки получает
+   ДРОБНУЮ ширину (напр. 9.14px), точно по границам текста, без паддинга.
+   Комбинация _disabled + _active (Тильда иногда оставляет прежний размер
+   выбранным, хотя он уже недоступен) триггерит баг рендеринга Chromium:
+   при этой дробной ширине глиф текста не прорисовывается вообще, хотя все
+   CSS-свойства (color/opacity/visibility) по инспектору выглядят нормально.
+   Проверено вживую (десктоп + 390px): целочисленный min-width убирает
+   баг полностью, буква снова видна во всех состояниях. */
+.t-product__option-item_buttons.t-product__option-item_simple .t-product__option-title {
+  min-width: 16px !important;
+  text-align: center !important;
+}
