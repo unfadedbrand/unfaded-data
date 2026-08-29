@@ -1717,3 +1717,24 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
     letter-spacing: 0.01em;
   }
 }
+
+/* На мобильных .uf-crumbs остался без цвета/отступа сепаратора — цвет ссылки,
+   сепаратора и текущей страницы был задан ТОЛЬКО внутри десктопного
+   @media(min-width:640px) блока выше, поэтому на мобильном ссылка "Главная"
+   красилась в глобальный лососёвый цвет ссылок сайта, а "/" и текст —
+   в чёрный без отступов. Переносим стилизацию в безусловное правило —
+   действует одинаково и на мобильном, и на десктопе. */
+.uf-crumbs a {
+  color: #9A9D9F;
+  text-decoration: none;
+}
+.uf-crumbs a:hover {
+  color: #55575A;
+}
+.uf-crumbs .uf-crumbs-sep {
+  margin: 0 6px;
+  color: #D7D8D9;
+}
+.uf-crumbs .uf-crumbs-current {
+  color: #55575A;
+}
