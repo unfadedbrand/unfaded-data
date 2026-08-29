@@ -383,6 +383,32 @@
     }
   }
 
+  function ensureWaBelowSizeNote() {
+    var wa = document.querySelector('.uf-wa');
+    var note = document.getElementById('uf-size-stock-note');
+    if (!wa || !note) return;
+    if (wa.previousElementSibling !== note) {
+      note.parentElement.appendChild(wa);
+    }
+    if (wa.querySelector('.uf-wa-link-text')) return;
+    var dot = wa.querySelector('.uf-wdot');
+    var fullText = wa.textContent.replace(/\s+/g, ' ').trim();
+    var marker = 'Написать в WhatsApp';
+    var idx = fullText.indexOf(marker);
+    if (idx === -1) return;
+    var leadText = fullText.slice(0, idx).trim();
+    wa.textContent = '';
+    if (dot) wa.appendChild(dot);
+    var lead = document.createElement('span');
+    lead.className = 'uf-wa-lead';
+    lead.textContent = ' ' + leadText + ' ';
+    wa.appendChild(lead);
+    var link = document.createElement('span');
+    link.className = 'uf-wa-link-text';
+    link.textContent = marker;
+    wa.appendChild(link);
+  }
+
   function apply() {
     // PDP-фиксы (хлебная крошка / галерея / таблица размеров) не зависят от
     // попапа подписки и элементов ниже — запускаем их до возможного раннего
@@ -393,6 +419,7 @@
     ensureDesktopCrumbsCategory();
     ensureDesktopCrumbsSpecial();
     ensureCartButtonText();
+    ensureWaBelowSizeNote();
     ensureGalleryOverlay();
     ensureSizeTableToggle();
 
