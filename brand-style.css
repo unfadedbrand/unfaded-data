@@ -1653,3 +1653,41 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
 .t-store__card__btn_second {
   color: #FAFAFA !important;
 }
+
+/* Кнопка «Добавить в корзину» на десктопе — на всю ширину плашки с таблицей размеров */
+@media screen and (min-width: 640px) {
+  .t-store__prod-popup__btn {
+    width: 100% !important;
+  }
+}
+
+/* Хлебные крошки на десктопе (plain-text trail), отдельно от мобильной .uf-breadcrumb.
+   Повторная вставка: предыдущая версия была потеряна при переоткрытии редактора
+   этого файла до коммита — впредь не открывать /edit того же файла, пока
+   предыдущая правка в нём не закоммичена. */
+.uf-crumbs {
+  display: none;
+}
+@media screen and (min-width: 640px) {
+  .uf-crumbs {
+    display: block;
+    padding: 20px 48px 0;
+    font-family: 'Onest', sans-serif;
+    font-size: 12.5px;
+    letter-spacing: 0.01em;
+  }
+  .uf-crumbs a {
+    color: #9A9D9F;
+    text-decoration: none;
+  }
+  .uf-crumbs a:hover {
+    color: #55575A;
+  }
+  .uf-crumbs .uf-crumbs-sep {
+    margin: 0 6px;
+    color: #D7D8D9;
+  }
+  .uf-crumbs .uf-crumbs-current {
+    color: #55575A;
+  }
+}
