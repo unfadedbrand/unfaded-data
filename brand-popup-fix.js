@@ -412,6 +412,19 @@
     wa.appendChild(textWrap);
   }
 
+  function ensureNoteNoBulb() {
+    var notes = document.querySelectorAll('.uf-note');
+    notes.forEach(function (note) {
+      if (note.dataset.ufBulbStripped) return;
+      var text = note.textContent;
+      var stripped = text.replace(/^\uD83D\uDCA1\s*/, '').trim();
+      if (stripped !== text) {
+        note.textContent = stripped;
+      }
+      note.dataset.ufBulbStripped = '1';
+    });
+  }
+
   function apply() {
     // PDP-фиксы (хлебная крошка / галерея / таблица размеров) не зависят от
     // попапа подписки и элементов ниже — запускаем их до возможного раннего
@@ -423,6 +436,7 @@
     ensureDesktopCrumbsSpecial();
     ensureCartButtonText();
     ensureWaBelowSizeNote();
+    ensureNoteNoBulb();
     ensureGalleryOverlay();
     ensureSizeTableToggle();
 
