@@ -357,3 +357,58 @@
     }, 300);
   });
 })();
+
+/*
+ * UNFADED — cookie-баннер (rec510048518, Tilda T886): текст (вариант 2 из
+ * дизайн-ревью "Плашки и cookie-баннер") и ссылка "Подробнее" на страницу
+ * "Политика конфиденциальности" (/service#!/tab/533990617-4) — блок сам по
+ * себе такой ссылки не предусматривает, поэтому вставляем настоящим
+ * DOM-элементом, тем же приёмом, что и остальной текст/ссылки в этом файле.
+ * Отдельный (независимый от основного apply()/interval выше) самозапуск —
+ * ничего в существующей логике попапа подписки не трогает.
+ * Цвета — brand-style.css (29.08.2026).
+ */
+(function () {
+  var COOKIE_TEXT = 'Cookie помогают нам показывать точные размеры и историю просмотров. Продолжая — вы соглашаетесь с их использованием.';
+  var COOKIE_MORE_TEXT = 'Подробнее';
+  var COOKIE_MORE_HREF = 'https://unfadedstore.com/service#!/tab/533990617-4';
+
+  function ensureCookieBanner() {
+    var textEl = document.querySelector('#rec510048518 .t886__text');
+    if (!textEl) return false;
+    if (textEl.textContent.trim() !== COOKIE_TEXT) {
+      textEl.textContent = COOKIE_TEXT;
+    }
+    var wrapper = textEl.closest('.t886__wrapper');
+    if (!wrapper || wrapper.querySelector('.uf-cookie-more')) return true;
+    var btn = wrapper.querySelector('.t886__btn');
+    var actions = document.createElement('div');
+    actions.className = 'uf-cookie-actions';
+    if (btn) {
+      wrapper.insertBefore(actions, btn);
+      actions.appendChild(btn);
+    } else {
+      wrapper.appendChild(actions);
+    }
+    var link = document.createElement('a');
+    link.href = COOKIE_MORE_HREF;
+    link.className = 'uf-cookie-more';
+    link.textContent = COOKIE_MORE_TEXT;
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    actions.appendChild(link);
+    return true;
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', ensureCookieBanner);
+  } else {
+    ensureCookieBanner();
+  }
+  var cookieTries = 0;
+  var cookieIv = setInterval(function () {
+    ensureCookieBanner();
+    cookieTries += 1;
+    if (cookieTries > 40) clearInterval(cookieIv);
+  }, 500);
+})();
