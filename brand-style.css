@@ -1977,3 +1977,22 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
   min-width: 16px !important;
   text-align: center !important;
 }
+
+
+/* Каталожная карточка (мобайл): «Нет в наличии» должно быть на одной
+   строке с ценой и того же кегля, что цена. Нативный класс Тильды
+   .t-store__card__sold-out-msg держит фиксированные 14px/margin-top:3px и
+   не подхватывает адаптивное уменьшение шрифта цены до 10px на <640px,
+   из-за чего текст крупнее цены и без отступа слипается с валютой. */
+.t-store__card .t-store__card__sold-out-msg,
+.t-store__card .js-store-prod-sold-out {
+  margin-left: 6px !important;
+}
+@media (max-width: 639px) {
+  .t-store__card .t-store__card__sold-out-msg,
+  .t-store__card .js-store-prod-sold-out {
+    font-size: 10px !important;
+    line-height: 14px !important;
+    margin-top: 0 !important;
+  }
+}
