@@ -202,6 +202,74 @@
     wrap.insertBefore(bc, wrap.firstElementChild);
   }
 
+  // --- Хлебные крошки на десктопе (.uf-crumbs) — полная цепочка "Главная /
+  // Категория / Название" по мокапу "Финал на согласование — десктоп"
+  // (29.08.2026). Отдельный элемент от мобильной крошки .uf-breadcrumb выше
+  // (та — стрелка назад + категория, из более раннего мокапа ProductMobile,
+  // мобильная и остаётся мобильной). Видимость по ширине экрана — в CSS
+  // (brand-style.css), здесь только сборка DOM и вставка.
+  function buildCrumbs(items) {
+    var bc = document.createElement('div');
+    bc.className = 'uf-crumbs';
+    items.forEach(function (item, i) {
+      if (i > 0) {
+        var sep = document.createElement('span');
+        sep.className = 'uf-crumbs-sep';
+        sep.textContent = '/';
+        bc.appendChild(sep);
+      }
+      if (item.href) {
+        var a = document.createElement('a');
+        a.href = item.href;
+        a.textContent = item.text;
+        bc.appendChild(a);
+      } else {
+        var span = document.createElement('span');
+        span.className = 'uf-crumbs-current';
+        span.textContent = item.text;
+        bc.appendChild(span);
+      }
+    });
+    return bc;
+  }
+
+  function ensureDesktopCrumbsPDP() {
+    var prodContainer = document.querySelector(PDP_CONTAINER_SEL);
+    if (!prodContainer) return;
+    if (prodContainer.querySelector('.uf-crumbs')) return;
+    var slug = getCategorySlugFromUrl();
+    if (!slug) return;
+    var catLink = document.querySelector('a[href="/catalog/' + slug + '"]');
+    var catName = catLink ? catLink.textContent.trim() : null;
+    if (!catName) return;
+    var titleEl = document.querySelector('h1');
+    var productName = titleEl ? titleEl.textContent.trim() : null;
+    if (!productName) return;
+    var bc = buildCrumbs([
+      { text: 'Главная', href: '/' },
+      { text: catName, href: '/catalog/' + slug },
+      { text: productName }
+    ]);
+    prodContainer.insertBefore(bc, prodContainer.firstElementChild);
+  }
+
+  function ensureDesktopCrumbsCategory() {
+    var m = location.pathname.match(/^\/catalog\/([^\/]+)\/?$/);
+    if (!m) return;
+    var slug = m[1];
+    var t951 = document.querySelector('.t951');
+    if (!t951) return;
+    if (t951.querySelector('.uf-crumbs')) return;
+    var navLink = document.querySelector('a[href="/catalog/' + slug + '"]');
+    var catName = navLink ? navLink.textContent.trim() : null;
+    if (!catName) return;
+    var bc = buildCrumbs([
+      { text: 'Главная', href: '/' },
+      { text: catName }
+    ]);
+    t951.insertBefore(bc, t951.firstElementChild);
+  }
+
   // Счётчик фото "N / M · смахните →" + полоски-индикаторы поверх галереи
   // (.t-slds). Свайп у Тильды в этом компоненте уже штатно работает — сам
   // слайдер не трогаем, только читаем его состояние. Активный слайд Тильда
@@ -287,6 +355,8 @@
     // return, иначе на странице без загруженного попапа подписки (или до
     // его загрузки) PDP-функции вообще не выполнились бы.
     ensureBreadcrumb();
+    ensureDesktopCrumbsPDP();
+    ensureDesktopCrumbsCategory();
     ensureGalleryOverlay();
     ensureSizeTableToggle();
 
