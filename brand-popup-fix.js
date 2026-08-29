@@ -412,3 +412,45 @@
     if (cookieTries > 40) clearInterval(cookieIv);
   }, 500);
 })();
+
+/*
+ * UNFADED — фикс "скролл кидает вниз к подвалу" на мобильном (29.08.2026).
+ * После того как попап подписки стал статичным блоком в потоке страницы
+ * (см. выше), настоящий Tilda-триггер по-прежнему при срабатывании вызывает
+ * popupEl.focus() на самом попапе (role="dialog" tabindex="-1") — обычная
+ * a11y-практика для модалок (переносить фокус в диалог при открытии).
+ * Раньше это было безопасно: попап был position:fixed поверх экрана, focus()
+ * никуда не скроллил. Теперь попап физически лежит внутри <footer>, и
+ * .focus() без опций сам скроллит страницу к элементу — ровно тот самый
+ * нежелательный прыжок вниз к подвалу при первом скролле по сайту.
+ * Фикс: подменяем focus() именно на этом элементе так, чтобы он всегда
+ * вызывался с {preventScroll:true} — фокус по-прежнему переходит в диалог
+ * (a11y не ломается), но браузер перестаёт скроллить страницу к нему.
+ */
+(function () {
+  var FOCUS_TARGET_SEL = '.t-popup[data-popup-rec-ids="rec1542845921"]';
+
+  function ensurePreventFocusScroll() {
+    if (window.innerWidth > 639) return false;
+    var el = document.querySelector(FOCUS_TARGET_SEL);
+    if (!el || el.__ufFocusPatched) return false;
+    el.__ufFocusPatched = true;
+    var nativeFocus = HTMLElement.prototype.focus;
+    el.focus = function (opts) {
+      nativeFocus.call(this, Object.assign({}, opts, {preventScroll: true}));
+    };
+    return true;
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', ensurePreventFocusScroll);
+  } else {
+    ensurePreventFocusScroll();
+  }
+  var focusTries = 0;
+  var focusIv = setInterval(function () {
+    ensurePreventFocusScroll();
+    focusTries += 1;
+    if (focusTries > 40) clearInterval(focusIv);
+  }, 500);
+})();
