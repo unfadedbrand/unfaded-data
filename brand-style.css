@@ -1789,7 +1789,11 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
    3) "Написать в WhatsApp" стало полностью бордовым — по макету должно быть
    чёрным текстом с бордовым подчёркиванием. */
 .uf-wa {
-  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-family: 'Onest', Arial, sans-serif !important;
+  font-size: 12px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
 }
 .uf-wa .uf-wdot {
   display: inline-block !important;
@@ -1797,8 +1801,20 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
   height: 8px;
   border-radius: 50%;
   background: #25D366;
+  margin-right: 0 !important;
+  flex-shrink: 0;
+}
+.uf-wa-text {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+}
+.uf-wa-lead {
+  color: #55575A;
+  font-weight: 400;
 }
 .uf-wa-link-text {
   color: #111;
+  font-weight: 400;
   border-bottom: 1px solid #7A1F2A;
 }
