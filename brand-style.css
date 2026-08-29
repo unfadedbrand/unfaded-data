@@ -1691,3 +1691,12 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
     color: #55575A;
   }
 }
+
+/* Реальная причина «чёрного» текста на кнопке «Добавить в корзину»: Тильда
+   рендерит текст кнопки как TD.js-store-prod-popup-buy-btn-txt со своим
+   собственным color (#262626), который НЕ наследуется от родителя (флекс-
+   кнопка .t-store__prod-popup__btn сама по себе белая, но это не влияет на
+   текст внутри). Раньше это не было отфикшено явно. */
+.t-store__prod-popup__btn .js-store-prod-popup-buy-btn-txt {
+  color: #FAFAFA !important;
+}
