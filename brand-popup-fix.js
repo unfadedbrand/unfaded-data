@@ -390,7 +390,7 @@
     if (wa.previousElementSibling !== note) {
       note.parentElement.appendChild(wa);
     }
-    if (wa.querySelector('.uf-wa-link-text')) return;
+    if (wa.querySelector('.uf-wa-text')) return;
     var dot = wa.querySelector('.uf-wdot');
     var fullText = wa.textContent.replace(/\s+/g, ' ').trim();
     var marker = 'Написать в WhatsApp';
@@ -399,14 +399,17 @@
     var leadText = fullText.slice(0, idx).trim();
     wa.textContent = '';
     if (dot) wa.appendChild(dot);
+    var textWrap = document.createElement('span');
+    textWrap.className = 'uf-wa-text';
     var lead = document.createElement('span');
     lead.className = 'uf-wa-lead';
-    lead.textContent = ' ' + leadText + ' ';
-    wa.appendChild(lead);
+    lead.textContent = leadText + ' ';
+    textWrap.appendChild(lead);
     var link = document.createElement('span');
     link.className = 'uf-wa-link-text';
     link.textContent = marker;
-    wa.appendChild(link);
+    textWrap.appendChild(link);
+    wa.appendChild(textWrap);
   }
 
   function apply() {
