@@ -1776,3 +1776,29 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
   color: #7A1F2A;
   border-bottom: 1px solid #7A1F2A;
 }
+
+/* Донастройка .uf-wa после переноса из #uf-auto-widget под #uf-size-stock-note
+   (см. выше). Три проблемы, все — следствие переноса: 1) .uf-wa не задаёт свой
+   font-family, а новый родитель (блок опции "Размер") имеет font-family:
+   Times New Roman — шрифт "слетал" на серийный. 2) Родные правила размера/
+   цвета точки (#uf-auto-widget .uf-wa .uf-wdot{...}) и наше более раннее
+   правило, скрывающее точку (#uf-auto-widget .uf-wa .uf-wdot{display:none}),
+   тоже были заскоуплены под #uf-auto-widget — вне этого контейнера НИ ОДНО
+   из них больше не действует, точка отображалась пустым 0×0 элементом.
+   В макете этого блока точка видна — переопределяем явно, без скоупа.
+   3) "Написать в WhatsApp" стало полностью бордовым — по макету должно быть
+   чёрным текстом с бордовым подчёркиванием. */
+.uf-wa {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+}
+.uf-wa .uf-wdot {
+  display: inline-block !important;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #25D366;
+}
+.uf-wa-link-text {
+  color: #111;
+  border-bottom: 1px solid #7A1F2A;
+}
