@@ -1700,3 +1700,20 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
 .t-store__prod-popup__btn .js-store-prod-popup-buy-btn-txt {
   color: #FAFAFA !important;
 }
+
+/* Крошки .uf-crumbs в разделах (Категории/Новинки/Bestseller/Last Chance) были
+   видны только на десктопе (display:none по умолчанию, block — только от
+   640px). На мобильной версии в разделах их не было вообще. Показываем их
+   и на мобильных экранах, с меньшими отступами/шрифтом — десктопный вид
+   (padding 20px 48px 0, 12.5px) из медиа-запроса выше не трогаем. */
+.uf-crumbs {
+  display: block;
+}
+@media screen and (max-width: 639px) {
+  .uf-crumbs {
+    padding: 12px 16px 0;
+    font-family: 'Onest', sans-serif;
+    font-size: 12px;
+    letter-spacing: 0.01em;
+  }
+}
