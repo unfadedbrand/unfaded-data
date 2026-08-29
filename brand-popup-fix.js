@@ -270,6 +270,25 @@
     t951.insertBefore(bc, t951.firstElementChild);
   }
 
+  var UF_SPECIAL_SECTIONS = {
+    '/new': 'Новинки',
+    '/last': 'Last Chance',
+    '/page87274436.html': 'Bestseller'
+  };
+
+  function ensureDesktopCrumbsSpecial() {
+    var label = UF_SPECIAL_SECTIONS[location.pathname];
+    if (!label) return;
+    var t951 = document.querySelector('.t951');
+    if (!t951) return;
+    if (t951.querySelector('.uf-crumbs')) return;
+    var bc = buildCrumbs([
+      { text: 'Главная', href: '/' },
+      { text: label }
+    ]);
+    t951.insertBefore(bc, t951.firstElementChild);
+  }
+
   // Счётчик фото "N / M · смахните →" + полоски-индикаторы поверх галереи
   // (.t-slds). Свайп у Тильды в этом компоненте уже штатно работает — сам
   // слайдер не трогаем, только читаем его состояние. Активный слайд Тильда
@@ -369,6 +388,7 @@
     ensureBreadcrumb();
     ensureDesktopCrumbsPDP();
     ensureDesktopCrumbsCategory();
+    ensureDesktopCrumbsSpecial();
     ensureCartButtonText();
     ensureGalleryOverlay();
     ensureSizeTableToggle();
