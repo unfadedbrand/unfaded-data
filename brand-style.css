@@ -1576,3 +1576,34 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
   border-bottom: 1px solid rgba(250,250,250,0.35);
   text-decoration: none;
 }
+
+/* --- Плашки карточки товара (примерка/подсказка о размере/WhatsApp) —
+   фикс дизайна 29.08.2026: виджет #uf-auto-widget вшивает в HEAD каждой
+   страницы товара собственный <style> БЕЗ !important — дефолтные цвета
+   Tilda/сторонней вставки (зелёные точки-статусы .uf-dot/.uf-wdot, тёплый
+   бежевый фон подсказки rgb(243,241,236) вместо металла #EDEEEE, рамка+
+   паддинг у ссылки WhatsApp вместо простой текстовой строки). Более ранние
+   переопределения (см. выше "плашка WhatsApp" внутри мобильного медиа-
+   запроса) либо не имели !important, либо были ограничены только мобильной
+   шириной — инлайн-стиль виджета побеждал на десктопе и, для .uf-note, даже
+   на мобильном (специфичность #uf-auto-widget .uf-note выше, чем просто
+   .uf-note). Правило ниже — безусловное (все экраны), с !important, в
+   самом конце файла — гарантированно побеждает независимо от специфичности
+   встроенного стиля. Проверено вживую на десктопе и на мобильной ширине
+   390px (iframe-техника) перед коммитом. */
+#uf-auto-widget .uf-pill .uf-dot {
+  background: rgba(250,250,250,0.85) !important;
+}
+#uf-auto-widget .uf-note {
+  background: #EDEEEE !important;
+  border-color: #D7D8D9 !important;
+}
+#uf-auto-widget .uf-wa {
+  border: none !important;
+  padding: 0 !important;
+  background: transparent !important;
+  color: #55575A !important;
+}
+#uf-auto-widget .uf-wa .uf-wdot {
+  display: none !important;
+}
