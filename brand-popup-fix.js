@@ -349,6 +349,18 @@
     });
   }
 
+  // --- Текст главной кнопки "Добавить в корзину" на странице товара —
+  // по мокапу вместо родного текста Тильды "В корзину". Тильда сама
+  // переключает текст этого узла в другие состояния ("Добавлено!",
+  // "Нет в наличии" и т.п.) — трогаем только когда видим ровно "В
+  // корзину", остальные состояния не перезаписываем.
+  function ensureCartButtonText() {
+    var el = document.querySelector('.t-store__prod-popup__btn .js-store-prod-popup-buy-btn-txt');
+    if (el && el.textContent.trim() === 'В корзину') {
+      el.textContent = 'Добавить в корзину';
+    }
+  }
+
   function apply() {
     // PDP-фиксы (хлебная крошка / галерея / таблица размеров) не зависят от
     // попапа подписки и элементов ниже — запускаем их до возможного раннего
@@ -357,6 +369,7 @@
     ensureBreadcrumb();
     ensureDesktopCrumbsPDP();
     ensureDesktopCrumbsCategory();
+    ensureCartButtonText();
     ensureGalleryOverlay();
     ensureSizeTableToggle();
 
