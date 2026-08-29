@@ -1748,3 +1748,31 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
 #rec510048518 .t886__wrapper {
   align-items: flex-start !important;
 }
+
+/* Блок "Осталось N шт размера X" под кнопками размеров (#uf-size-stock-note,
+   генерируется JS-виджетом в HEAD сайта, не в этом репозитории) — цвет для
+   состояния "мало" был оранжевым (#B5540D), в макете — красный (фирменный
+   бордовый #7A1F2A, тот же акцент, что у кнопки "В корзину"). */
+#uf-size-stock-note.uf-low {
+  color: #7A1F2A !important;
+}
+/* Строка "Вопрос по размеру? Написать в WhatsApp" (.uf-wa) переносится JS'ом
+   (brand-popup-fix.js) из исходного места в блок опции "Размер", сразу под
+   #uf-size-stock-note — вне контейнера #uf-auto-widget, под который были
+   заданы прежние стили, поэтому дублируем их уже без завязки на родителя.
+   Также JS разбивает текст на два span'а: обычный "Вопрос по размеру?" и
+   красный подчёркнутый "Написать в WhatsApp", как в макете. */
+.uf-wa {
+  border: none !important;
+  padding: 0 !important;
+  background: transparent !important;
+  color: #55575A !important;
+  text-decoration: none !important;
+}
+.uf-wa-lead {
+  color: #55575A;
+}
+.uf-wa-link-text {
+  color: #7A1F2A;
+  border-bottom: 1px solid #7A1F2A;
+}
