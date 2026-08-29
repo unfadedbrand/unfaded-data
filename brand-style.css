@@ -1942,3 +1942,22 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
   color: rgba(250,250,250,0.65) !important;
   font-family: 'Onest', sans-serif !important;
 }
+
+
+/* === UNFADED — бейдж "Доступна примерка" и подсказка "Не уверены в размере":
+   привести к макету (29.08.2026) — жирный текст бейджа, зелёная точка (было
+   #8FE3A0/near-white — предыдущее решение снять акцент, сейчас клиент явно
+   просит зелёный, совпадает с точкой у WhatsApp-виджета #25D366), единый
+   шрифт Onest. Точку переопределяем тем же ID-скоупом #uf-auto-widget, что
+   и исходное правило (rgba(250,250,250,0.85)) — иначе специфичность ниже
+   и правило не сработает (тот же класс бага, что и с .uf-wa). */
+#uf-auto-widget .uf-pill .uf-dot {
+  background: #25D366 !important;
+}
+.uf-pill {
+  font-family: 'Onest', Arial, sans-serif !important;
+  font-weight: 700 !important;
+}
+.uf-note {
+  font-family: 'Onest', Arial, sans-serif !important;
+}
