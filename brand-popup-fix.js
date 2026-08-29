@@ -237,19 +237,22 @@
     var prodContainer = document.querySelector(PDP_CONTAINER_SEL);
     if (!prodContainer) return;
     if (prodContainer.querySelector('.uf-crumbs')) return;
-    var slug = getCategorySlugFromUrl();
-    if (!slug) return;
-    var catLink = document.querySelector('a[href="/catalog/' + slug + '"]');
-    var catName = catLink ? catLink.textContent.trim() : null;
-    if (!catName) return;
     var titleEl = document.querySelector('h1');
     var productName = titleEl ? titleEl.textContent.trim() : null;
     if (!productName) return;
-    var bc = buildCrumbs([
-      { text: 'Главная', href: '/' },
-      { text: catName, href: '/catalog/' + slug },
-      { text: productName }
-    ]);
+    // Категорию удаётся определить только когда в URL есть /catalog/<slug>/tproduct/ —
+    // у части товаров канонический URL просто /tproduct/... (без категории в пути),
+    // тогда раньше крошка не показывалась вообще. Теперь в этом случае рендерим
+    // крошку без среднего уровня категории, а не прячем её совсем.
+    var slug = getCategorySlugFromUrl();
+    var catLink = slug ? document.querySelector('a[href="/catalog/' + slug + '"]') : null;
+    var catName = catLink ? catLink.textContent.trim() : null;
+    var items = [{ text: 'Главная', href: '/' }];
+    if (catName) {
+      items.push({ text: catName, href: '/catalog/' + slug });
+    }
+    items.push({ text: productName });
+    var bc = buildCrumbs(items);
     prodContainer.insertBefore(bc, prodContainer.firstElementChild);
   }
 
