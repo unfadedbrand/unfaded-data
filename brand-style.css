@@ -2708,3 +2708,32 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
     font-size: 10.5px !important;
   }
 }
+
+/* Раунд 11, фикс специфичности (2026-08-30): дизайн кнопки "Загрузить ещё" не применился —
+   у Tilda для .t-btnflex.t-btnflex_type_button border-style/border-color заданы с !important
+   в собственном per-record инлайн-стиле, который в DOM идёт ПОЗЖЕ brand-style.css. При равной
+   специфичности (1 id + 2 класса у обоих правил) в CSS-каскаде побеждает более поздний по
+   порядку в документе — то есть родной стиль Тильды, а не мой. Поднимаю специфичность,
+   явно перечисляя все классы кнопки, и отдельно нейтрализую тёмную заливку по hover/focus. */
+#rec503881643 .js-store-load-more-btn.t-btn.t-btnflex.t-btnflex_type_button {
+  border: none !important;
+  border-bottom: 1px solid #7A1F2A !important;
+}
+@media (hover: hover) {
+  #rec503881643 .js-store-load-more-btn.t-btn.t-btnflex.t-btnflex_type_button:not(.t-animate_no-hover):hover,
+  #rec503881643 .js-store-load-more-btn.t-btn.t-btnflex.t-btnflex_type_button:not(.t-animate_no-hover):focus-visible {
+    background: none !important;
+    background-color: transparent !important;
+    color: #7A1F2A !important;
+  }
+}
+
+/* Раунд 11, доп. фикс (2026-08-30): даже с победившей специфичностью border-bottom-color
+   визуально оставался старым — у Tilda на этой кнопке transition-property включает
+   border-color (0.2s), и переход, судя по всему, никогда не "доезжает" до конца (скорее
+   всего из-за периодического собственного JS Тильды, который пересобирает стили кнопки и
+   каждый раз заново стартует анимацию). Отключаю transition на этой кнопке — ссылке не нужен
+   анимированный hover, эффект и не должен был требовать transition. */
+#rec503881643 .js-store-load-more-btn.t-btn.t-btnflex.t-btnflex_type_button {
+  transition: none !important;
+}
