@@ -2093,3 +2093,26 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
   color: #17090B;
   cursor: pointer;
 }
+
+/* Оформление нативного уведомления Тильды «добавлено в корзину» (t706__bubble) под бренд-стиль.
+   Старый сторонний код «nolim-bubble» дублировал это же уведомление — его нужно удалить
+   в Тильде: Футер -> блок с HTML-кодом (rec534677958), см. project doc. */
+.t706__bubble {
+  background: #17090B !important;
+  border-radius: 4px !important;
+  border-left: 3px solid #7A1F2A !important;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.18) !important;
+}
+.t706__bubble-text {
+  font-family: 'Onest', sans-serif !important;
+  font-size: 14px !important;
+  font-weight: 400 !important;
+  color: #FAFAFA !important;
+  padding: 16px 40px 16px 20px !important;
+  line-height: 1.4 !important;
+}
+.t706__bubble-close {
+  color: #9A9D9F !important;
+  font-size: 18px !important;
+  opacity: 1 !important;
+}
