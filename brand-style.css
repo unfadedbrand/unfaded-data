@@ -2026,6 +2026,7 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
    одинаковым везде, на ПК и на мобильном. */
 .t-store__prod-popup__slider .t-slds__bgimg {
   padding-bottom: 177% !important;
+  background-size: cover !important;
 }
 
 
