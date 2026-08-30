@@ -860,7 +860,19 @@
     }
   }
 
-  function buildStepper(active) {
+    // Delivery-method radios (tildadelivery-type) render their price as a
+  // literal "0" text node when delivery is free — hide that rather than
+  // show a confusing zero. Re-run on every DOM change inside the delivery
+  // block, since Tilda re-renders the option list when the city changes
+  // (different cities can offer a different number/kind of options, e.g.
+  // an extra priced "Экспресс доставка" option for Moscow addresses).
+  function markZeroDeliveryPrices(box) {
+    qa(box, '.t-input-group_dl .delivery-minimum-price').forEach(function (el) {
+      var v = el.textContent.trim();
+      el.classList.toggle('uf-checkout-hidden-price', v === '' || v === '0' || v === '0 р.' || v === '0 ₽');
+    });
+  }
+function buildStepper(active) {
     var wrap = document.createElement('div');
     wrap.className = 'uf-checkout-stepper';
     STEP_LABELS.forEach(function (label, i) {
@@ -989,6 +1001,15 @@
     box.setAttribute('data-uf-wizard', '1');
 
     tagFields(box);
+
+    // Delivery option list: mark zero-price entries once now, and keep
+    // re-marking whenever Tilda swaps the option list for a new city.
+    var dl = q(box, '.t-input-group_dl');
+    if (dl) {
+      markZeroDeliveryPrices(box);
+      var dlObs = new MutationObserver(function () { markZeroDeliveryPrices(box); });
+      dlObs.observe(dl, { childList: true, subtree: true });
+    }
 
     var review = document.createElement('div');
     review.className = 'uf-checkout-review';
