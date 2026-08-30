@@ -3358,3 +3358,175 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
   text-transform: none !important;
   color: #6B6D6F !important;
 }
+
+
+/* ============================================================
+   UNFADED — "Спасибо за заказ" (/thanks) redesign
+   Page-level fix, NOT part of the checkout wizard above — restyles
+   the T123 custom-HTML block's own markup (#rec3375631701 .unf-thanks)
+   per the approved mockup: dark oxblood card wrapping heading+subtitle
+   with a new eyebrow label above it, redesigned stepper (checkmark +
+   numbered dots), burgundy primary CTA, bold underlined quicklinks.
+   COPY IS UNCHANGED — still the live text, incl. the correct support
+   email unfadedwork@gmail.com — visual restyle only, per
+   site_mockup_implementation_handoff_2026-08-27 (#4.5): "просто
+   одевает его в новую цветовую/шрифтовую систему".
+   The .uf-thanks-card wrapper + .uf-thanks-eyebrow label don't exist
+   in the block's own markup — brand-popup-fix.js inserts them
+   (ensureThanksHeaderCard), mirroring the ensureNovinkiHeader pattern
+   already used for the homepage "Новинки" header.
+   ============================================================ */
+
+/* Card: full-bleed dark background behind heading+subtitle only.
+   width:100vw + margin: calc(50% - 50vw) is the established full-bleed
+   technique in this project (see outfit_cross_sell_layout_typography).
+   Negative margin-top cancels .unf-thanks's own padding-top (76px
+   desktop / 56px ≤640px, set by the block's own inline <style>) so the
+   card sits flush against whatever is above it (promo bar/nav). */
+#rec3375631701 .uf-thanks-card {
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+  margin-top: -76px;
+  margin-bottom: 44px;
+  padding: 46px 24px 38px;
+  background: #17090B;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
+}
+#rec3375631701 .uf-thanks-eyebrow {
+  font-family: 'Onest', sans-serif !important;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(250, 250, 250, 0.6);
+  margin: 0 0 10px;
+  padding-bottom: 10px;
+  position: relative;
+}
+/* Burgundy underline accent — per brand rule, burgundy on an oxblood
+   background is fill/underline only, never text color (see
+   site_color_typography_usage_guide_corset_2026-08-27), so the accent
+   lives here, not on the eyebrow text itself. */
+#rec3375631701 .uf-thanks-eyebrow::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  width: 30px;
+  height: 2px;
+  background: #7A1F2A;
+}
+#rec3375631701 .uf-thanks-card h2 {
+  font-family: 'Onest', sans-serif !important;
+  font-size: 30px !important;
+  font-weight: 700 !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+  color: #FAFAFA !important;
+  margin: 0 0 12px !important;
+}
+#rec3375631701 .uf-thanks-card p.unf-sub {
+  font-family: 'Onest', sans-serif !important;
+  font-style: italic;
+  font-size: 14px !important;
+  font-weight: 400 !important;
+  color: rgba(250, 250, 250, 0.55) !important;
+  margin: 0 !important;
+  max-width: 40ch;
+}
+
+/* Stepper: checkmark for the done step, numbers for pending ones —
+   injected via ::after content since the block's own markup only has
+   empty .unf-dot spans (no text nodes to style directly). Relies on
+   .unf-stepper having exactly 4 .unf-step children in order (verified
+   live), so nth-child(2/3/4) map to steps 2/3/4. */
+#rec3375631701 .unf-step .unf-dot {
+  width: 22px;
+  height: 22px;
+  border-color: #D7D8D9 !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+#rec3375631701 .unf-step.unf-done .unf-dot {
+  border-color: #17090B !important;
+}
+#rec3375631701 .unf-step .unf-dot::after {
+  font-family: 'Onest', sans-serif !important;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #ADB0B2;
+}
+#rec3375631701 .unf-step:nth-child(2) .unf-dot::after { content: '2'; }
+#rec3375631701 .unf-step:nth-child(3) .unf-dot::after { content: '3'; }
+#rec3375631701 .unf-step:nth-child(4) .unf-dot::after { content: '4'; }
+#rec3375631701 .unf-step.unf-done .unf-dot::after {
+  content: '\2713';
+  color: #FAFAFA;
+  font-size: 12px;
+}
+/* top:10px re-centers the connector line against the bigger 22px dot
+   (was top:5px, sized for the original 13px dot). */
+#rec3375631701 .unf-step .unf-track { background: #D7D8D9 !important; top: 10px !important; }
+#rec3375631701 .unf-step.unf-done .unf-track { background: #17090B !important; }
+#rec3375631701 .unf-step .unf-label {
+  font-family: 'Onest', sans-serif !important;
+  font-size: 11px;
+  margin-top: 8px;
+}
+#rec3375631701 .unf-step.unf-active .unf-label { color: #17090B !important; }
+
+/* CTA buttons: stacked full-width (mockup shows this at every width,
+   not just mobile — the block's own <style> only stacked them
+   ≤640px), burgundy primary fill (was black). Secondary stays
+   white/outline — already close to the mockup. */
+#rec3375631701 .unf-cta-row {
+  flex-direction: column !important;
+  align-items: stretch !important;
+  max-width: 420px;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+#rec3375631701 .unf-btn {
+  width: 100%;
+  text-align: center;
+  box-sizing: border-box;
+}
+#rec3375631701 .unf-btn-primary {
+  background: #7A1F2A !important;
+  border-color: #7A1F2A !important;
+}
+#rec3375631701 .unf-btn-secondary {
+  border-color: #D7D8D9 !important;
+  color: #17090B !important;
+}
+
+/* Support line + quicklinks: copy stays exactly as-is (live email is
+   already correct) — restyle only: burgundy underline on the email
+   link, quicklinks made bold + permanently underlined per mockup
+   (was thin gray, underline only on hover). */
+#rec3375631701 .unf-support a {
+  color: #17090B !important;
+  text-decoration-color: #7A1F2A !important;
+}
+#rec3375631701 .unf-quicklinks a {
+  font-weight: 700 !important;
+  color: #17090B !important;
+  border-bottom-color: #7A1F2A !important;
+}
+#rec3375631701 .unf-quicklinks a:hover,
+#rec3375631701 .unf-quicklinks a:focus-visible {
+  opacity: 0.7;
+}
+
+@media screen and (max-width: 640px) {
+  #rec3375631701 .uf-thanks-card { padding: 40px 20px 32px; margin-top: -56px; }
+  #rec3375631701 .uf-thanks-card h2 { font-size: 24px !important; }
+  #rec3375631701 .uf-thanks-card p.unf-sub { font-size: 13px !important; }
+}
