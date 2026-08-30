@@ -692,3 +692,81 @@
     if (backTries > 40) clearInterval(backIv);
   }, 500);
 })();
+
+
+// Раунд 11 (2026-08-30): блок "Новинки" на главной (rec503881643) — счётчик
+// "Показано X из Y товаров" над родной кнопкой "Загрузить ещё" (перестилизована в
+// brand-style.css в текстовую ссылку), плюс отдельная ссылка "Перейти в каталог"
+// рядом с ней. Y берётся напрямую из API Tilda, X — фактическое число уже
+// отрисованных карточек, обновляется после каждой догрузки.
+(function () {
+  var RECORD_ID = 'rec503881643';
+  var CATALOG_HREF = '/catalog';
+  var STORE_PART_UID = '179820859341';
+  var STORE_RECID = '503881643';
+  var initialized = false;
+
+  function currentShown(rec) {
+    return rec.querySelectorAll('.t-store__card').length;
+  }
+
+  function setCaptionText(caption, shown, total) {
+    caption.textContent = shown >= total
+      ? 'Показаны все ' + total + ' товаров'
+      : 'Показано ' + shown + ' из ' + total + ' товаров';
+  }
+
+  function fetchTotal() {
+    var url = 'https://store.tildaapi.com/api/getproductslist/?storepartuid=' + STORE_PART_UID +
+      '&recid=' + STORE_RECID + '&c=1&slice=1&getparts=true&size=1&flag_root=withroot';
+    return fetch(url).then(function (res) { return res.json(); }).then(function (json) {
+      return json.total;
+    }).catch(function () { return null; });
+  }
+
+  function ensureLoadMoreCounter() {
+    if (initialized) return;
+    var rec = document.getElementById(RECORD_ID);
+    if (!rec) return;
+    var wrap = rec.querySelector('.t-store__load-more-btn-wrap');
+    if (!wrap) return;
+    initialized = true;
+
+    fetchTotal().then(function (total) {
+      if (!total) { initialized = false; return; }
+
+      var caption = document.createElement('div');
+      caption.className = 'uf-loadmore-caption';
+      setCaptionText(caption, currentShown(rec), total);
+      wrap.insertBefore(caption, wrap.firstChild);
+
+      var gotoLink = document.createElement('a');
+      gotoLink.href = CATALOG_HREF;
+      gotoLink.className = 'uf-goto-catalog-link';
+      gotoLink.textContent = 'Перейти в каталог →';
+      wrap.appendChild(gotoLink);
+
+      var storeRoot = rec.querySelector('.t-store');
+      if (storeRoot && window.MutationObserver) {
+        var scheduled = false;
+        var mo = new MutationObserver(function () {
+          if (scheduled) return;
+          scheduled = true;
+          setTimeout(function () {
+            scheduled = false;
+            setCaptionText(caption, currentShown(rec), total);
+          }, 150);
+        });
+        mo.observe(storeRoot, { childList: true, subtree: false });
+      }
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', ensureLoadMoreCounter);
+  var ufR11Tries = 0;
+  var ufR11Interval = setInterval(function () {
+    ufR11Tries++;
+    ensureLoadMoreCounter();
+    if (initialized || ufR11Tries > 40) clearInterval(ufR11Interval);
+  }, 500);
+})();
