@@ -3126,6 +3126,30 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
   border-top: 1px dashed var(--uf-line);
 }
 
+/* ---------- Итоговая сумма (cart/checkout total) ---------- */
+/* The order-total line's price + currency were rendering much larger and
+   lighter than the "Итоговая сумма:" / "Сумма:" label next to it — match
+   them: same size, weight and color as the label. Scoped to the TOTAL
+   line specifically (.t706__cartwin-totalamount = checkout info column,
+   .t706__sidebar-totalamount = mini-cart drawer) because Tilda reuses the
+   same .t706__cartwin-prodamount-price/-currency classes for the per-item
+   prices and the "Сумма" subtotal row too — those must stay untouched.
+   Uses a literal color instead of var(--uf-ink): this total block sits
+   outside .t706__cartpage-form-wrapper/.t706__cartwin-content (where that
+   custom property is declared), so the variable isn't in scope here. */
+.t706__cartwin-totalamount .t706__cartwin-prodamount-price,
+.t706__sidebar-totalamount .t706__cartwin-prodamount-price {
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  color: #17090B !important;
+}
+.t706__cartwin-totalamount .t706__cartwin-prodamount-currency::after,
+.t706__sidebar-totalamount .t706__cartwin-prodamount-currency::after {
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  color: #17090B !important;
+}
+
 /* ---------- Step 4: review ---------- */
 .uf-checkout-review {
   display: flex;
