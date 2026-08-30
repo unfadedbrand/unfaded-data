@@ -2769,7 +2769,7 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
 #rec504664503 { display: none !important; }
 
 .uf-nov-header { background: #FAFAFA; }
-.uf-nov-header__inner { padding: 28px 48px 0; }
+.uf-nov-header__inner { padding: 28px 48px 24px; }
 .uf-nov-header__eyebrow {
   font-family: 'Onest', sans-serif !important;
   font-size: 10.5px;
@@ -2811,7 +2811,7 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
   text-decoration-color: #7A1F2A;
 }
 @media screen and (max-width: 639px) {
-  .uf-nov-header__inner { padding: 22px 16px 0; }
+  .uf-nov-header__inner { padding: 22px 16px 18px; }
   .uf-nov-header__row { flex-direction: column; align-items: flex-start; gap: 6px; }
   .uf-nov-header__title { font-size: 21px; }
   .uf-nov-header__link { font-size: 10.5px; }
