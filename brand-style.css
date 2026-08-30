@@ -2198,10 +2198,14 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
   font-variant-numeric: tabular-nums;
 }
 
-/* Счётчик количества — тонкая обводка вместо голых плюса/минуса Тильды */
+/* Счётчик количества — БЕЗ рамки (2026-08-30: пользователь явно попросила
+   убрать рамку полностью — и в корзине, и на странице оформления заказа,
+   и на ПК, и на моб — ранее была тонкая обводка "под пилюлю", но
+   border-radius:2px даёт острые углы, читается как некрасивый квадрат,
+   не пилюля; решение — просто убрать рамку, оставить голые −/+/число). */
 .t706__product-plusminus {
-  border: 1px solid #D7D8D9 !important;
-  border-radius: 2px !important;
+  border: none !important;
+  border-radius: 0 !important;
   display: inline-flex !important;
   align-items: center !important;
 }
