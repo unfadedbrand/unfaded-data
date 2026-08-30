@@ -3168,3 +3168,10 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
 @media screen and (max-width: 980px) {
   .uf-checkout-nav__next { max-width: none; }
 }
+
+
+/* Второе поле «Промокод» (Промокод_2, после pay_method) подтверждено как
+   нерабочее — не долетает до RetailCRM (проверено пользователем 2026-08-30,
+   реально используется только первое поле). Прячем его насовсем, чтобы не
+   показывать покупателю поле, которое молча ничего не делает. */
+.t-form__inputsbox .uf-checkout-hidden-field { display: none !important; }
