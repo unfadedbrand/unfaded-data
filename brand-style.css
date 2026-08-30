@@ -2737,3 +2737,26 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
 #rec503881643 .js-store-load-more-btn.t-btn.t-btnflex.t-btnflex_type_button {
   transition: none !important;
 }
+
+
+/* Страница товара («карточка товара»): цена и старая цена — «RUB» вместо «р.»
+   (аналогично каталожным карточкам). Узел управляется настройкой валюты Тильды,
+   поэтому исходный текст визуально прячем (font-size:0), а «RUB» подставляем
+   через ::after; размер держим в переменной, чтобы не зависеть от обнулённого
+   font-size родителя. Один класс покрывает и текущую, и старую (зачёркнутую) цену. */
+.t-store__prod-popup__price-currency {
+  --uf-currency-fs-pdp: 16px;
+  font-size: 0 !important;
+  margin-left: 4px !important;
+}
+.t-store__prod-popup__price-currency::after {
+  content: "RUB" !important;
+  font-size: var(--uf-currency-fs-pdp) !important;
+  font-family: var(--uf-font-mono) !important;
+}
+@media screen and (max-width: 639px) {
+  .t-store__prod-popup__price-currency {
+    --uf-currency-fs-pdp: 12px;
+    margin-left: 3px !important;
+  }
+}
