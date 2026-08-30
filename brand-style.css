@@ -2027,3 +2027,37 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
 .t-store__prod-popup__slider .t-slds__bgimg {
   padding-bottom: 177% !important;
 }
+
+
+/* ИСПРАВЛЕНИЕ фикса телефона в попапе «Узнать о поступлении»: прошлый
+   патч был завязан на #rec1542845921 — это оказался старый неиспользуемый
+   нативный Тильда-попап, а реально показывается кастомный JS-виджет
+   #uf-notify-modal (см. ensureNotifyModal в brand-popup-fix.js). Поэтому
+   текст телефона (и код страны +7) оставался чёрным и невидимым на тёмном
+   фоне — старое правило просто не совпадало ни с одним элементом. Верный
+   селектор — по id #uf-notify-modal. Заодно красим код страны (+7),
+   который тоже был чёрным. */
+#uf-notify-modal input.t-input-phonemask {
+  color: #FAFAFA !important;
+}
+#uf-notify-modal .t-input.t-input-phonemask__wrap {
+  background: rgba(250,250,250,0.06) !important;
+  border: 1px solid rgba(250,250,250,0.22) !important;
+}
+#uf-notify-modal .t-input-phonemask__select,
+#uf-notify-modal .t-input-phonemask__select-code {
+  color: #FAFAFA !important;
+}
+
+/* Таблица размеров (.uf-sizebox) на странице товара: правило
+   display:none лежало внутри @media (max-width:639px), поэтому на
+   десктопе панель ничем не скрывалась по умолчанию — торчала открытой и
+   не реагировала на клик по «Таблица размеров ▾» (стрелка переключает
+   класс .uf-open, а без базового display:none на ПК скрывать было уже
+   нечего). Дублируем правило без привязки к брейкпоинту. */
+.uf-sizebox {
+  display: none;
+}
+.uf-sizebox.uf-open {
+  display: block;
+}
