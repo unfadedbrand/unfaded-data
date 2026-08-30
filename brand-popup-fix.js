@@ -604,3 +604,50 @@
     if (focusTries > 40) clearInterval(focusIv);
   }, 500);
 })();
+
+/*
+ * UNFADED — цена в блоке «Дополните образ» (uf-outfit, кросс-селл на странице
+ * товара). Виджет отдаёт цену одним текстовым узлом «18 000 ₽» без разметки,
+ * поэтому не может унаследовать стиль карточек каталога (там число и подпись
+ * «RUB» — раздельные элементы, см. .t-store__card__price-currency в
+ * brand-style.css). Разбиваем текст на два span'а те же по смыслу
+ * (.uf-outfit-price-value/.uf-outfit-price-currency), чтобы CSS мог
+ * оформить их так же, как в остальных карточках сайта.
+ */
+(function () {
+  function ensureOutfitPriceFormat() {
+    var els = document.querySelectorAll('.uf-outfit-price:not([data-uf-formatted])');
+    if (!els.length) return false;
+    var found = false;
+    els.forEach(function (el) {
+      var text = (el.textContent || '').trim();
+      var m = text.match(/^([\d\s\u00A0]+)\s*₽\s*$/);
+      if (!m) { el.setAttribute('data-uf-formatted', '1'); return; }
+      var value = m[1].replace(/\s+$/, '');
+      el.innerHTML = '';
+      var valueSpan = document.createElement('span');
+      valueSpan.className = 'uf-outfit-price-value';
+      valueSpan.textContent = value;
+      var curSpan = document.createElement('span');
+      curSpan.className = 'uf-outfit-price-currency';
+      curSpan.textContent = 'RUB';
+      el.appendChild(valueSpan);
+      el.appendChild(curSpan);
+      el.setAttribute('data-uf-formatted', '1');
+      found = true;
+    });
+    return found;
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', ensureOutfitPriceFormat);
+  } else {
+    ensureOutfitPriceFormat();
+  }
+  var outfitTries = 0;
+  var outfitIv = setInterval(function () {
+    ensureOutfitPriceFormat();
+    outfitTries += 1;
+    if (outfitTries > 40) clearInterval(outfitIv);
+  }, 500);
+})();
