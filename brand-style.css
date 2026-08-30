@@ -2152,3 +2152,139 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
   opacity: 0.55;
   margin-left: 3px;
 }
+
+/* ============================================================================
+   Корзина (виджет T706) — перенос согласованного мокапа в фирменный стиль.
+   Один и тот же DOM/классы Тильда переиспользует и в боковой панели на
+   десктопе (.t706__sidebar), и в полноэкранной вкладке на мобильном
+   (.t706__cartpage) — она физически переносит те же .t706__product-узлы
+   между контейнерами по брейкпоинту, поэтому один набор правил ниже
+   покрывает оба контекста без отдельных media-запросов.
+   Форму оформления заказа (адрес/доставка/оплата) не трогаем — мокап
+   её не показывал, это отдельная задача.
+   ============================================================================ */
+
+/* Заголовок «Ваш заказ» + разделитель под ним */
+.t706__sidebar-heading,
+.t706__cartpage-heading {
+  font-family: 'Onest', sans-serif !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  letter-spacing: .12em !important;
+  text-transform: uppercase !important;
+  color: #17090B !important;
+}
+.t706__sidebar-top,
+.t706__cartpage-top {
+  border-bottom: 1px solid #EDEEEE !important;
+}
+
+/* Строка товара — миниатюра, название, размер/цвет/артикул */
+.t706__product-thumb,
+.t706__product-imgdiv {
+  border-radius: 2px !important;
+}
+.t706__product-title,
+.t706__product-title a {
+  font-family: 'Onest', sans-serif !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  color: #17090B !important;
+}
+.t706__product-title__option {
+  font-family: 'Onest', sans-serif !important;
+  font-size: 12px !important;
+  color: #6B6D6F !important;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Счётчик количества — тонкая обводка вместо голых плюса/минуса Тильды */
+.t706__product-plusminus {
+  border: 1px solid #D7D8D9 !important;
+  border-radius: 2px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+.t706__product-minus,
+.t706__product-plus {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 26px !important;
+  height: 26px !important;
+}
+.t706__product-quantity {
+  min-width: 24px;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-left: 1px solid #D7D8D9 !important;
+  border-right: 1px solid #D7D8D9 !important;
+  font-family: 'Onest', sans-serif !important;
+  font-size: 12px !important;
+  color: #17090B !important;
+  font-variant-numeric: tabular-nums;
+}
+.t706__product-del-wrapper {
+  width: 22px !important;
+  height: 22px !important;
+}
+
+/* Цена — общие классы для строки товара И итоговой суммы, поэтому один раз:
+   прячем «р.» Тильды и подставляем приглушённое «RUB», как в карточках каталога
+   (см. .t-store__card__price-currency выше в этом файле). */
+.t706__cartwin-prodamount-price {
+  font-family: 'Onest', sans-serif !important;
+  font-variant-numeric: tabular-nums;
+  color: #17090B !important;
+}
+.t706__cartwin-prodamount-currency {
+  font-size: 0 !important;
+}
+.t706__cartwin-prodamount-currency::after {
+  content: "RUB" !important;
+  font-size: 11px !important;
+  color: #9A9D9F !important;
+  margin-left: 3px;
+  font-family: 'Onest', sans-serif !important;
+}
+.t706__cartwin-totalamount .t706__cartwin-prodamount-price {
+  font-size: 17px !important;
+}
+
+/* Итоговая сумма + адрес доставки (авто-определённый Тильдой по IP) */
+.t706__cartwin-totalamount-wrap {
+  border-top: 1px solid #EDEEEE !important;
+  padding-top: 14px !important;
+}
+.t706__cartwin-totalamount-label {
+  font-family: 'Onest', sans-serif !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  letter-spacing: .1em !important;
+  text-transform: uppercase !important;
+  color: #17090B !important;
+}
+.delivery-full-address {
+  font-family: 'Onest', sans-serif !important;
+  font-size: 12px !important;
+  color: #6B6D6F !important;
+}
+
+/* Кнопка «Оформить заказ» (и в панели, и на полной вкладке) — бордовая заливка,
+   тот же цвет, что у «Добавить в корзину» на странице товара. */
+.t706__sidebar-continue,
+.t706__cartpage-open-form {
+  background-color: #7A1F2A !important;
+  color: #FAFAFA !important;
+  font-family: 'Onest', sans-serif !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  letter-spacing: .1em !important;
+  text-transform: uppercase !important;
+  border-radius: 2px !important;
+}
+.t706__sidebar-continue:hover,
+.t706__cartpage-open-form:hover {
+  background-color: #5e1621 !important;
+}
