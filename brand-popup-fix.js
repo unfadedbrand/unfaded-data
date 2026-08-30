@@ -770,3 +770,40 @@
     if (initialized || ufR11Tries > 40) clearInterval(ufR11Interval);
   }, 500);
 })();
+
+
+// Главная: заголовок блока "Новинки" -- вставляет рубрику + заголовок + ссылку
+// "Смотреть все" перед сеткой товаров (#rec503881643). Нативный текстовый Zero-блок
+// (#rec504664503, просто "НОВИНКИ") скрыт через CSS -- см. brand-style.css.
+(function () {
+  var GRID_REC_ID = 'rec503881643';
+  var initialized = false;
+
+  function ensureNovinkiHeader() {
+    if (initialized) return;
+    var grid = document.getElementById(GRID_REC_ID);
+    if (!grid || !grid.parentNode) return;
+    if (document.querySelector('.uf-nov-header')) { initialized = true; return; }
+    initialized = true;
+
+    var header = document.createElement('div');
+    header.className = 'uf-nov-header';
+    header.innerHTML =
+      '<div class="uf-nov-header__inner">' +
+        '<p class="uf-nov-header__eyebrow">Новая коллекция</p>' +
+        '<div class="uf-nov-header__row">' +
+          '<h2 class="uf-nov-header__title">Новинки</h2>' +
+          '<a class="uf-nov-header__link" href="/new">Смотреть все →</a>' +
+        '</div>' +
+      '</div>';
+    grid.parentNode.insertBefore(header, grid);
+  }
+
+  document.addEventListener('DOMContentLoaded', ensureNovinkiHeader);
+  var ufNovTries = 0;
+  var ufNovInterval = setInterval(function () {
+    ufNovTries++;
+    ensureNovinkiHeader();
+    if (initialized || ufNovTries > 40) clearInterval(ufNovInterval);
+  }, 500);
+})();
