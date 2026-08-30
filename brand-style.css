@@ -2061,3 +2061,34 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
 .uf-sizebox.uf-open {
   display: block;
 }
+
+
+/* Продолжение фикса таблицы размеров: помимо display:none панели, вся
+   стилизация строки-переключателя (.uf-size-toggle-row / .uf-size-toggle-row a)
+   тоже лежала только внутри @media (max-width:639px). На десктопе строка
+   рендерилась как обычный display:block текст нативным цветом ссылок
+   Тильды (ярко-коралловый, без анимации/подчёркивания), «Размер» и
+   «Таблица размеров» слипались в одну строку без flex-space-between — из-за
+   этого и было ощущение слетевшего дизайна. Дублируем те же самые
+   правила, что и в мобильном медиа-запросе, без привязки к брейкпоинту. */
+.uf-size-toggle-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: 'Onest', sans-serif;
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #17090B;
+  margin: 4px 0 10px;
+}
+.uf-size-toggle-row a {
+  font-weight: 400;
+  font-size: 11px;
+  text-transform: none;
+  letter-spacing: normal;
+  border-bottom: 1px solid #7A1F2A;
+  color: #17090B;
+  cursor: pointer;
+}
