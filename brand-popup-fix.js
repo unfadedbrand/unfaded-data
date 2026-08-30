@@ -845,12 +845,16 @@
         el.dataset.ufAssigned = '1';
       }
     });
-    // Second promo-code field (after pay_method in DOM order) belongs to step 3.
+    // Second promo-code field: confirmed 2026-08-30 (real RetailCRM order
+    // data checked by the site owner) that only the FIRST "Промокод" field
+    // reaches CRM — this one ("Промокод_2", after pay_method) is dead.
+    // Hide it permanently instead of showing a field that does nothing.
     var rd = q(box, '.t-input-group_rd');
     if (rd) {
       qa(box, '.t-input-group_pc').forEach(function (el) {
         if (el.compareDocumentPosition(rd) & Node.DOCUMENT_POSITION_PRECEDING) {
-          el.setAttribute('data-uf-step', '3');
+          el.classList.add('uf-checkout-hidden-field');
+          el.removeAttribute('data-uf-step');
         }
       });
     }
