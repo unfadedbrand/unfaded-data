@@ -2633,3 +2633,10 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
     max-width: calc(50% - 1.5px) !important;
   }
 }
+
+/* Раунд 10 (2026-08-30): убрать белый отступ между блоком «Дополните образ» и подвалом на ПК (нативный padding-bottom контейнера товара Tilda), моб. версия не тронута */
+@media screen and (min-width: 640px) {
+  .t-store__prod-snippet__container:has(#uf-outfit-standalone) {
+    padding-bottom: 0 !important;
+  }
+}
