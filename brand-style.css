@@ -2467,3 +2467,52 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
     max-width: 165px !important;
   }
 }
+
+
+/* ============================================================================
+   «Дополните образ» — раунд 3: полноширинная сетка как у настоящего
+   каталога, не мини-плитки внутри узкой колонки товара. Реальная
+   сетка каталога (.t-store__card-list) — display:flex, gap 3px,
+   БЕЗ отступов у контейнера, сами карточки растянуты на всю ширину
+   (проверено на /catalog: 4 карточки в ряд на десктопе, 2 на мобильном,
+   зазор между карточками ровно 3px, без полей по бокам). Наш блок
+   сидит внутри узкого `.t-container` страницы товара — чтобы получить
+   такую же полноширинную сетку, .uf-outfit-row "вырывается" из
+   контейнера классическим приёмом (width:100vw + margin calc(50%-50vw)),
+   а заголовок «Дополните образ» остаётся в обычной читаемой колонке
+   (левый/правый паддинг 20px на .uf-outfit) — ширину меняет только
+   ряд карточек, не текст. Плюс — отступ сверху 48px, чтобы заголовок
+   не липнул к «Доставка и оплата» над ним.
+   Карточкам явно снят max-width/min-width/flex, которые задавал
+   инлайновый Head-code скрипт виджета (220px по умолчанию на
+   десктопе) — без этого карточки не растягивались бы на всю ширину
+   grid-колонки, даже когда сама сетка уже полноширинная.
+   ============================================================================ */
+.uf-outfit {
+  padding: 48px 20px 0 !important;
+}
+.uf-outfit-title {
+  margin: 0 0 16px !important;
+}
+.uf-outfit-row {
+  display: grid !important;
+  grid-template-columns: repeat(4, 1fr) !important;
+  gap: 3px !important;
+  width: 100vw !important;
+  margin-left: calc(50% - 50vw) !important;
+  margin-right: calc(50% - 50vw) !important;
+}
+@media screen and (max-width: 639px) {
+  .uf-outfit-row {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+.uf-outfit-card {
+  display: flex !important;
+  flex-direction: column !important;
+  background: #17090B !important;
+  width: auto !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  flex: none !important;
+}
