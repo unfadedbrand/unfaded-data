@@ -2640,3 +2640,71 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
     padding-bottom: 0 !important;
   }
 }
+
+/* Раунд 11 (2026-08-30): блок "Новинки" на главной — "Загрузить ещё"/"Перейти в каталог"
+   как текстовые ссылки со счётчиком вместо кнопок (по референсу клиента), убраны старая
+   отдельная кнопка "Перейти в каталог" (rec1716940231) и пустой спейсер-рекорд (rec504665597).
+   Счётчик и вторая ссылка вставляются в brand-popup-fix.js, здесь только стилизация. */
+#rec1716940231 {
+  display: none !important;
+}
+#rec504665597 {
+  display: none !important;
+}
+#rec503881643 .t-store__load-more-btn-wrap {
+  padding-top: 24px !important;
+  padding-bottom: 24px !important;
+}
+.uf-loadmore-caption {
+  font-family: 'Onest', sans-serif;
+  font-size: 11px;
+  color: #9A9D9F;
+  margin: 0 0 12px;
+  letter-spacing: 0.01em;
+}
+#rec503881643 .js-store-load-more-btn.t-btn {
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: #17090B !important;
+  font-weight: 600 !important;
+  font-size: 13px !important;
+  letter-spacing: 0.05em !important;
+  text-transform: uppercase !important;
+  border-bottom: 1px solid #7A1F2A !important;
+  border-radius: 0 !important;
+  padding: 0 0 5px !important;
+  height: auto !important;
+  width: auto !important;
+  min-width: 0 !important;
+  font-family: 'Onest', sans-serif !important;
+}
+#rec503881643 .js-store-load-more-btn.t-btn:hover {
+  background: none !important;
+  color: #7A1F2A !important;
+}
+.uf-goto-catalog-link {
+  display: block;
+  margin-top: 12px;
+  font-family: 'Onest', sans-serif;
+  font-size: 11px;
+  color: #6B6D6F;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: #D7D8D9;
+}
+@media screen and (max-width: 639px) {
+  #rec503881643 .t-store__load-more-btn-wrap {
+    padding-top: 18px !important;
+    padding-bottom: 18px !important;
+  }
+  .uf-loadmore-caption {
+    font-size: 10.5px !important;
+  }
+  #rec503881643 .js-store-load-more-btn.t-btn {
+    font-size: 12px !important;
+  }
+  .uf-goto-catalog-link {
+    font-size: 10.5px !important;
+  }
+}
