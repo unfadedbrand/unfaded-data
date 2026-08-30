@@ -1078,3 +1078,48 @@ function buildStepper(active) {
     if (ufWizTries > 200) clearInterval(ufWizInterval);
   }, 400);
 })();
+
+
+// ============================================================
+// UNFADED — "Спасибо за заказ" (/thanks) redesign: header card
+// The T123 block's own markup (#rec3375631701 .unf-thanks) has a bare
+// <h2> + <p class="unf-sub"> as its first two children, with no eyebrow
+// label and no wrapping element for the dark header-card background —
+// this wraps them at runtime so brand-style.css can style the card.
+// Copy is untouched: only moves the existing h2/p.unf-sub nodes into a
+// new wrapper and adds one new eyebrow label. Same pattern as the
+// homepage "Новинки" header (ensureNovinkiHeader above).
+// ============================================================
+(function () {
+  var initialized = false;
+
+  function ensureThanksHeaderCard() {
+    if (initialized) return;
+    var root = document.querySelector('#rec3375631701 .unf-thanks');
+    if (!root) return;
+    var h2 = root.querySelector(':scope > h2');
+    var sub = root.querySelector(':scope > p.unf-sub');
+    if (!h2 || !sub) return;
+    initialized = true;
+
+    var card = document.createElement('div');
+    card.className = 'uf-thanks-card';
+
+    var eyebrow = document.createElement('p');
+    eyebrow.className = 'uf-thanks-eyebrow';
+    eyebrow.textContent = 'Заказ оформлен';
+
+    root.insertBefore(card, h2);
+    card.appendChild(eyebrow);
+    card.appendChild(h2);
+    card.appendChild(sub);
+  }
+
+  document.addEventListener('DOMContentLoaded', ensureThanksHeaderCard);
+  var ufThanksTries = 0;
+  var ufThanksInterval = setInterval(function () {
+    ufThanksTries++;
+    ensureThanksHeaderCard();
+    if (initialized || ufThanksTries > 40) clearInterval(ufThanksInterval);
+  }, 500);
+})();
