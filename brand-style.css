@@ -2516,3 +2516,31 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
   min-width: 0 !important;
   flex: none !important;
 }
+
+
+/* ============================================================================
+   Корзина — иконки степпера количества (- / +) без обводки-кружка.
+   Тильда рисует их встроенными SVG-иконками из своей библиотеки linea
+   (arrows_circle_minus.svg / arrows_circle_plus.svg) — у иконок кружок
+   ВПАЯН прямо в графику, это не CSS-рамка, поэтому обычным border:none
+   не убирается. Прячем картинку и рисуем плоский «−»/«+» текстом через
+   ::before — как в согласованном мокапе корзины.
+   ============================================================================ */
+.t706__product-minus img,
+.t706__product-plus img {
+  display: none !important;
+}
+.t706__product-minus::before,
+.t706__product-plus::before {
+  font-family: 'Onest', sans-serif !important;
+  font-size: 16px !important;
+  font-weight: 400 !important;
+  color: #17090B !important;
+  line-height: 1 !important;
+}
+.t706__product-minus::before {
+  content: "−" !important;
+}
+.t706__product-plus::before {
+  content: "+" !important;
+}
