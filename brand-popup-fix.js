@@ -807,3 +807,249 @@
     if (initialized || ufNovTries > 40) clearInterval(ufNovInterval);
   }, 500);
 })();
+
+
+// ============================================================
+// UNFADED — Checkout step wizard
+// Non-destructive: tags Tilda's native checkout field-groups with
+// data-uf-step (1..4) and toggles visibility via data-active-step
+// on .t-form__inputsbox. Native inputs/names, Dolyame's widget and
+// the paymentsystem (RetailCRM/Яндекс) block are left untouched —
+// the latter pending separate review with the tech specialist.
+// ============================================================
+(function () {
+  var STEP_LABELS = ['Контакты', 'Доставка', 'Оплата', 'Проверка', 'Готово'];
+
+  function q(root, sel) { return root.querySelector(sel); }
+  function qa(root, sel) { return Array.prototype.slice.call(root.querySelectorAll(sel)); }
+
+  function findForm() {
+    var pm = document.querySelector('.t-input-group_pm');
+    if (!pm) return null;
+    return pm.closest('form.js-form-proccess');
+  }
+
+  function tagFields(box) {
+    var children = qa(box, ':scope > *');
+    children.forEach(function (el) {
+      if (el.matches('.t-input-group_nm, .t-input-group_em, .t-input-group_ph, .t-input-group_in, .t-input-group_pc')) {
+        if (!el.dataset.ufAssigned) {
+          el.setAttribute('data-uf-step', '1');
+          el.dataset.ufAssigned = '1';
+        }
+      } else if (el.matches('.t-input-group_cb, .t-input-group_dl')) {
+        el.setAttribute('data-uf-step', '2');
+        el.dataset.ufAssigned = '1';
+      } else if (el.matches('.t-input-group_rd, .t-input-group_pm')) {
+        el.setAttribute('data-uf-step', '3');
+        el.dataset.ufAssigned = '1';
+      }
+    });
+    // Second promo-code field (after pay_method in DOM order) belongs to step 3.
+    var rd = q(box, '.t-input-group_rd');
+    if (rd) {
+      qa(box, '.t-input-group_pc').forEach(function (el) {
+        if (el.compareDocumentPosition(rd) & Node.DOCUMENT_POSITION_PRECEDING) {
+          el.setAttribute('data-uf-step', '3');
+        }
+      });
+    }
+  }
+
+  function buildStepper(active) {
+    var wrap = document.createElement('div');
+    wrap.className = 'uf-checkout-stepper';
+    STEP_LABELS.forEach(function (label, i) {
+      var n = i + 1;
+      if (i > 0) {
+        var sep = document.createElement('div');
+        sep.className = 'uf-checkout-stepper__sep';
+        wrap.appendChild(sep);
+      }
+      var item = document.createElement('div');
+      item.className = 'uf-checkout-stepper__item';
+      item.setAttribute('data-uf-step-btn', String(n));
+      if (n < active) item.classList.add('is-done', 'is-clickable');
+      else if (n === active) item.classList.add('is-active');
+      item.innerHTML =
+        '<span class="uf-checkout-stepper__num"><span class="uf-checkout-stepper__num-text">' + n + '</span></span>' +
+        '<span class="uf-checkout-stepper__label">' + label + '</span>';
+      wrap.appendChild(item);
+    });
+    return wrap;
+  }
+
+  function fieldVal(box, selector) {
+    var el = q(box, selector);
+    return el ? el.value.trim() : '';
+  }
+
+  function checkedLabel(box, groupSel) {
+    var group = q(box, groupSel);
+    if (!group) return '';
+    var checked = q(group, 'input:checked');
+    if (!checked) return '';
+    var label = checked.closest('label');
+    if (!label) return checked.value || '';
+    var span = label.querySelector('span');
+    return (span ? span.textContent : label.textContent).trim();
+  }
+
+  function buildReview(box) {
+    var name = fieldVal(box, '.t-input-group_nm input');
+    var email = fieldVal(box, '.t-input-group_em input');
+    var phone = fieldVal(box, '.t-input-group_ph input[type="tel"]') || fieldVal(box, '.t-input-group_ph input');
+    var tg = fieldVal(box, '.t-input-group_in input');
+    var city = fieldVal(box, 'input[name="tildadelivery-city"]');
+    var street = fieldVal(box, 'input[name="tildadelivery-street"]');
+    var house = fieldVal(box, 'input[name="tildadelivery-house"]');
+    var deliveryTypeEl = q(box, 'input[name="tildadelivery-type"]:checked');
+    var deliveryType = deliveryTypeEl ? deliveryTypeEl.value : '';
+    var payMethod = checkedLabel(box, '.t-input-group_rd');
+
+    var deliveryParts = [];
+    deliveryParts.push(city || 'Город не указан');
+    if (deliveryType) deliveryParts.push(deliveryType);
+    if (street) deliveryParts.push(street + (house ? ', д. ' + house : ''));
+
+    var review = box.querySelector('.uf-checkout-review');
+    if (!review) return;
+    review.innerHTML =
+      '<div class="uf-checkout-review__block">' +
+        '<div class="uf-checkout-review__row">' +
+          '<div><div class="uf-checkout-review__label">Контакты</div>' +
+            '<div class="uf-checkout-review__value">' +
+              (name || '—') + '<br>' + (email || '—') + '<br>' + (phone || '—') +
+              (tg ? '<br>@' + tg.replace(/^@/, '') : '') +
+            '</div>' +
+          '</div>' +
+          '<button type="button" class="uf-checkout-review__edit" data-uf-goto="1">Изменить</button>' +
+        '</div>' +
+      '</div>' +
+      '<div class="uf-checkout-review__block">' +
+        '<div class="uf-checkout-review__row">' +
+          '<div><div class="uf-checkout-review__label">Доставка</div>' +
+            '<div class="uf-checkout-review__value">' + deliveryParts.join(' — ') + '</div>' +
+          '</div>' +
+          '<button type="button" class="uf-checkout-review__edit" data-uf-goto="2">Изменить</button>' +
+        '</div>' +
+      '</div>' +
+      '<div class="uf-checkout-review__block">' +
+        '<div class="uf-checkout-review__row">' +
+          '<div><div class="uf-checkout-review__label">Оплата</div>' +
+            '<div class="uf-checkout-review__value">' + (payMethod || '—') + '</div>' +
+          '</div>' +
+          '<button type="button" class="uf-checkout-review__edit" data-uf-goto="3">Изменить</button>' +
+        '</div>' +
+      '</div>';
+  }
+
+  function validateStep(box, step) {
+    var invalid = null;
+    qa(box, '[data-uf-step="' + step + '"] input, [data-uf-step="' + step + '"] textarea').forEach(function (input) {
+      if (invalid) return;
+      if (input.type === 'hidden' || input.offsetParent === null) return;
+      if (!input.checkValidity()) invalid = input;
+    });
+    if (invalid) {
+      invalid.reportValidity();
+      return false;
+    }
+    return true;
+  }
+
+  function setStep(box, stepper, step) {
+    box.setAttribute('data-active-step', String(step));
+    var newStepper = buildStepper(step);
+    stepper.replaceWith(newStepper);
+    qa(newStepper, '[data-uf-step-btn]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var target = parseInt(btn.getAttribute('data-uf-step-btn'), 10);
+        if (target < step) setStep(box, newStepper, target);
+      });
+    });
+    var backBtn = q(box.parentElement, '.uf-checkout-nav__back');
+    var nextBtn = q(box.parentElement, '.uf-checkout-nav__next');
+    if (backBtn) backBtn.style.display = step === 1 ? 'none' : '';
+    if (nextBtn) nextBtn.style.display = step === 4 ? 'none' : '';
+    if (step === 4) buildReview(box);
+    box.scrollIntoView && box.closest('.t706__cartpage') && box.closest('.t706__cartpage').scrollTo && box.closest('.t706__cartpage').scrollTo({ top: 0, behavior: 'auto' });
+  }
+
+  function initWizard() {
+    var form = findForm();
+    if (!form || form.dataset.ufWizardInit) return;
+    var box = q(form, '.t-form__inputsbox');
+    if (!box) return;
+    form.dataset.ufWizardInit = '1';
+    box.setAttribute('data-uf-wizard', '1');
+
+    tagFields(box);
+
+    var review = document.createElement('div');
+    review.className = 'uf-checkout-review';
+    review.setAttribute('data-uf-step', '4');
+    var submitWrap = q(form, '.t-form__submit');
+    if (submitWrap) box.insertBefore(review, submitWrap);
+    else box.appendChild(review);
+
+    var stepper = buildStepper(1);
+    box.parentElement.insertBefore(stepper, box);
+
+    var nav = document.createElement('div');
+    nav.className = 'uf-checkout-nav';
+    nav.innerHTML =
+      '<button type="button" class="uf-checkout-nav__back" style="display:none">← Назад</button>' +
+      '<button type="button" class="uf-checkout-nav__next">Далее</button>';
+    box.parentElement.insertBefore(nav, box.nextSibling);
+
+    box.setAttribute('data-active-step', '1');
+
+    qa(stepper, '[data-uf-step-btn]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var current = parseInt(box.getAttribute('data-active-step'), 10);
+        var target = parseInt(btn.getAttribute('data-uf-step-btn'), 10);
+        if (target < current) setStep(box, q(box.parentElement, '.uf-checkout-stepper'), target);
+      });
+    });
+
+    nav.querySelector('.uf-checkout-nav__back').addEventListener('click', function () {
+      var current = parseInt(box.getAttribute('data-active-step'), 10);
+      if (current > 1) setStep(box, q(box.parentElement, '.uf-checkout-stepper'), current - 1);
+    });
+    nav.querySelector('.uf-checkout-nav__next').addEventListener('click', function () {
+      var current = parseInt(box.getAttribute('data-active-step'), 10);
+      if (!validateStep(box, current)) return;
+      if (current < 4) setStep(box, q(box.parentElement, '.uf-checkout-stepper'), current + 1);
+    });
+
+    review.addEventListener('click', function (e) {
+      var btn = e.target.closest('[data-uf-goto]');
+      if (!btn) return;
+      var target = parseInt(btn.getAttribute('data-uf-goto'), 10);
+      setStep(box, q(box.parentElement, '.uf-checkout-stepper'), target);
+    });
+
+    // On successful order submission Tilda populates .js-successbox — collapse
+    // the wizard chrome so only the success message shows.
+    var successBox = form.parentElement.querySelector('.js-successbox');
+    if (successBox) {
+      var obs = new MutationObserver(function () {
+        if (successBox.textContent.trim()) {
+          box.style.display = 'none';
+          stepper.style.display = 'none';
+          nav.style.display = 'none';
+        }
+      });
+      obs.observe(successBox, { childList: true, characterData: true, subtree: true });
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', initWizard);
+  var ufWizTries = 0;
+  var ufWizInterval = setInterval(function () {
+    ufWizTries++;
+    initWizard();
+    if (ufWizTries > 200) clearInterval(ufWizInterval);
+  }, 400);
+})();
