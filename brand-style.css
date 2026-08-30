@@ -2419,3 +2419,51 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
   width: auto !important;
   height: auto !important;
 }
+
+
+/* ============================================================================
+   «Дополните образ» — визуальное соответствие плиткам каталога (раунд 2).
+   Первый проход совпадал по размеру шрифта, но не по цвету/фону: у
+   настоящих карточек каталога (.t-store__card) под фото — тёмная подложка
+   #17090B (.t-store__card__textwrapper, padding 12px 15px 14px) с бежевым
+   текстом #FAFAFA (цена —тот же цвет с прозрачностью 0.55), а не тёмный
+   текст на белом. Плюс — боковой отступ 20px был только в мобильной
+   media-выборке; по факту блок съезжал на 20px левее остального контента
+   страницы и на десктопе. И самое важное: у мобильных размеров карточки
+   (flex-basis/min/max-width) не было !important — инлайновый скрипт
+   виджета (Site Settings → Head code в Тильде, не в этом репозитории)
+   переinjectит свой <style id="uf-auto-style"> ПОЗЖЕ brand-style.css,
+   и при равной специфичности побеждал он — сетка схлопывалась в 1
+   карточку в ряд вместо 2. Все переопределения ниже — с !important.
+   ============================================================================ */
+.uf-outfit {
+  padding: 0 20px !important;
+}
+.uf-outfit-card {
+  display: flex !important;
+  flex-direction: column !important;
+  background: #17090B !important;
+}
+.uf-outfit-name {
+  margin: 0 0 8px !important;
+  padding: 12px 15px 0 !important;
+  color: #FAFAFA !important;
+}
+.uf-outfit-price {
+  padding: 0 15px 14px !important;
+}
+.uf-outfit-price-value {
+  color: rgba(250, 250, 250, 0.55) !important;
+  font-weight: 400 !important;
+}
+.uf-outfit-price-currency {
+  color: rgba(250, 250, 250, 0.55) !important;
+  opacity: 1 !important;
+}
+@media screen and (max-width: 639px) {
+  .uf-outfit-card {
+    flex: 1 1 145px !important;
+    min-width: 130px !important;
+    max-width: 165px !important;
+  }
+}
