@@ -2816,3 +2816,355 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
   .uf-nov-header__title { font-size: 21px; }
   .uf-nov-header__link { font-size: 10.5px; }
 }
+
+
+/* ============================================================
+   UNFADED — Checkout step wizard
+   Non-destructive: restyles Tilda's native checkout fields,
+   groups them into 5 steps via [data-uf-step] + [data-active-step].
+   Native inputs, names, and Dolyame/paymentsystem widgets are
+   left structurally untouched — visibility + skin only.
+   ============================================================ */
+
+.t706__cartpage-form-wrapper,
+.t706__cartwin-content {
+  --uf-ink: #17090B;
+  --uf-pale: #FAFAFA;
+  --uf-burgundy: #7A1F2A;
+  --uf-burgundy-deep: #5e1621;
+  --uf-gray-mid: #6B6D6F;
+  --uf-gray-soft: #9A9D9F;
+  --uf-line: #D7D8D9;
+  --uf-metal: #EDEEEE;
+  --uf-ok: #4b7a5a;
+}
+
+/* ---------- Stepper header ---------- */
+.uf-checkout-stepper {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 4px 0 28px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--uf-line);
+}
+.uf-checkout-stepper__item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Onest', sans-serif !important;
+  font-size: 11px;
+  letter-spacing: 0.03em;
+  color: var(--uf-gray-soft);
+  cursor: default;
+  white-space: nowrap;
+  transition: color .15s ease;
+}
+.uf-checkout-stepper__item.is-clickable { cursor: pointer; }
+.uf-checkout-stepper__item.is-clickable:hover { color: var(--uf-ink); }
+.uf-checkout-stepper__num {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1px solid var(--uf-gray-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 600;
+  flex: none;
+  transition: all .15s ease;
+}
+.uf-checkout-stepper__item.is-done .uf-checkout-stepper__num {
+  background: var(--uf-burgundy);
+  border-color: var(--uf-burgundy);
+  color: #fff;
+}
+.uf-checkout-stepper__item.is-done .uf-checkout-stepper__num::before { content: "✓"; }
+.uf-checkout-stepper__item.is-done .uf-checkout-stepper__num-text { display: none; }
+.uf-checkout-stepper__item.is-active { color: var(--uf-ink); }
+.uf-checkout-stepper__item.is-active .uf-checkout-stepper__num {
+  border-color: var(--uf-ink);
+  color: var(--uf-ink);
+}
+.uf-checkout-stepper__label { display: inline; }
+.uf-checkout-stepper__sep {
+  flex: 1 1 auto;
+  height: 1px;
+  background: var(--uf-line);
+  margin: 0 10px;
+  min-width: 12px;
+}
+
+@media screen and (max-width: 980px) {
+  .uf-checkout-stepper__label { display: none; }
+  .uf-checkout-stepper__sep { margin: 0 6px; }
+  .uf-checkout-stepper { padding-bottom: 20px; }
+}
+
+/* ---------- Step visibility ---------- */
+.t-form__inputsbox [data-uf-step] { display: none; }
+.t-form__inputsbox[data-active-step="1"] [data-uf-step="1"],
+.t-form__inputsbox[data-active-step="2"] [data-uf-step="2"],
+.t-form__inputsbox[data-active-step="3"] [data-uf-step="3"],
+.t-form__inputsbox[data-active-step="4"] [data-uf-step="4"] {
+  display: block;
+}
+
+.uf-checkout-step-title {
+  font-family: 'Onest', sans-serif !important;
+  font-size: 19px;
+  font-weight: 600;
+  color: var(--uf-ink);
+  margin: 0 0 20px;
+}
+
+/* ---------- Field skin (applies inside any step) ---------- */
+.t-form__inputsbox .t-input-group_nm .t-input-title,
+.t-form__inputsbox .t-input-group_em .t-input-title,
+.t-form__inputsbox .t-input-group_ph .t-input-title,
+.t-form__inputsbox .t-input-group_in .t-input-title,
+.t-form__inputsbox .t-input-group_pc .t-input-title,
+.t-form__inputsbox .t-input-group_dl .t-input-title {
+  font-family: 'Onest', sans-serif !important;
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  color: var(--uf-gray-mid);
+  margin-bottom: 6px;
+}
+.t-form__inputsbox .t-input_type_email,
+.t-form__inputsbox .t-input_type_text,
+.t-form__inputsbox .t-input_type_tel,
+.t-form__inputsbox input.t-input {
+  font-family: 'Onest', sans-serif !important;
+  border: 1px solid var(--uf-line) !important;
+  border-radius: 2px !important;
+  background: #fff !important;
+  color: var(--uf-ink) !important;
+  transition: border-color .15s ease;
+}
+.t-form__inputsbox input.t-input:focus {
+  border-color: var(--uf-ink) !important;
+}
+
+/* ---------- Step 1: contacts spacing ---------- */
+.t-form__inputsbox[data-uf-wizard] .t-input-group {
+  margin-bottom: 18px !important;
+}
+
+/* ---------- Примерка checkbox as a highlighted note ---------- */
+.t-form__inputsbox .t-input-group_cb {
+  background: var(--uf-pale);
+  border: 1px solid var(--uf-line);
+  padding: 14px 16px;
+  border-radius: 2px;
+}
+.t-form__inputsbox .t-input-group_cb .t-checkbox-title {
+  font-family: 'Onest', sans-serif !important;
+}
+
+/* ---------- Delivery block ---------- */
+.t-form__inputsbox .t-input-group_dl .t-name_md {
+  font-family: 'Onest', sans-serif !important;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--uf-ink);
+  margin-bottom: 14px !important;
+}
+.t-form__inputsbox .t-radio__wrapper-delivery {
+  padding: 0;
+}
+
+/* ---------- Способ оплаты (pay_method) as cards ---------- */
+.t-form__inputsbox .t-input-group_rd .t-input-title {
+  font-family: 'Onest', sans-serif !important;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--uf-ink);
+  margin-bottom: 12px;
+}
+.t-form__inputsbox .t-input-group_rd .t-radio__wrapper:not(.t-radio__wrapper-payment) {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.t-form__inputsbox .t-input-group_rd .t-radio__wrapper:not(.t-radio__wrapper-payment) > .t-radio__item {
+  display: flex !important;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid var(--uf-line);
+  border-radius: 3px;
+  padding: 14px 16px;
+  margin: 0 !important;
+  cursor: pointer;
+  transition: border-color .15s ease, background .15s ease;
+  position: relative;
+}
+.t-form__inputsbox .t-input-group_rd .t-radio__wrapper:not(.t-radio__wrapper-payment) > .t-radio__item:hover {
+  border-color: var(--uf-gray-soft);
+}
+.t-form__inputsbox .t-input-group_rd .t-radio__wrapper:not(.t-radio__wrapper-payment) > .t-radio__item:has(input:checked) {
+  border-color: var(--uf-ink);
+  background: var(--uf-pale);
+}
+.t-form__inputsbox .t-input-group_rd .t-radio__indicator {
+  flex: none;
+  position: static !important;
+  margin: 0 !important;
+}
+.t-form__inputsbox .t-input-group_rd .t-radio__item span:not([class]),
+.t-form__inputsbox .t-input-group_rd .t-radio__item > span {
+  font-family: 'Onest', sans-serif !important;
+  font-size: 13.5px;
+  color: var(--uf-ink);
+}
+/* Dolyame widget nested inside its card — leave markup, just align it */
+.t-form__inputsbox .digi-dolyame-logo-advanced,
+.t-form__inputsbox [class*="digi-dolyame"] {
+  margin-left: auto;
+}
+
+/* Native payment-gateway selector (paymentsystem) — DO NOT restyle look,
+   just give it breathing room inside the card list; leave Tilda's own
+   radio appearance intact per pending tech review. */
+.t-form__inputsbox .t-input-group_pm {
+  margin-top: 22px !important;
+  padding-top: 18px;
+  border-top: 1px dashed var(--uf-line);
+}
+
+/* ---------- Step 4: review ---------- */
+.uf-checkout-review {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.uf-checkout-review__block {
+  border: 1px solid var(--uf-line);
+  border-radius: 3px;
+  padding: 14px 16px;
+}
+.uf-checkout-review__row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+.uf-checkout-review__label {
+  font-family: 'Onest', sans-serif !important;
+  font-size: 10.5px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--uf-gray-mid);
+  margin-bottom: 6px;
+}
+.uf-checkout-review__value {
+  font-family: 'Onest', sans-serif !important;
+  font-size: 13.5px;
+  color: var(--uf-ink);
+  line-height: 1.5;
+}
+.uf-checkout-review__edit {
+  font-family: 'Onest', sans-serif !important;
+  font-size: 11px;
+  color: var(--uf-ink);
+  text-decoration: underline;
+  text-decoration-color: var(--uf-line);
+  text-underline-offset: 3px;
+  white-space: nowrap;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  flex: none;
+}
+.uf-checkout-review__edit:hover { color: var(--uf-burgundy); text-decoration-color: var(--uf-burgundy); }
+
+/* ---------- Footer nav ---------- */
+.uf-checkout-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 26px;
+}
+.uf-checkout-nav__back {
+  font-family: 'Onest', sans-serif !important;
+  font-size: 12px;
+  letter-spacing: 0.03em;
+  color: var(--uf-gray-mid);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 10px 4px;
+}
+.uf-checkout-nav__back:hover { color: var(--uf-ink); }
+.uf-checkout-nav__next {
+  font-family: 'Onest', sans-serif !important;
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-weight: 600;
+  background: var(--uf-ink);
+  color: #fff;
+  border: none;
+  border-radius: 2px;
+  padding: 14px 28px;
+  cursor: pointer;
+  transition: background .15s ease;
+  flex: 1 1 auto;
+  max-width: 260px;
+  margin-left: auto;
+}
+.uf-checkout-nav__next:hover { background: var(--uf-burgundy-deep); }
+
+/* Restyle the real Tilda submit button to match, shown on step 4 only */
+.t-form__inputsbox[data-active-step="4"] .t-form__submit { display: block !important; margin-top: 26px; }
+.t-form__inputsbox .t-form__submit { display: none; }
+.t-form__inputsbox .t-form__submit .t-submit,
+.t-form__inputsbox .t-form__submit button,
+.t-form__inputsbox .t-form__submit input[type="submit"] {
+  font-family: 'Onest', sans-serif !important;
+  font-size: 12px !important;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-weight: 600 !important;
+  background: var(--uf-burgundy) !important;
+  color: #fff !important;
+  border: none !important;
+  border-radius: 2px !important;
+  width: 100% !important;
+  height: auto !important;
+  padding: 16px 28px !important;
+  transition: background .15s ease;
+}
+.t-form__inputsbox .t-form__submit .t-submit:hover { background: var(--uf-burgundy-deep) !important; }
+
+/* ---------- Step 5: success ---------- */
+.js-successbox.t-form__successbox {
+  font-family: 'Onest', sans-serif !important;
+  text-align: center;
+  padding: 40px 20px !important;
+}
+.js-successbox.t-form__successbox:not(:empty)::before {
+  content: "✓";
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--uf-ok);
+  color: #fff;
+  font-size: 22px;
+  margin: 0 auto 20px;
+}
+.js-successbox.t-form__successbox:not(:empty) {
+  font-size: 15px !important;
+  color: var(--uf-ink) !important;
+  line-height: 1.6;
+}
+
+@media screen and (max-width: 980px) {
+  .uf-checkout-nav__next { max-width: none; }
+}
