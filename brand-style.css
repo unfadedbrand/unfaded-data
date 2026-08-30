@@ -3120,7 +3120,7 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
 
 /* Restyle the real Tilda submit button to match, shown on step 4 only */
 .t-form__inputsbox[data-active-step="4"] .t-form__submit { display: block !important; margin-top: 26px; }
-.t-form__inputsbox .t-form__submit { display: none; }
+.t-form__inputsbox .t-form__submit { display: none !important; } /* !important needed: tilda-cart-fullscreen-1.1.min.css sets .t706__cartpage-form .t-form__submit { display: block } at equal specificity and was winning the cascade */
 .t-form__inputsbox .t-form__submit .t-submit,
 .t-form__inputsbox .t-form__submit button,
 .t-form__inputsbox .t-form__submit input[type="submit"] {
