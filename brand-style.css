@@ -1996,3 +1996,20 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
     margin-top: 0 !important;
   }
 }
+
+
+/* Попап «Узнать о поступлении»: поле телефона использует нативный виджет
+   Тильды (.t-input-phonemask) с чёрным текстом по умолчанию. У него нет
+   класса .uf-notify-modal__input (как у email/имени) и класс
+   .uf-notify-modal__phone-wrap в разметке этого попапа не оборачивает сам
+   инпут — из-за этого чёрный текст на тёмной плашке становится невидимым
+   при вводе номера. Фикс завязан на rec-id этого конкретного попап-блока,
+   чтобы не задеть поле телефона на чек-ауте (там ожидается чёрный текст
+   на светлом фоне). */
+#rec1542845921 input.t-input-phonemask {
+  color: #FAFAFA !important;
+}
+#rec1542845921 .t-input.t-input-phonemask__wrap {
+  background: rgba(250,250,250,0.06) !important;
+  border: 1px solid rgba(250,250,250,0.22) !important;
+}
