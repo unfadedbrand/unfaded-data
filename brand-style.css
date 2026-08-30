@@ -2953,13 +2953,21 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
 }
 
 /* ---------- Примерка checkbox as a highlighted note ---------- */
-.t-form__inputsbox .t-input-group_cb {
+/* [data-uf-wizard] scoping added 2026-08-30: .t-form__inputsbox is Tilda's
+   generic form-wrapper class, reused by every form on the site (incl. the
+   subscribe popup, #rec1542845921) — an earlier unscoped version of this
+   rule leaked its pale/light note-box styling into the popup's own
+   (dark-themed) consent checkbox, painting a near-white box with barely-
+   visible text over it ("сломалась форма подписки"). data-uf-wizard is set
+   by checkout-wizard.js only on the actual checkout form, matching the
+   pattern already used two rules above for .t-input-group. */
+.t-form__inputsbox[data-uf-wizard] .t-input-group_cb {
   background: var(--uf-pale);
   border: 1px solid var(--uf-line);
   padding: 14px 16px;
   border-radius: 2px;
 }
-.t-form__inputsbox .t-input-group_cb .t-checkbox-title {
+.t-form__inputsbox[data-uf-wizard] .t-input-group_cb .t-checkbox-title {
   font-family: 'Onest', sans-serif !important;
 }
 
