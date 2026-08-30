@@ -2589,3 +2589,47 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
     margin: 0 !important;
   }
 }
+
+
+/* ===== Раунд 9 (2026-08-30): фикс наложения на ПК (float-clearing аккордеона «Детали изделия»), ограничение ширины сетки на широких экранах, маленькая надпись «Shop the look», мобильная типографика идентична каталогу ===== */
+#uf-outfit-standalone {
+  clear: both !important;
+}
+.uf-outfit-row {
+  max-width: 1400px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+.uf-outfit-title::before {
+  content: "Shop the look";
+  display: block;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #c98e97;
+  font-weight: 600;
+  margin: 0 0 8px;
+}
+@media screen and (max-width: 639px) {
+  .uf-outfit-title::before {
+    font-size: 10px;
+  }
+  .uf-outfit-row {
+    margin-left: -18px !important;
+    margin-right: -18px !important;
+    width: calc(100% + 36px) !important;
+    max-width: calc(100% + 36px) !important;
+    gap: 3px !important;
+  }
+  .uf-outfit-name {
+    font-size: 10px !important;
+    line-height: 14px !important;
+  }
+  .uf-outfit-price-value,
+  .uf-outfit-price-currency {
+    font-size: 10px !important;
+  }
+  .uf-outfit-card:nth-last-child(1):nth-child(odd) {
+    max-width: calc(50% - 1.5px) !important;
+  }
+}
