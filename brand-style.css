@@ -2116,3 +2116,39 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
   font-size: 18px !important;
   opacity: 1 !important;
 }
+
+/* Блок «Дополните образ» (uf-outfit, кросс-селл на странице товара) — раньше был
+   без бокового отступа на мобильном (картинки упирались в край экрана, как и
+   заголовок), а имя/цена товара использовали свои мелкие размеры вместо общей
+   типографики карточек сайта. Выравниваем под остальной сайт:
+   - мобильный отступ 20px с боков (на десктопе не нужен — там выравнивание уже
+     даёт центрирование контейнера), карточки чуть уже, чтобы по-прежнему
+     помещалось по 2 в ряд;
+   - размер шрифта имени/цены как в .t-store__card__title/.t-store__card__price-value;
+   - подпись валюты «RUB» как в карточках каталога (см. .t-store__card__price-currency
+     выше) — тут делаем через отдельные span'ы .uf-outfit-price-value/-currency,
+     которые проставляет brand-popup-fix.js (ensureOutfitPriceFormat), т.к. само
+     число и «₽» изначально приходят одним текстовым узлом без разметки. */
+@media screen and (max-width: 639px) {
+  .uf-outfit {
+    padding: 0 20px;
+  }
+  .uf-outfit-card {
+    flex: 1 1 145px;
+    min-width: 130px;
+    max-width: 165px;
+  }
+}
+.uf-outfit-name {
+  font-size: 14px !important;
+  font-weight: 400 !important;
+  line-height: 1.35 !important;
+}
+.uf-outfit-price-value {
+  font-size: 12px !important;
+}
+.uf-outfit-price-currency {
+  font-size: 12px !important;
+  opacity: 0.55;
+  margin-left: 3px;
+}
