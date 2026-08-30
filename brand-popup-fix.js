@@ -651,3 +651,44 @@
     if (outfitTries > 40) clearInterval(outfitIv);
   }, 500);
 })();
+
+
+(function () {
+  // Десктопная боковая корзина (.t706__sidebar) структурно не содержит
+  // кнопки "назад" — в отличие от мобильной полноэкранной (.t706__cartpage),
+  // где она есть в разметке Тильды (.t706__cartpage-back). Клонируем иконку
+  // оттуда, чтобы стрелка была визуально той же, что и на мобильном.
+  // На боковой панели "назад" некуда — по клику просто закрываем корзину.
+  function ensureSidebarBackArrow() {
+    var top = document.querySelector('.t706__sidebar-top');
+    if (!top) return false;
+    if (top.querySelector('.uf-sidebar-back-btn')) return false;
+    var srcIcon = document.querySelector('.t706__cartpage-back-icon');
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'uf-sidebar-back-btn';
+    btn.setAttribute('aria-label', 'Закрыть корзину');
+    if (srcIcon) {
+      btn.appendChild(srcIcon.cloneNode(true));
+    } else {
+      btn.textContent = '←';
+    }
+    btn.addEventListener('click', function () {
+      var closeBtn = document.querySelector('.t706__sidebar-close-btn');
+      if (closeBtn) closeBtn.click();
+    });
+    top.insertBefore(btn, top.firstChild);
+    return true;
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', ensureSidebarBackArrow);
+  } else {
+    ensureSidebarBackArrow();
+  }
+  var backTries = 0;
+  var backIv = setInterval(function () {
+    ensureSidebarBackArrow();
+    backTries += 1;
+    if (backTries > 40) clearInterval(backIv);
+  }, 500);
+})();
