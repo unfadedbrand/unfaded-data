@@ -2956,6 +2956,15 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
   margin-bottom: 18px !important;
 }
 
+/* ---------- Кнопка "Активировать" (промокод) — фирменный бордовый вместо чёрного ---------- */
+/* Tilda красит эту кнопку инлайн-стилем (background: rgb(0,0,0)) через настройки
+   блока промокода — обычный класс-селектор его не перебивает, нужен !important.
+   Цвет — var(--uf-burgundy), тот же бордовый, что на кнопках "В корзину"/"Оформить заказ". */
+.t-inputpromocode__btn {
+  background: var(--uf-burgundy) !important;
+  border-color: var(--uf-burgundy) !important;
+}
+
 /* ---------- Примерка checkbox as a highlighted note ---------- */
 /* [data-uf-wizard] scoping added 2026-08-30: .t-form__inputsbox is Tilda's
    generic form-wrapper class, reused by every form on the site (incl. the
