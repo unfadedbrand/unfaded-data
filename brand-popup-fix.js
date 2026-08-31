@@ -1123,3 +1123,302 @@ function buildStepper(active) {
     if (initialized || ufThanksTries > 40) clearInterval(ufThanksInterval);
   }, 500);
 })();
+
+
+/* ================================================================
+   UNFADED — «Клиентский сервис»: разделение Возврат/Обмен, онлайн-
+   заявка без бумажного бланка, кастомный аккордеон-навигатор
+   (заменяет T395 tabs + нативный mobile <select>).
+   ================================================================ */
+(function () {
+  'use strict';
+
+  var WA_NUMBER = '79938955008';
+
+  function qs(sel, ctx) { return (ctx || document).querySelector(sel); }
+  function qsa(sel, ctx) { return Array.prototype.slice.call((ctx || document).querySelectorAll(sel)); }
+
+  /* ---------- контент кастомных панелей ---------- */
+
+  var RETURN_HTML =
+    '<div class="uf-svc-head">' +
+      '<div class="uf-svc-title">Возврат товара</div>' +
+      '<div class="uf-pill">14 дней на возврат</div>' +
+    '</div>' +
+    '<div class="uf-steps">' +
+      '<div class="uf-step"><div class="uf-step-num">1</div><div><div class="uf-step-title">Оставьте заявку</div>' +
+        '<div class="uf-step-text"><a href="#" class="uf-jump" data-uf-jump-type="Возврат">Заполнить онлайн, 2 минуты &rarr;</a></div></div></div>' +
+      '<div class="uf-step"><div class="uf-step-num">2</div><div><div class="uf-step-title">Отправка СДЭК</div>' +
+        '<div class="uf-step-text">Сдайте товар в ближайший ПВЗ — печатать и вкладывать ничего не нужно, пересылку оплачивает покупатель.</div></div></div>' +
+      '<div class="uf-step"><div class="uf-step-num">3</div><div><div class="uf-step-title">Проверка</div>' +
+        '<div class="uf-step-text">Проверяем товарный вид и бирки на складе.</div></div></div>' +
+      '<div class="uf-step"><div class="uf-step-num">4</div><div><div class="uf-step-title">Возврат денег</div>' +
+        '<div class="uf-step-text">На карту, которой оплачивали, в течение 3 рабочих дней.</div></div></div>' +
+    '</div>' +
+    '<div class="uf-callout"><b>Заказывали с примеркой у курьера?</b> Платите только за то, что подошло — платный возврат в этом случае не нужен.</div>' +
+    '<details class="uf-legal"><summary>Условия возврата товара — полный текст</summary>' +
+      '<p>Покупатель вправе отказаться от заказанного товара в любое время до его получения, а после получения — в течение 14 дней (п.&nbsp;21 Постановления Правительства РФ от 27.09.2007 №&nbsp;612, ред. от 30.11.2019, «Об утверждении Правил продажи товаров дистанционным способом»).</p>' +
+      '<p>Посылка отправляется курьерской компанией СДЭК, расходы по пересылке несёт покупатель. Возврат товара надлежащего качества возможен, если сохранены товарный вид, фабричные ярлыки, пломбы, этикетки, потребительские свойства, а также документ, подтверждающий факт и условия покупки.</p>' +
+      '<p><b>Оформление возврата (через ПВЗ).</b> Оставьте заявку онлайн — бумажный бланк вкладывать в посылку не нужно. Проверьте наличие бирок и ярлыков, герметично упакуйте посылку. Обратитесь в ближайший пункт выдачи СДЭК, сообщите менеджеру номер накладной, по которой получали заказ, и что оформляете клиентский возврат. Номер накладной — в личном кабинете СДЭК или в трек-номере из письма (11 цифр).</p>' +
+      '<p><b>Оформление возврата (через личный кабинет СДЭК).</b> Оставьте заявку онлайн — бланк не нужен. Перейдите в личный кабинет СДЭК → «Возврат товара» → укажите UNFADED или нужный заказ → заполните ФИО, город отправления, размер посылки, пункт СДЭК для сдачи, характер груза «Одежда» → «ОФОРМИТЬ ВОЗВРАТ». Номер созданной накладной сообщите менеджеру СДЭК в пункте выдачи.</p>' +
+      '<p><b>Срок обработки и возврат денег.</b> Возврат обрабатывается в течение 3 рабочих дней с момента поступления на склад. Деньги возвращаются на карту, которой был оплачен заказ; срок зачисления зависит от банка-эмитента. Мы вправе отказать в возврате, если товар пришёл ненадлежащего качества. Если возврат произошёл по нашей вине (дефект, не тот размер или модель), пересылку компенсируем мы.</p>' +
+    '</details>';
+
+  var EXCHANGE_HTML =
+    '<div class="uf-svc-head">' +
+      '<div class="uf-svc-title">Обмен товара</div>' +
+      '<div class="uf-pill">14 дней на обмен</div>' +
+    '</div>' +
+    '<div class="uf-svc-lead">Не подошёл размер или пришла не та модель? Меняем без лишних вопросов — это отдельный процесс от возврата.</div>' +
+    '<div class="uf-steps">' +
+      '<div class="uf-step"><div class="uf-step-num">1</div><div><div class="uf-step-title">Оставьте заявку</div>' +
+        '<div class="uf-step-text"><a href="#" class="uf-jump" data-uf-jump-type="Обмен">Заполнить онлайн, 2 минуты &rarr;</a></div></div></div>' +
+      '<div class="uf-step"><div class="uf-step-num">2</div><div><div class="uf-step-title">Отправка</div>' +
+        '<div class="uf-step-text">Сдайте товар в ПВЗ СДЭК — печатать и вкладывать ничего не нужно.</div></div></div>' +
+      '<div class="uf-step"><div class="uf-step-num">3</div><div><div class="uf-step-title">Новый товар едет к вам</div>' +
+        '<div class="uf-step-text">После проверки отправляем нужный размер или модель.</div></div></div>' +
+      '<div class="uf-step"><div class="uf-step-num">4</div><div><div class="uf-step-title">Готово</div>' +
+        '<div class="uf-step-text">Обмен завершён, доплачивать за услугу не нужно.</div></div></div>' +
+    '</div>' +
+    '<div class="uf-callout"><b>Кто оплачивает пересылку.</b> Обмен оплачивает покупатель — кроме случаев, когда мы ошиблись с размером или моделью: тогда пересылку компенсирует UNFADED.</div>' +
+    '<div class="uf-svc-contact">Можно и напрямую: WhatsApp <a href="https://wa.me/' + WA_NUMBER + '">+7&nbsp;993&nbsp;895&nbsp;50&nbsp;08</a> или <a href="mailto:unfadedwork@gmail.com">unfadedwork@gmail.com</a>.</div>';
+
+  var CLAIM_HTML =
+    '<div class="uf-svc-head"><div class="uf-svc-title">Заявка на возврат или обмен</div><span class="uf-badge">Без бумажного бланка</span></div>' +
+    '<div class="uf-svc-lead">Заполните здесь — не нужно писать менеджеру, скачивать и распечатывать бланк.</div>' +
+    '<div class="uf-toggle" data-uf-field="type">' +
+      '<button type="button" class="active" data-value="Возврат">Возврат</button>' +
+      '<button type="button" data-value="Обмен">Обмен</button>' +
+    '</div>' +
+    '<div class="uf-field-row">' +
+      '<label>Номер заказа<input type="text" data-uf-field="order" placeholder="Например, 934C"></label>' +
+      '<label>Телефон / WhatsApp<input type="tel" data-uf-field="phone" placeholder="+7 ___ ___ __ __"></label>' +
+    '</div>' +
+    '<label class="uf-field-block">Какой товар<input type="text" data-uf-field="item" placeholder="Название или артикул"></label>' +
+    '<div class="uf-field-block"><div class="uf-label">Причина</div>' +
+      '<div class="uf-chips" data-uf-field="reason">' +
+        '<button type="button" class="uf-chip" data-value="Не подошёл размер">Не подошёл размер</button>' +
+        '<button type="button" class="uf-chip" data-value="Не подошёл цвет/модель">Не подошёл цвет/модель</button>' +
+        '<button type="button" class="uf-chip" data-value="Брак/дефект">Брак/дефект</button>' +
+        '<button type="button" class="uf-chip uf-chip-return-only" data-value="Передумал(а)">Передумал(а)</button>' +
+      '</div>' +
+    '</div>' +
+    '<label class="uf-field-block uf-conditional" data-uf-show-if="reason=Брак/дефект" hidden>Опишите, в чём брак<textarea data-uf-field="defect" rows="2" placeholder="Например: разошёлся шов на левом рукаве"></textarea></label>' +
+    '<div class="uf-field-block"><div class="uf-label">Как был оплачен заказ</div>' +
+      '<div class="uf-chips" data-uf-field="payment">' +
+        '<button type="button" class="uf-chip" data-value="Картой на сайте">Картой на сайте</button>' +
+        '<button type="button" class="uf-chip" data-value="Наложенным платежом">Наличными/картой курьеру при получении</button>' +
+      '</div>' +
+    '</div>' +
+    '<label class="uf-field-block uf-conditional" data-uf-show-if="payment=Наложенным платежом" hidden>Реквизиты для возврата денег<input type="text" data-uf-field="requisites" placeholder="Номер карты и банк"></label>' +
+    '<button type="button" class="uf-submit" data-uf-submit>Отправить заявку</button>' +
+    '<div class="uf-svc-note">После отправки откроется WhatsApp с готовым сообщением — печатать и вкладывать в посылку ничего не нужно.</div>' +
+    '<div class="uf-svc-error" data-uf-error hidden>Заполните номер заказа и телефон, чтобы отправить заявку.</div>';
+
+  /* ---------- инициализация ---------- */
+
+  function init() {
+    var wrapper = qs('.t395__wrapper[data-tab-current]');
+    var root = wrapper && wrapper.closest('[id^="rec"]');
+    if (!root || root.dataset.ufSvcInit) return;
+    root.dataset.ufSvcInit = '1';
+
+    /* сопоставляем по видимому тексту вкладки, а не по data-tab-number —
+       у Tilda он не всегда идёт подряд (бывают пропуски после правок в редакторе) */
+    var recByLabel = {};
+    qsa('.t395__tab', wrapper).forEach(function (li) {
+      var btn = qs('.t395__title', li);
+      if (!btn) return;
+      var text = btn.textContent.replace(/\s+/g, ' ').trim();
+      var recId = btn.getAttribute('aria-controls');
+      if (recId) recByLabel[text] = document.getElementById(recId);
+    });
+
+    var ITEMS = [
+      { key: 'delivery', label: 'Доставка', passthrough: 'Доставка' },
+      { key: 'payment', label: 'Оплата', passthrough: 'Оплата' },
+      { key: 'return', label: 'Возврат', html: RETURN_HTML },
+      { key: 'exchange', label: 'Обмен', html: EXCHANGE_HTML },
+      { key: 'claim', label: 'Оформить заявку', html: CLAIM_HTML },
+      { key: 'contacts', label: 'Контакты', passthrough: 'Контакты' },
+      { key: 'offer', label: 'Оферта', passthrough: 'Оферта' },
+      { key: 'privacy', label: 'Политика конфиденциальности', passthrough: 'Политика конфиденциальности' }
+    ];
+
+    var nav = document.createElement('div');
+    nav.className = 'uf-svc-nav';
+
+    var panelEls = {};
+
+    ITEMS.forEach(function (item) {
+      var row = document.createElement('div');
+      row.className = 'uf-svc-item';
+      row.setAttribute('data-key', item.key);
+
+      var headerBtn = document.createElement('button');
+      headerBtn.type = 'button';
+      headerBtn.className = 'uf-svc-navitem';
+      headerBtn.innerHTML = '<span>' + item.label + '</span><svg width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+      headerBtn.setAttribute('data-key', item.key);
+      row.appendChild(headerBtn);
+
+      var panel = document.createElement('div');
+      panel.className = 'uf-svc-panel';
+      if (item.html) panel.innerHTML = item.html;
+      panel.setAttribute('data-key', item.key);
+      if (item.passthrough && recByLabel[item.passthrough]) {
+        var inner = document.createElement('div');
+        inner.className = 'uf-svc-original';
+        var origNode = recByLabel[item.passthrough];
+        /* узел переносится из скрытой Tilda-вкладки — снимаем её
+           «выключенное» состояние раз и навсегда: видимостью панели
+           теперь управляет только наш .uf-svc-item.active */
+        origNode.classList.remove('t395__off');
+        origNode.removeAttribute('aria-hidden');
+        origNode.style.removeProperty('display');
+        inner.appendChild(origNode);
+        panel.appendChild(inner);
+      }
+      row.appendChild(panel);
+      panelEls[item.key] = panel;
+
+      nav.appendChild(row);
+
+      headerBtn.addEventListener('click', function () {
+        selectItem(item.key);
+        if (window.innerWidth <= 639) {
+          setTimeout(function () { row.scrollIntoView({ block: 'start', behavior: 'smooth' }); }, 60);
+        }
+      });
+    });
+
+    root.parentNode.insertBefore(nav, root);
+    root.style.display = 'none';
+
+    function selectItem(key, opts) {
+      opts = opts || {};
+      qsa('.uf-svc-item', nav).forEach(function (row) {
+        row.classList.toggle('active', row.getAttribute('data-key') === key);
+      });
+      Object.keys(panelEls).forEach(function (k) { panelEls[k].classList.toggle('active', k === key); });
+
+      var item = ITEMS.filter(function (i) { return i.key === key; })[0];
+      if (!item) return;
+
+      if (key === 'claim' && opts.claimType) {
+        setClaimType(panelEls.claim, opts.claimType);
+      }
+    }
+
+    /* переход "Оставьте заявку →" из Возврат/Обмен на форму */
+    nav.addEventListener('click', function (e) {
+      var jump = e.target.closest && e.target.closest('.uf-jump');
+      if (jump) {
+        e.preventDefault();
+        selectItem('claim', { claimType: jump.getAttribute('data-uf-jump-type') });
+      }
+    });
+
+    function setClaimType(panel, value) {
+      var toggle = qs('[data-uf-field="type"]', panel);
+      if (!toggle) return;
+      qsa('button', toggle).forEach(function (b) {
+        b.classList.toggle('active', b.getAttribute('data-value') === value);
+      });
+      updateReasonChipsForType(panel, value);
+    }
+
+    function updateReasonChipsForType(panel, value) {
+      qsa('.uf-chip-return-only', panel).forEach(function (chip) {
+        chip.hidden = value === 'Обмен';
+        if (value === 'Обмен' && chip.classList.contains('active')) {
+          chip.classList.remove('active');
+        }
+      });
+    }
+
+    /* ---------- логика внутри формы заявки ---------- */
+    var claimPanel = panelEls.claim;
+    if (claimPanel) {
+      var typeToggle = qs('[data-uf-field="type"]', claimPanel);
+      qsa('button', typeToggle).forEach(function (b) {
+        b.addEventListener('click', function () {
+          qsa('button', typeToggle).forEach(function (x) { x.classList.remove('active'); });
+          b.classList.add('active');
+          updateReasonChipsForType(claimPanel, b.getAttribute('data-value'));
+        });
+      });
+
+      qsa('.uf-chips', claimPanel).forEach(function (group) {
+        qsa('.uf-chip', group).forEach(function (chip) {
+          chip.addEventListener('click', function () {
+            qsa('.uf-chip', group).forEach(function (c) { c.classList.remove('active'); });
+            chip.classList.add('active');
+            var field = group.getAttribute('data-uf-field');
+            qsa('[data-uf-show-if]', claimPanel).forEach(function (cond) {
+              var rule = cond.getAttribute('data-uf-show-if').split('=');
+              if (rule[0] === field) {
+                cond.hidden = chip.getAttribute('data-value') !== rule[1];
+              }
+            });
+          });
+        });
+      });
+
+      qs('[data-uf-submit]', claimPanel).addEventListener('click', function () {
+        var val = function (sel) { var el = qs(sel, claimPanel); return el ? el.value.trim() : ''; };
+        var activeChip = function (field) {
+          var el = qs('.uf-chips[data-uf-field="' + field + '"] .uf-chip.active', claimPanel);
+          return el ? el.getAttribute('data-value') : '';
+        };
+        var type = qs('[data-uf-field="type"] .active', claimPanel);
+        type = type ? type.getAttribute('data-value') : 'Возврат';
+        var order = val('[data-uf-field="order"]');
+        var phone = val('[data-uf-field="phone"]');
+        var itemv = val('[data-uf-field="item"]');
+        var reason = activeChip('reason');
+        var defect = val('[data-uf-field="defect"]');
+        var payment = activeChip('payment');
+        var requisites = val('[data-uf-field="requisites"]');
+
+        var errEl = qs('[data-uf-error]', claimPanel);
+        if (!order || !phone) {
+          if (errEl) errEl.hidden = false;
+          return;
+        }
+        if (errEl) errEl.hidden = true;
+
+        var lines = [
+          'Здравствуйте! Заявка на ' + type.toLowerCase() + ' с сайта UNFADED.',
+          'Номер заказа: ' + order,
+          'Телефон: ' + phone
+        ];
+        if (itemv) lines.push('Товар: ' + itemv);
+        if (reason) lines.push('Причина: ' + reason);
+        if (reason === 'Брак/дефект' && defect) lines.push('В чём брак: ' + defect);
+        if (payment) lines.push('Оплата заказа: ' + payment);
+        if (payment === 'Наложенным платежом' && requisites) lines.push('Реквизиты для возврата: ' + requisites);
+
+        var text = encodeURIComponent(lines.join('\n'));
+        window.open('https://wa.me/' + WA_NUMBER + '?text=' + text, '_blank');
+      });
+    }
+
+    selectItem('delivery');
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    init();
+    var tries = 0;
+    var iv = setInterval(function () {
+      tries++;
+      if (qs('.t395__wrapper[data-tab-current]')) { init(); clearInterval(iv); }
+      if (tries > 40) clearInterval(iv);
+    }, 250);
+  });
+  if (document.readyState !== 'loading') {
+    init();
+    setTimeout(init, 500);
+    setTimeout(init, 1500);
+  }
+})();
