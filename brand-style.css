@@ -3804,6 +3804,13 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
 .uf-svc-original [class*="t-rec_pt_"] { padding-top: 0 !important; }
 .uf-svc-original [class*="t-rec_pb_"] { padding-bottom: 0 !important; }
 
+/* переносимые разделы (Доставка/Оплата/Контакты/Оферта/Политика) —
+   родная Tilda-вёрстка приводится к нашей типографике в JS
+   (richifyPassthrough/richifyDescr), здесь только сами стили */
+.uf-svc-subhead { font-size: 13.5px; font-weight: 700; color: #17090B; margin: 22px 0 8px; }
+.uf-svc-subhead:first-child { margin-top: 0; }
+.uf-legal .uf-svc-emphasis { font-weight: 600; color: #17090B; }
+
 .uf-svc-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px; flex-wrap: wrap; }
 .uf-svc-title { font-size: 18px; font-weight: 700; color: #17090B; }
 .uf-svc-lead { font-size: 13px; color: #55575A; line-height: 1.6; margin-bottom: 20px; max-width: 520px; }
@@ -3837,13 +3844,14 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
 }
 .uf-callout b { color: #17090B; }
 
-.uf-legal { font-size: 12px; color: #55575A; }
+.uf-legal { font-size: 12px; color: #55575A; max-width: 640px; }
 .uf-legal summary {
   font-size: 10.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
   color: #55575A; cursor: pointer; margin-bottom: 12px;
 }
 .uf-legal p { line-height: 1.7; margin: 0 0 12px; }
 .uf-legal p:last-child { margin-bottom: 0; }
+.uf-legal a { color: #7A1F2A; font-weight: 600; text-decoration: underline; }
 
 .uf-badge {
   font-size: 10px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
