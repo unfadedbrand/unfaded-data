@@ -3149,9 +3149,19 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
    Uses a literal color instead of var(--uf-ink): this total block sits
    outside .t706__cartpage-form-wrapper/.t706__cartwin-content (where that
    custom property is declared), so the variable isn't in scope here. */
-.t706__cartwin-totalamount .t706__cartwin-prodamount-price,
-.t706__sidebar-totalamount .t706__cartwin-prodamount-price {
+.t706__cartwin-totalamount .t706__cartwin-prodamount-price {
   font-size: 11px !important;
+  font-weight: 700 !important;
+  color: #17090B !important;
+}
+/* Мини-корзина (выезжающий дровер, .t706__sidebar-totalamount): здесь у лейбла
+   "Сумма:" (.t706__sidebar-totalamount-label) свой размер — 16px, не 11px как
+   в колонке чекаута. Раньше цена шла через тот же селектор, что и выше
+   (11px) — из-за этого цифры "1 400" выглядели заметно мельче слова "Сумма"
+   в этом дровере (в колонке чекаута лейбл тоже 11px, поэтому там всё было
+   ровно и баг был не виден). Разведено на отдельное правило 2026-08-31. */
+.t706__sidebar-totalamount .t706__cartwin-prodamount-price {
+  font-size: 16px !important;
   font-weight: 700 !important;
   color: #17090B !important;
 }
