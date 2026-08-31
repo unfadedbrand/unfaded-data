@@ -1738,4 +1738,83 @@ function buildStepper(active) {
     init();
     if (pollTries > 240) clearInterval(pollIv); /* ~2 минуты подстраховки */
   }, 500);
+
+  /* ================================================================
+     UNFADED — «Клиентский сервис»: доработка по фидбэку с прод-теста
+     (заголовок, крошки, немжирное меню, шаги в столбец, 2 плашки) —
+     31.08.2026
+     ================================================================ */
+  (function () {
+    function ensureSvcPageHead() {
+      var nav = document.querySelector('.uf-svc-nav');
+      if (!nav || document.querySelector('.uf-svc-pagehead')) return;
+      var head = document.createElement('div');
+      head.className = 'uf-svc-pagehead';
+      head.innerHTML =
+        '<div class="uf-crumbs"><a href="/">Главная</a><span class="uf-crumbs-sep">/</span><span class="uf-crumbs-current">Клиентский сервис</span></div>' +
+        '<h1 class="uf-svc-h1">Клиентский сервис</h1>';
+      nav.parentNode.insertBefore(head, nav);
+    }
+
+    function ensureSvcFaqCard() {
+      var nav = document.querySelector('.uf-svc-nav');
+      if (!nav || document.querySelector('.uf-svc-faqcard')) return;
+      var card = document.createElement('div');
+      card.className = 'uf-svc-faqcard';
+      card.innerHTML =
+        '<div><div class="uf-svc-faqcard-title">Не нашли ответ?</div>' +
+        '<div class="uf-svc-faqcard-sub">Служба поддержки: WhatsApp с 09:00 до 21:00 по МСК · unfadedwork@gmail.com</div></div>' +
+        '<a class="uf-svc-faqcard-btn" href="https://wa.me/' + WA_NUMBER + '" target="_blank" rel="noopener">Написать в WhatsApp</a>';
+      nav.parentNode.insertBefore(card, nav.nextSibling);
+    }
+
+    function ensureSvcHowCard() {
+      var titles = document.querySelectorAll('.uf-svc-title');
+      var claimHead = null;
+      for (var i = 0; i < titles.length; i++) {
+        if (titles[i].textContent.indexOf('Заявка на возврат или обмен') === 0) {
+          claimHead = titles[i].closest('.uf-svc-head');
+          break;
+        }
+      }
+      if (!claimHead || claimHead.parentNode.querySelector('.uf-svc-howcard')) return;
+      var card = document.createElement('div');
+      card.className = 'uf-svc-howcard';
+      card.innerHTML =
+        '<div class="uf-svc-howcard-title">Как это работает</div>' +
+        '<div class="uf-svc-howsteps">' +
+        '<div class="uf-svc-howstep"><b>1</b>Заполните форму — номер заказа и что случилось</div>' +
+        '<div class="uf-svc-howstep"><b>2</b>Нажмите «Отправить заявку» — откроется WhatsApp с готовым сообщением</div>' +
+        '<div class="uf-svc-howstep"><b>3</b>Менеджер обработает заявку и подтвердит детали</div>' +
+        '<div class="uf-svc-howstep"><b>4</b>Сдайте товар в ПВЗ — печатать и вкладывать ничего не нужно</div>' +
+        '</div>';
+      claimHead.parentNode.insertBefore(card, claimHead.nextSibling);
+    }
+
+    function ensureSvcExtras() {
+      ensureSvcPageHead();
+      ensureSvcFaqCard();
+      ensureSvcHowCard();
+    }
+
+    if (document.querySelector('.uf-svc-nav')) {
+      ensureSvcExtras();
+    } else {
+      var svcMo = new MutationObserver(function () {
+        if (document.querySelector('.uf-svc-nav')) ensureSvcExtras();
+      });
+      svcMo.observe(document.body, { childList: true, subtree: true });
+    }
+    var svcExtrasTries = 0;
+    var svcExtrasIv = setInterval(function () {
+      svcExtrasTries++;
+      ensureSvcExtras();
+      if (document.querySelector('.uf-svc-faqcard') || svcExtrasTries > 240) clearInterval(svcExtrasIv);
+    }, 500);
+    document.addEventListener('click', function (e) {
+      if (e.target && e.target.closest && e.target.closest('.uf-svc-navitem')) {
+        setTimeout(ensureSvcExtras, 60);
+      }
+    });
+  })();
 })();
