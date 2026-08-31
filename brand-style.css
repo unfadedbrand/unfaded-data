@@ -3776,6 +3776,7 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
 }
 
 
+
 /* ================================================================
    UNFADED — «Клиентский сервис»: кастомный навигатор
    (2 колонки на десктопе — как в утверждённом макете, аккордеон
@@ -3804,12 +3805,35 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
 .uf-svc-original [class*="t-rec_pt_"] { padding-top: 0 !important; }
 .uf-svc-original [class*="t-rec_pb_"] { padding-bottom: 0 !important; }
 
-/* переносимые разделы (Доставка/Оплата/Контакты/Оферта/Политика) —
-   родная Tilda-вёрстка приводится к нашей типографике в JS
-   (richifyPassthrough/richifyDescr), здесь только сами стили */
-.uf-svc-subhead { font-size: 13.5px; font-weight: 700; color: #17090B; margin: 22px 0 8px; }
-.uf-svc-subhead:first-child { margin-top: 0; }
-.uf-legal .uf-svc-emphasis { font-weight: 600; color: #17090B; }
+/* Доставка/Оплата/Контакты — статичная вёрстка «как в макете» (текст
+   зафиксирован вручную по образцу утверждённого макета, см. RETURN_HTML/
+   EXCHANGE_HTML — этот раздел меняется редко, отдельная разметка внутри
+   родного Tilda-блока под неё не нужна). */
+.uf-svc-method { padding: 22px 0; border-bottom: 1px solid #EDEEEE; }
+.uf-svc-method:first-child { padding-top: 0; }
+.uf-svc-method:last-child { border-bottom: none; }
+.uf-svc-way { display: flex; align-items: flex-start; gap: 10px; padding: 8px 0; font-size: 13.5px; color: #17090B; }
+.uf-svc-way .uf-svc-way-dot { width: 5px; height: 5px; border-radius: 50%; background: #7A1F2A; margin-top: 7px; flex: none; }
+.uf-svc-mini-steps { font-size: 12.5px; line-height: 1.7; color: #55575A; margin: 10px 0 0; padding-left: 18px; }
+.uf-svc-mini-steps li { margin-bottom: 2px; }
+.uf-svc-contact-row { padding: 18px 24px; border-bottom: 1px solid #EDEEEE; }
+.uf-svc-contact-row:last-child { border-bottom: none; }
+.uf-svc-contact-value { font-size: 17px; font-weight: 600; color: #17090B; }
+.uf-svc-contact-btn { border: 1px solid #17090B; padding: 10px 18px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: #17090B; }
+
+/* Оферта/Политика конфиденциальности — огромные юридические документы;
+   текст всегда берём живьём из Tilda (клон, см. build()), а структуру
+   (заголовки пунктов «1.», подпункты «1.1.», термины «Термин – …») в JS
+   размечает richifyLegalDescr по номерам пунктов — вручную это не
+   перепечатывается, чтобы не разойтись с реальным текстом. */
+.uf-legal-title { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #55575A; margin-bottom: 10px; }
+.uf-legal-body { font-size: 13px; line-height: 1.75; color: #55575A; margin-bottom: 18px; }
+.uf-legal-body p { margin: 0 0 10px; }
+.uf-legal-body p:last-child { margin-bottom: 0; }
+.uf-legal-body b { color: #17090B; font-weight: 600; }
+.uf-clause-num { font-size: 13.5px; font-weight: 700; color: #17090B; margin: 22px 0 10px; }
+.uf-clause-num:first-child { margin-top: 0; }
+.uf-svc-legal-doc { max-width: 680px; }
 
 .uf-svc-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px; flex-wrap: wrap; }
 .uf-svc-title { font-size: 18px; font-weight: 700; color: #17090B; }
