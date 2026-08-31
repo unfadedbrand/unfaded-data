@@ -1133,84 +1133,164 @@ function buildStepper(active) {
   function qs(sel, ctx) { return (ctx || document).querySelector(sel); }
   function qsa(sel, ctx) { return Array.prototype.slice.call((ctx || document).querySelectorAll(sel)); }
 
-  /* ---------- переносимые (passthrough) разделы: приводим родную
-     Tilda-вёрстку к нашей типографике, не трогая ни слова текста ---------- */
+  /* ---------- Оферта / Политика конфиденциальности: живой текст из
+     Tilda (клон исходного T395-рекорда — см. build()), но с нашей
+     типографикой юридического документа. Текст руками не перепечатан
+     (слишком велик и слишком легально значим, чтобы рисковать
+     расхождением с оригиналом) — вместо этого распознаём структуру
+     самого текста: у Tilda здесь просто сплошной поток без какой-либо
+     разметки заголовков (даже bold нет), но сами номера пунктов
+     («1.», «1.1.», «3.2.6») и термины («Термин – определение.») —
+     это надёжный текстовый паттерн, по которому и режем. ---------- */
 
-  /* Родной блок T056 у Tilda — это одно `[class*="__title"]` (мы его
-     выбрасываем и рисуем свой uf-svc-title) и один `[class*="__descr"]`
-     сплошным текстом, где абзацы разделены двойным <br><br>, а короткие
-     смысловые подзаголовки — просто `<span style="font-weight:600">`
-     внутри того же потока (никакой отдельной разметки заголовков у
-     Tilda для них нет). Разбираем это на нормальные <p> нашей
-     типографики (.uf-legal — уже обкатан на юридическом тексте раздела
-     «Возврат») и отдельные подзаголовки (.uf-svc-subhead). Короткий bold
-     (≤70 символов), стоящий отдельным «абзацем», — подзаголовок; более
-     длинный bold внутри абзаца — просто смысловое выделение
-     (.uf-svc-emphasis), а не заголовок раздела. */
-  function richifyDescr(descrEl) {
-    var children = Array.prototype.slice.call(descrEl.childNodes);
-    var paragraphs = [[]];
-    for (var i = 0; i < children.length; i++) {
-      var node = children[i];
-      if (node.nodeType === 1 && node.tagName === 'BR') {
-        var next = children[i + 1];
-        if (next && next.nodeType === 1 && next.tagName === 'BR') {
-          paragraphs.push([]);
-          i++;
-          continue;
-        }
-        paragraphs[paragraphs.length - 1].push(node);
-        continue;
+  /* Возвращает список найденных «пунктов» { marker, start, contentStart }
+     по номерам вида «N», «N.M», «N.M.K» и т.д. Стоп-правило —
+     предыдущий символ не цифра (иначе это середина большего числа,
+     например «437» ошибочно читается как «4» + «37»): пункты с
+     подноме­ром (есть точка внутри, «1.1», «3.2.6») принимаем всегда —
+     такой паттерн в юридическом тексте не встречается ни для чего,
+     кроме номера пункта; «голый» верхнеуровневый номer («1», «12») —
+     только если стоит после точки/двоеточия/переноса строки (обычный
+     конец предложения) или после буквы, но сразу перед словом с
+     заглавной буквы (типичный вид заголовка раздела, когда Tilda
+     склеила его с предыдущим текстом без разделителя вообще). */
+  function splitLegalClauses(text) {
+    var re = /(\d{1,2}(?:\.\d{1,2}){0,3})\.?\s+/g;
+    var m, marks = [];
+    while ((m = re.exec(text))) {
+      var idx = m.index;
+      var marker = m[1];
+      var isMultiPart = marker.indexOf('.') !== -1;
+      var contentStart = idx + m[0].length;
+      var nextChar = text.charAt(contentStart);
+      var before = text.slice(0, idx).replace(/[ \t]+$/, '');
+      var prevChar = before.slice(-1);
+      if (/\d/.test(prevChar)) continue; /* середина числа — не пункт */
+      var ok = false;
+      if (isMultiPart) {
+        ok = true;
+      } else if (idx === 0 || prevChar === '.' || prevChar === ':' || prevChar === '\n') {
+        ok = true;
+      } else if (/[А-ЯЁA-Z]/.test(nextChar)) {
+        ok = true;
       }
-      if (node.nodeType === 3 && !node.textContent.trim()) continue;
-      paragraphs[paragraphs.length - 1].push(node);
+      if (ok) marks.push({ marker: marker, start: idx, contentStart: contentStart });
     }
-    paragraphs = paragraphs.filter(function (p) {
-      return p.some(function (n) { return n.nodeType !== 3 || n.textContent.trim(); });
-    });
-
-    var frag = document.createDocumentFragment();
-    paragraphs.forEach(function (group) {
-      var onlyEl = (group.length === 1 && group[0].nodeType === 1) ? group[0] : null;
-      var isShortBold = onlyEl && onlyEl.tagName === 'SPAN' &&
-        /font-weight/.test(onlyEl.getAttribute('style') || '') &&
-        onlyEl.textContent.trim().length <= 70;
-      if (isShortBold) {
-        var h = document.createElement('div');
-        h.className = 'uf-svc-subhead';
-        h.textContent = onlyEl.textContent.trim();
-        frag.appendChild(h);
-        return;
-      }
-      var p = document.createElement('p');
-      group.forEach(function (n) {
-        var clone = n.cloneNode(true);
-        if (clone.nodeType === 1) {
-          clone.removeAttribute('style');
-          if (clone.tagName === 'SPAN') clone.classList.add('uf-svc-emphasis');
-        }
-        p.appendChild(clone);
-      });
-      frag.appendChild(p);
-    });
-
-    descrEl.removeAttribute('style');
-    descrEl.className = 'uf-legal';
-    descrEl.innerHTML = '';
-    descrEl.appendChild(frag);
+    return marks;
   }
 
-  function richifyPassthrough(cloneNode, label) {
-    /* Tilda кладёт в каждый rec свой <style> со шрифтом/цветом —
-       выбрасываем, иначе он перебивает нашу типографику */
-    qsa('style', cloneNode).forEach(function (s) { s.remove(); });
-    /* родной заголовок T056 — не нужен, рисуем свой uf-svc-title, как
-       и у остальных разделов навигатора */
-    qsa('[class*="__title"]', cloneNode).forEach(function (t) { t.remove(); });
-    qsa('[class*="__descr"]', cloneNode).forEach(richifyDescr);
-    /* подчищаем прочие точечные inline-стили Tilda на обёртках —
-       вёрстка блока (отступы) уже управляется нашим CSS через классы */
-    qsa('[style]', cloneNode).forEach(function (el) { el.removeAttribute('style'); });
+  /* Находит внутри куска текста определения вида «Термин – текст.» —
+     тоже по паттерну (тире после короткого слова/фразы с заглавной
+     буквы), а не по разметке (у Tilda её и здесь нет). Используется и
+     для преамбулы документа («Термины. Клиент – …»), и — см. ниже —
+     для пунктов первого уровня без вложенной нумерации, где Tilda
+     точно так же склеивает список терминов с заголовком без единого
+     разделителя (раздел «2. Термины и понятия» в Политике конфиден­
+     циальности: «…СоглашенииКомпания «UNFADED» – юридическое лицо…») */
+  function findTerms(str) {
+    var termRe = /([А-ЯЁ][а-яёA-Za-z\s]{2,45}?)\s*[–—]\s*/g;
+    var tm, terms = [];
+    while ((tm = termRe.exec(str))) {
+      var tidx = tm.index;
+      var tbefore = str.slice(0, tidx).replace(/\s+$/, '');
+      if (tidx === 0 || tbefore.slice(-1) === '.') {
+        terms.push({ term: tm[1].trim(), start: tidx, contentStart: tidx + tm[0].length });
+      }
+    }
+    return terms;
+  }
+
+  /* Разбирает кусок текста «заголовок + (опционально) список терминов»
+     и дописывает в frag: короткий .uf-legal-title (если перед первым
+     термином что-то есть) и .uf-legal-body с определениями; если
+     терминов не нашлось — просто один абзац. */
+  function appendTermSection(frag, str) {
+    if (!str) return;
+    var terms = findTerms(str);
+    if (terms.length && terms[0].start > 0) {
+      var lead = str.slice(0, terms[0].start).trim();
+      if (lead) {
+        var lh = document.createElement('div');
+        lh.className = 'uf-legal-title';
+        lh.textContent = lead;
+        frag.appendChild(lh);
+      }
+    }
+    var body = document.createElement('div');
+    body.className = 'uf-legal-body';
+    if (terms.length) {
+      terms.forEach(function (t, i) {
+        var end = (i + 1 < terms.length) ? terms[i + 1].start : str.length;
+        var p = document.createElement('p');
+        var b = document.createElement('b');
+        b.textContent = t.term;
+        p.appendChild(b);
+        p.appendChild(document.createTextNode(' – ' + str.slice(t.contentStart, end).trim()));
+        body.appendChild(p);
+      });
+    } else {
+      var p0 = document.createElement('p');
+      p0.textContent = str;
+      body.appendChild(p0);
+    }
+    if (body.children.length) frag.appendChild(body);
+  }
+
+  function richifyLegal(cloneNode, label) {
+    var textSrc = cloneNode.cloneNode(true);
+    qsa('br', textSrc).forEach(function (br) { br.replaceWith('\n'); });
+    qsa('style', textSrc).forEach(function (s) { s.remove(); });
+    var text = (textSrc.textContent || '').replace(/\n{3,}/g, '\n\n').trim();
+    if (label) {
+      var esc = label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      text = text.replace(new RegExp('^' + esc + '\\s*'), '').trim();
+    }
+
+    var marks = splitLegalClauses(text);
+    var preambleEnd = marks.length ? marks[0].start : text.length;
+    var preamble = text.slice(0, preambleEnd).trim();
+
+    var frag = document.createDocumentFragment();
+
+    appendTermSection(frag, preamble);
+
+    /* Заголовок пункта первого уровня («N. Название раздела.») обычно
+       короткий — просто название. Но встречаются разделы, где Tilda тем
+       же приёмом (без всякого разделителя) приклеивает к заголовку сразу
+       список терминов (см. комментарий в findTerms) — тогда «шапка»
+       пункта длиннее заранее не заданного предела, и мы прогоняем её
+       через тот же разбор терминов вместо того, чтобы засунуть весь
+       список одной жирной строкой в .uf-clause-num. */
+    var CLAUSE_HEAD_LIMIT = 90;
+    marks.forEach(function (mk, i) {
+      var end = (i + 1 < marks.length) ? marks[i + 1].start : text.length;
+      var clauseText = text.slice(mk.contentStart, end).trim();
+      var depth = (mk.marker.match(/\./g) || []).length + 1;
+      if (depth === 1) {
+        if (clauseText.length > CLAUSE_HEAD_LIMIT) {
+          var terms = findTerms(clauseText);
+          var headText = terms.length ? clauseText.slice(0, terms[0].start).trim() : clauseText.slice(0, CLAUSE_HEAD_LIMIT).trim();
+          var h1 = document.createElement('div');
+          h1.className = 'uf-clause-num';
+          h1.textContent = mk.marker + '. ' + headText;
+          frag.appendChild(h1);
+          appendTermSection(frag, clauseText.slice(headText.length).trim());
+        } else {
+          var h = document.createElement('div');
+          h.className = 'uf-clause-num';
+          h.textContent = mk.marker + '. ' + clauseText;
+          frag.appendChild(h);
+        }
+      } else {
+        var lastEl = frag.lastElementChild;
+        var body2 = (lastEl && lastEl.className === 'uf-legal-body')
+          ? lastEl
+          : (function () { var d = document.createElement('div'); d.className = 'uf-legal-body'; frag.appendChild(d); return d; })();
+        var p = document.createElement('p');
+        p.textContent = mk.marker + '. ' + clauseText;
+        body2.appendChild(p);
+      }
+    });
 
     var head = document.createElement('div');
     head.className = 'uf-svc-head';
@@ -1218,7 +1298,16 @@ function buildStepper(active) {
     title.className = 'uf-svc-title';
     title.textContent = label;
     head.appendChild(title);
-    cloneNode.insertBefore(head, cloneNode.firstChild);
+
+    var doc = document.createElement('div');
+    doc.className = 'uf-svc-legal-doc';
+    doc.appendChild(frag);
+
+    cloneNode.removeAttribute('style');
+    cloneNode.className = '';
+    cloneNode.innerHTML = '';
+    cloneNode.appendChild(head);
+    cloneNode.appendChild(doc);
   }
 
   /* ---------- контент кастомных панелей ---------- */
@@ -1298,6 +1387,99 @@ function buildStepper(active) {
     '<div class="uf-svc-note">После отправки откроется WhatsApp с готовым сообщением — печатать и вкладывать в посылку ничего не нужно.</div>' +
     '<div class="uf-svc-error" data-uf-error hidden>Заполните номер заказа и телефон, чтобы отправить заявку.</div>';
 
+  /* Доставка/Оплата/Контакты — короткий, редко меняющийся справочный
+     контент; текст сверен построчно с живым сайтом (вкладки «Доставка»/
+     «Оплата»/«Контакты» в T395) на момент вёрстки макета. Если цены или
+     условия поменяются в Tilda, эти три блока надо будет поправить
+     руками — в отличие от Оферты/Политики (см. richifyLegal выше), они
+     достаточно короткие и стабильные, чтобы это было безопаснее, чем
+     алгоритмический разбор совсем не размеченного текста. */
+  var DELIVERY_HTML =
+    '<div class="uf-svc-head">' +
+      '<div class="uf-svc-title">Способы доставки</div>' +
+      '<div class="uf-svc-pill">Бесплатно от 30 000 ₽</div>' +
+    '</div>' +
+    '<div class="uf-svc-method">' +
+      '<div class="uf-legal-title">Москва и Санкт-Петербург — курьером</div>' +
+      '<div class="uf-legal-body"><p>Доставка курьером по Москве, Московской области, Санкт-Петербургу и Ленинградской области — в течение 1–5 дней с даты заказа. Стоимость — от 290 ₽, бесплатно при оплате на сайте от 30 000 ₽. Дата и интервал доставки согласуются со службой СДЭК через личный кабинет, курьер связывается с получателем в день доставки.</p></div>' +
+    '</div>' +
+    '<div class="uf-svc-method">' +
+      '<div class="uf-legal-title">Экспресс-доставка</div>' +
+      '<div class="uf-legal-body"><p>По Москве в пределах МКАД — день в день при заказе до 12:00 или на следующий день при заказе после 12:00. Стоимость фиксированная — 1000 ₽ при заказе до 30 000 ₽.</p></div>' +
+    '</div>' +
+    '<div class="uf-svc-method">' +
+      '<div class="uf-legal-title">Доставка с примеркой и оплатой при получении — по всей России</div>' +
+      '<div class="uf-legal-body"><p>Курьер даёт 15 минут на примерку — оплатить можно только то, что подошло. Отмечается отдельным пунктом при оформлении заказа.</p></div>' +
+    '</div>' +
+    '<div class="uf-svc-method">' +
+      '<div class="uf-legal-title">Самовывоз из пункта выдачи СДЭК</div>' +
+      '<div class="uf-legal-body"><p>Точку выдачи можно выбрать при оформлении заказа. Стоимость — от 200 ₽ по Москве и Санкт-Петербургу, от 500 ₽ в другие регионы; точный расчёт — на шаге оформления. Бесплатное хранение посылки на пункте выдачи — 7 дней.</p></div>' +
+    '</div>' +
+    '<div class="uf-svc-method" style="border-bottom:none;">' +
+      '<div class="uf-legal-title">Международная доставка</div>' +
+      '<div class="uf-legal-body" style="margin-bottom:0;"><p>В Армению, Беларусь, Казахстан и Киргизию — службой СДЭК, курьером до двери. Стоимость рассчитывается при оформлении заказа, срок — от 7 дней.</p></div>' +
+    '</div>' +
+    '<div class="uf-callout"><b>Заказы по России, оплаченные онлайн, доставляются бесплатно при сумме от 30 000 ₽.</b> После передачи посылки в транспортную компанию на указанный при заказе email приходит трек-номер для отслеживания.</div>';
+
+  var PAYMENT_HTML =
+    '<div class="uf-svc-title" style="margin-bottom:8px;">Способы оплаты</div>' +
+    '<div class="uf-svc-lead" style="margin-bottom:8px;">Оплатить заказ в интернет-магазине можно несколькими способами:</div>' +
+    '<div style="margin-bottom:22px;">' +
+      '<div class="uf-svc-way"><span class="uf-svc-way-dot"></span><span>Банковской картой на сайте или через СБП</span></div>' +
+      '<div class="uf-svc-way"><span class="uf-svc-way-dot"></span><span>Через сервис «Долями»</span></div>' +
+      '<div class="uf-svc-way"><span class="uf-svc-way-dot"></span><span>Через сервис «Яндекс Сплит»</span></div>' +
+      '<div class="uf-svc-way"><span class="uf-svc-way-dot"></span><span>Курьеру при получении — картой или наличными (только при доставке с примеркой)</span></div>' +
+    '</div>' +
+    '<div class="uf-callout" style="margin-bottom:8px;">Оформить и оплатить заказ можно на официальном сайте либо через менеджера — по ссылке в WhatsApp.</div>' +
+    '<div class="uf-svc-method" style="border-top:1px solid #EDEEEE; margin-top:22px;">' +
+      '<div class="uf-legal-title">Оплата при получении курьеру</div>' +
+      '<div class="uf-legal-body" style="margin-bottom:0;"><p>Наличными или картой — доступно только при оформлении доставки с примеркой. Возврат денег при оплате при получении осуществляется только по реквизитам банковской карты, указанным в заявлении на возврат.</p></div>' +
+    '</div>' +
+    '<div class="uf-svc-method">' +
+      '<div class="uf-legal-title">Оплата через сервис «Долями»</div>' +
+      '<div class="uf-legal-body" style="margin-bottom:0;"><p>Сегодня оплачивается только 25% стоимости покупки, остальное — тремя платежами раз в две недели. Сервис может взять с клиента сервисный сбор, который устанавливается индивидуально. Оплатить можно картами любых платёжных систем.</p></div>' +
+      '<ol class="uf-svc-mini-steps">' +
+        '<li>Сформируйте корзину с покупками на сайте</li>' +
+        '<li>Выберите «Долями» в способах оплаты</li>' +
+        '<li>Укажите телефон, ФИО, дату рождения и e-mail</li>' +
+        '<li>Оплатите 25% онлайн — остальное спишется автоматически, по графику в приложении «Долями»</li>' +
+      '</ol>' +
+    '</div>' +
+    '<div class="uf-svc-method" style="border-bottom:none;">' +
+      '<div class="uf-legal-title">Оплата через сервис «Яндекс Сплит»</div>' +
+      '<div class="uf-legal-body" style="margin-bottom:0;"><p>Сплит делит оплату на части, которые списываются в течение 2, 4 или 6 месяцев. Это не кредит и не рассрочка — нет длинных анкет, проверки кредитной истории и скрытых условий.</p></div>' +
+      '<ol class="uf-svc-mini-steps">' +
+        '<li>Выберите «Яндекс Сплит» в способах оплаты в корзине</li>' +
+        '<li>Выберите комфортный срок и оплатите первую часть</li>' +
+        '<li>Остальные платежи спишутся по графику — он придёт в письме и виден в приложении Яндекс Пэй</li>' +
+      '</ol>' +
+    '</div>';
+
+  var CONTACTS_HTML =
+    '<div class="uf-svc-title" style="margin-bottom:24px;">Контакты</div>' +
+    '<div style="border:1px solid #EDEEEE;">' +
+      '<div class="uf-svc-contact-row">' +
+        '<div class="uf-label" style="margin-bottom:6px;">Интернет-магазин</div>' +
+        '<div class="uf-svc-contact-value">unfadedstore.com</div>' +
+      '</div>' +
+      '<div class="uf-svc-contact-row" style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">' +
+        '<div><div class="uf-label" style="margin-bottom:6px;">Телефон / WhatsApp</div><div class="uf-svc-contact-value">+7 993 895-50-08</div></div>' +
+        '<a href="https://wa.me/' + WA_NUMBER + '" class="uf-svc-contact-btn">Написать в WhatsApp</a>' +
+      '</div>' +
+      '<div class="uf-svc-contact-row">' +
+        '<div class="uf-label" style="margin-bottom:6px;">Email</div>' +
+        '<div class="uf-svc-contact-value"><a href="mailto:unfadedwork@gmail.com" style="color:inherit; text-decoration:none;">unfadedwork@gmail.com</a></div>' +
+      '</div>' +
+      '<div class="uf-svc-contact-row">' +
+        '<div class="uf-label" style="margin-bottom:6px;">Время работы</div>' +
+        '<div class="uf-svc-contact-value">Ежедневно, 9:00 — 21:00</div>' +
+      '</div>' +
+    '</div>' +
+    '<div style="margin-top:28px;">' +
+      '<div class="uf-label" style="margin-bottom:10px;">Сотрудничество</div>' +
+      '<div class="uf-callout">Если у вас есть предложение о сотрудничестве с брендом — отправьте сообщение на почту <b>unfadedwork@gmail.com</b> или напишите нам в WhatsApp.</div>' +
+    '</div>';
+
   /* ---------- инициализация ---------- */
 
   function build(root, wrapper) {
@@ -1315,12 +1497,12 @@ function buildStepper(active) {
     });
 
     var ITEMS = [
-      { key: 'delivery', label: 'Доставка', passthrough: 'Доставка' },
-      { key: 'payment', label: 'Оплата', passthrough: 'Оплата' },
+      { key: 'delivery', label: 'Доставка', html: DELIVERY_HTML },
+      { key: 'payment', label: 'Оплата', html: PAYMENT_HTML },
       { key: 'return', label: 'Возврат', html: RETURN_HTML },
       { key: 'exchange', label: 'Обмен', html: EXCHANGE_HTML },
       { key: 'claim', label: 'Оформить заявку', html: CLAIM_HTML },
-      { key: 'contacts', label: 'Контакты', passthrough: 'Контакты' },
+      { key: 'contacts', label: 'Контакты', html: CONTACTS_HTML },
       { key: 'offer', label: 'Оферта', passthrough: 'Оферта' },
       { key: 'privacy', label: 'Политика конфиденциальности', passthrough: 'Политика конфиденциальности' }
     ];
@@ -1383,7 +1565,7 @@ function buildStepper(active) {
         cloneNode.classList.remove('t395__off');
         cloneNode.removeAttribute('aria-hidden');
         cloneNode.style.removeProperty('display');
-        richifyPassthrough(cloneNode, item.label);
+        richifyLegal(cloneNode, item.label);
         inner.appendChild(cloneNode);
         panel.appendChild(inner);
       }
@@ -1453,23 +1635,6 @@ function buildStepper(active) {
     }
 
     /* ---------- логика внутри формы заявки ---------- */
-
-    /* Сопоставление русских значений формы с кодами, которые ждёт бэкенд
-       unfaded-returns-webhook (находит заказ в RetailCRM по номеру и ставит
-       статус «Возврат оформлен» / «Обмен: ждём возврат исходного товара»). */
-    var UF_RETURNS_BACKEND_URL = 'https://unfaded-returns-webhook.onrender.com/return-request';
-    var UF_REQUEST_TYPE_MAP = { 'Возврат': 'return', 'Обмен': 'exchange' };
-    var UF_REASON_MAP = {
-      'Не подошёл размер': 'size',
-      'Не подошёл цвет/модель': 'color_or_model',
-      'Брак/дефект': 'defect',
-      'Передумал(а)': 'changed_mind'
-    };
-    var UF_PAYMENT_MAP = {
-      'Картой на сайте': 'card_online',
-      'Наложенным платежом': 'cash_or_card_on_delivery'
-    };
-
     var claimPanel = itemEls.claim && itemEls.claim.panel;
     if (claimPanel) {
       var typeToggle = qs('[data-uf-field="type"]', claimPanel);
@@ -1533,33 +1698,6 @@ function buildStepper(active) {
 
         var text = encodeURIComponent(lines.join('\n'));
         window.open('https://wa.me/' + WA_NUMBER + '?text=' + text, '_blank');
-
-        /* Отдельно, в дополнение к WhatsApp: обновляем статус заказа и
-           комментарий менеджеру в RetailCRM через свой бэкенд. Ничего не
-           меняет в открытии WhatsApp выше — если этот запрос не пройдёт
-           (например, сервис "спит" на бесплатном тарифе Render), клиент
-           всё равно увидит открывшийся WhatsApp, а ошибку увидим только
-           мы, в консоли браузера. */
-        try {
-          fetch(UF_RETURNS_BACKEND_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              order_number: order,
-              phone: phone,
-              product: itemv,
-              request_type: UF_REQUEST_TYPE_MAP[type] || 'return',
-              reason: UF_REASON_MAP[reason] || '',
-              defect_description: defect,
-              payment_method: UF_PAYMENT_MAP[payment] || '',
-              refund_details: requisites
-            })
-          }).catch(function (err) {
-            console.warn('UNFADED: не удалось обновить заказ в CRM', err);
-          });
-        } catch (err) {
-          console.warn('UNFADED: не удалось обновить заказ в CRM', err);
-        }
       });
     }
 
@@ -1570,7 +1708,7 @@ function buildStepper(active) {
      может занять больше времени, чем разумный фиксированный тайм-аут —
      поэтому вместо однократных попыток с отказом по таймеру используем
      MutationObserver (реагирует, когда виджет реально появится в DOM,
-     сколько бы вемени это ни заняло) плюс редкий поллинг как страховку.
+     сколько бы времени это ни заняло) плюс редкий поллинг как страховку.
      init() идемпотентен и самовосстанавливается, если Tilda когда-нибудь
      заново перерисует контейнер виджета (тогда root.dataset.ufSvcInit
      у нового узла будет пуст, и мы соберём навигатор заново). */
