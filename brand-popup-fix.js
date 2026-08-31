@@ -1127,8 +1127,9 @@ function buildStepper(active) {
 
 /* ================================================================
    UNFADED — «Клиентский сервис»: разделение Возврат/Обмен, онлайн-
-   заявка без бумажного бланка, кастомный аккордеон-навигатор
-   (заменяет T395 tabs + нативный mobile <select>).
+   заявка без бумажного бланка, кастомный навигатор (2 колонки на
+   десктопе — как в макете, аккордеон на мобильном) — заменяет
+   T395 tabs + нативный mobile <select>.
    ================================================================ */
 (function () {
   'use strict';
@@ -1143,7 +1144,7 @@ function buildStepper(active) {
   var RETURN_HTML =
     '<div class="uf-svc-head">' +
       '<div class="uf-svc-title">Возврат товара</div>' +
-      '<div class="uf-pill">14 дней на возврат</div>' +
+      '<div class="uf-svc-pill">14 дней на возврат</div>' +
     '</div>' +
     '<div class="uf-steps">' +
       '<div class="uf-step"><div class="uf-step-num">1</div><div><div class="uf-step-title">Оставьте заявку</div>' +
@@ -1167,7 +1168,7 @@ function buildStepper(active) {
   var EXCHANGE_HTML =
     '<div class="uf-svc-head">' +
       '<div class="uf-svc-title">Обмен товара</div>' +
-      '<div class="uf-pill">14 дней на обмен</div>' +
+      '<div class="uf-svc-pill">14 дней на обмен</div>' +
     '</div>' +
     '<div class="uf-svc-lead">Не подошёл размер или пришла не та модель? Меняем без лишних вопросов — это отдельный процесс от возврата.</div>' +
     '<div class="uf-steps">' +
@@ -1217,10 +1218,7 @@ function buildStepper(active) {
 
   /* ---------- инициализация ---------- */
 
-  function init() {
-    var wrapper = qs('.t395__wrapper[data-tab-current]');
-    var root = wrapper && wrapper.closest('[id^="rec"]');
-    if (!root || root.dataset.ufSvcInit) return;
+  function build(root, wrapper) {
     root.dataset.ufSvcInit = '1';
 
     /* сопоставляем по видимому тексту вкладки, а не по data-tab-number —
@@ -1245,49 +1243,74 @@ function buildStepper(active) {
       { key: 'privacy', label: 'Политика конфиденциальности', passthrough: 'Политика конфиденциальности' }
     ];
 
-    var nav = document.createElement('div');
-    nav.className = 'uf-svc-nav';
+    /* Раскладка решается один раз на момент построения (по ширине окна
+       в этот момент), а не переигрывается на resize — так проще и
+       надёжнее, реальные пользователи почти никогда не тянут окно
+       браузера через границу 640px посреди чтения этой страницы. */
+    var isDesktop = window.matchMedia('(min-width: 640px)').matches;
 
-    var panelEls = {};
+    var nav = document.createElement('div');
+    nav.className = 'uf-svc-nav' + (isDesktop ? ' uf-svc-nav--desktop' : '');
+
+    var navList = null;
+    var panelsWrap = null;
+    if (isDesktop) {
+      navList = document.createElement('div');
+      navList.className = 'uf-svc-navlist';
+      panelsWrap = document.createElement('div');
+      panelsWrap.className = 'uf-svc-panels';
+      nav.appendChild(navList);
+      nav.appendChild(panelsWrap);
+    }
+
+    var itemEls = {};
 
     ITEMS.forEach(function (item) {
-      var row = document.createElement('div');
-      row.className = 'uf-svc-item';
-      row.setAttribute('data-key', item.key);
-
       var headerBtn = document.createElement('button');
       headerBtn.type = 'button';
       headerBtn.className = 'uf-svc-navitem';
-      headerBtn.innerHTML = '<span>' + item.label + '</span><svg width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
       headerBtn.setAttribute('data-key', item.key);
-      row.appendChild(headerBtn);
+      if (isDesktop) {
+        headerBtn.textContent = item.label;
+      } else {
+        headerBtn.innerHTML = '<span>' + item.label + '</span><svg width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+      }
 
       var panel = document.createElement('div');
       panel.className = 'uf-svc-panel';
-      if (item.html) panel.innerHTML = item.html;
       panel.setAttribute('data-key', item.key);
+      if (item.html) panel.innerHTML = item.html;
       if (item.passthrough && recByLabel[item.passthrough]) {
         var inner = document.createElement('div');
         inner.className = 'uf-svc-original';
         var origNode = recByLabel[item.passthrough];
         /* узел переносится из скрытой Tilda-вкладки — снимаем её
            «выключенное» состояние раз и навсегда: видимостью панели
-           теперь управляет только наш .uf-svc-item.active */
+           теперь управляет только наша логика ниже. */
         origNode.classList.remove('t395__off');
         origNode.removeAttribute('aria-hidden');
         origNode.style.removeProperty('display');
         inner.appendChild(origNode);
         panel.appendChild(inner);
       }
-      row.appendChild(panel);
-      panelEls[item.key] = panel;
 
-      nav.appendChild(row);
+      if (isDesktop) {
+        navList.appendChild(headerBtn);
+        panelsWrap.appendChild(panel);
+      } else {
+        var row = document.createElement('div');
+        row.className = 'uf-svc-item';
+        row.appendChild(headerBtn);
+        row.appendChild(panel);
+        nav.appendChild(row);
+      }
+
+      itemEls[item.key] = { btn: headerBtn, panel: panel };
 
       headerBtn.addEventListener('click', function () {
         selectItem(item.key);
-        if (window.innerWidth <= 639) {
-          setTimeout(function () { row.scrollIntoView({ block: 'start', behavior: 'smooth' }); }, 60);
+        if (!isDesktop) {
+          setTimeout(function () { headerBtn.scrollIntoView({ block: 'start', behavior: 'smooth' }); }, 60);
         }
       });
     });
@@ -1297,16 +1320,14 @@ function buildStepper(active) {
 
     function selectItem(key, opts) {
       opts = opts || {};
-      qsa('.uf-svc-item', nav).forEach(function (row) {
-        row.classList.toggle('active', row.getAttribute('data-key') === key);
+      Object.keys(itemEls).forEach(function (k) {
+        var active = k === key;
+        itemEls[k].btn.classList.toggle('active', active);
+        itemEls[k].panel.classList.toggle('active', active);
       });
-      Object.keys(panelEls).forEach(function (k) { panelEls[k].classList.toggle('active', k === key); });
-
-      var item = ITEMS.filter(function (i) { return i.key === key; })[0];
-      if (!item) return;
 
       if (key === 'claim' && opts.claimType) {
-        setClaimType(panelEls.claim, opts.claimType);
+        setClaimType(itemEls.claim.panel, opts.claimType);
       }
     }
 
@@ -1338,7 +1359,7 @@ function buildStepper(active) {
     }
 
     /* ---------- логика внутри формы заявки ---------- */
-    var claimPanel = panelEls.claim;
+    var claimPanel = itemEls.claim && itemEls.claim.panel;
     if (claimPanel) {
       var typeToggle = qs('[data-uf-field="type"]', claimPanel);
       qsa('button', typeToggle).forEach(function (b) {
@@ -1407,18 +1428,38 @@ function buildStepper(active) {
     selectItem('delivery');
   }
 
-  document.addEventListener('DOMContentLoaded', function () {
-    init();
-    var tries = 0;
-    var iv = setInterval(function () {
-      tries++;
-      if (qs('.t395__wrapper[data-tab-current]')) { init(); clearInterval(iv); }
-      if (tries > 40) clearInterval(iv);
-    }, 250);
-  });
-  if (document.readyState !== 'loading') {
-    init();
-    setTimeout(init, 500);
-    setTimeout(init, 1500);
+  /* Tilda монтирует T395-виджет асинхронно, и на «холодной» загрузке это
+     может занять больше времени, чем разумный фиксированный тайм-аут —
+     поэтому вместо однократных попыток с отказом по таймеру используем
+     MutationObserver (реагирует, когда виджет реально появится в DOM,
+     сколько бы вемени это ни заняло) плюс редкий поллинг как страховку.
+     init() идемпотентен и самовосстанавливается, если Tilda когда-нибудь
+     заново перерисует контейнер виджета (тогда root.dataset.ufSvcInit
+     у нового узла будет пуст, и мы соберём навигатор заново). */
+  function init() {
+    try {
+      var wrapper = qs('.t395__wrapper[data-tab-current]');
+      var root = wrapper && wrapper.closest('[id^="rec"]');
+      if (!root || root.dataset.ufSvcInit) return;
+      build(root, wrapper);
+    } catch (e) {
+      window.__ufSvcErr = window.__ufSvcErr || [];
+      window.__ufSvcErr.push(String((e && e.stack) || e));
+    }
   }
+
+  document.addEventListener('DOMContentLoaded', init);
+  if (document.readyState !== 'loading') init();
+
+  try {
+    var mo = new MutationObserver(function () { init(); });
+    mo.observe(document.documentElement, { childList: true, subtree: true });
+  } catch (e) {}
+
+  var pollTries = 0;
+  var pollIv = setInterval(function () {
+    pollTries++;
+    init();
+    if (pollTries > 240) clearInterval(pollIv); /* ~2 минуты подстраховки */
+  }, 500);
 })();
