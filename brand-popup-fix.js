@@ -652,7 +652,6 @@
   }, 500);
 })();
 
-
 (function () {
   // Десктопная боковая корзина (.t706__sidebar) структурно не содержит
   // кнопки "назад" — в отличие от мобильной полноэкранной (.t706__cartpage),
@@ -692,7 +691,6 @@
     if (backTries > 40) clearInterval(backIv);
   }, 500);
 })();
-
 
 // Раунд 11 (2026-08-30): блок "Новинки" на главной (rec503881643) — счётчик
 // "Показано X из Y товаров" над родной кнопкой "Загрузить ещё" (перестилизована в
@@ -771,7 +769,6 @@
   }, 500);
 })();
 
-
 // Главная: заголовок блока "Новинки" -- вставляет рубрику + заголовок + ссылку
 // "Смотреть все" перед сеткой товаров (#rec503881643). Нативный текстовый Zero-блок
 // (#rec504664503, просто "НОВИНКИ") скрыт через CSS -- см. brand-style.css.
@@ -807,7 +804,6 @@
     if (initialized || ufNovTries > 40) clearInterval(ufNovInterval);
   }, 500);
 })();
-
 
 // ============================================================
 // UNFADED — Checkout step wizard
@@ -1079,7 +1075,6 @@ function buildStepper(active) {
   }, 400);
 })();
 
-
 // ============================================================
 // UNFADED — "Спасибо за заказ" (/thanks) redesign: header card
 // The T123 block's own markup (#rec3375631701 .unf-thanks) has a bare
@@ -1123,7 +1118,6 @@ function buildStepper(active) {
     if (initialized || ufThanksTries > 40) clearInterval(ufThanksInterval);
   }, 500);
 })();
-
 
 /* ================================================================
    UNFADED — «Клиентский сервис»: разделение Возврат/Обмен, онлайн-
@@ -1459,6 +1453,23 @@ function buildStepper(active) {
     }
 
     /* ---------- логика внутри формы заявки ---------- */
+
+    /* Сопоставление русских значений формы с кодами, которые ждёт бэкенд
+       unfaded-returns-webhook (находит заказ в RetailCRM по номеру и ставит
+       статус «Возврат оформлен» / «Обмен: ждём возврат исходного товара»). */
+    var UF_RETURNS_BACKEND_URL = 'https://unfaded-returns-webhook.onrender.com/return-request';
+    var UF_REQUEST_TYPE_MAP = { 'Возврат': 'return', 'Обмен': 'exchange' };
+    var UF_REASON_MAP = {
+      'Не подошёл размер': 'size',
+      'Не подошёл цвет/модель': 'color_or_model',
+      'Брак/дефект': 'defect',
+      'Передумал(а)': 'changed_mind'
+    };
+    var UF_PAYMENT_MAP = {
+      'Картой на сайте': 'card_online',
+      'Наложенным платежом': 'cash_or_card_on_delivery'
+    };
+
     var claimPanel = itemEls.claim && itemEls.claim.panel;
     if (claimPanel) {
       var typeToggle = qs('[data-uf-field="type"]', claimPanel);
@@ -1522,6 +1533,33 @@ function buildStepper(active) {
 
         var text = encodeURIComponent(lines.join('\n'));
         window.open('https://wa.me/' + WA_NUMBER + '?text=' + text, '_blank');
+
+        /* Отдельно, в дополнение к WhatsApp: обновляем статус заказа и
+           комментарий менеджеру в RetailCRM через свой бэкенд. Ничего не
+           меняет в открытии WhatsApp выше — если этот запрос не пройдёт
+           (например, сервис "спит" на бесплатном тарифе Render), клиент
+           всё равно увидит открывшийся WhatsApp, а ошибку увидим только
+           мы, в консоли браузера. */
+        try {
+          fetch(UF_RETURNS_BACKEND_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              order_number: order,
+              phone: phone,
+              product: itemv,
+              request_type: UF_REQUEST_TYPE_MAP[type] || 'return',
+              reason: UF_REASON_MAP[reason] || '',
+              defect_description: defect,
+              payment_method: UF_PAYMENT_MAP[payment] || '',
+              refund_details: requisites
+            })
+          }).catch(function (err) {
+            console.warn('UNFADED: не удалось обновить заказ в CRM', err);
+          });
+        } catch (err) {
+          console.warn('UNFADED: не удалось обновить заказ в CRM', err);
+        }
       });
     }
 
