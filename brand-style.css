@@ -3749,3 +3749,14 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
 .t-product__option-item_color input[name="Цвет"][value="Чайная роза"] ~ .t-product__option-checkmark {
   background-color: #E3BDB2 !important;
 }
+
+/* ---------- Кнопка "OK" (подтверждение цены, моб.) — размер по высоте
+   как у полей "от/до", текст — как у цифр в этих полях, 2026-08-31 ---------- */
+.t-store__filter .js-store-filter-price-btn {
+  height: 29px !important;
+  min-height: 0 !important;
+  padding: 0 14px !important;
+  font-size: 13px !important;
+  line-height: 27px !important;
+  font-weight: 600 !important;
+}
