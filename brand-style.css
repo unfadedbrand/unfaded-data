@@ -3561,3 +3561,137 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
   #rec3375631701 .uf-thanks-card h2 { font-size: 24px !important; }
   #rec3375631701 .uf-thanks-card p.unf-sub { font-size: 13px !important; }
 }
+
+/* ==========================================================================
+   Фильтры каталога — редизайн «Строгая сетка» (вариант A), 2026-08-31
+   Применяется к нативному виджету Tilda T396 (.t-store__filter) —
+   один и тот же блок покрывает и ПК-сайдбар, и мобильный аккордеон,
+   так как это один и тот же HTML, просто в разной раскладке.
+   ========================================================================== */
+
+/* Заголовки секций (Категория / Цвет / Цена / Размер) */
+.t-store__filter .js-store-filter-item-title {
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.1em !important;
+  text-transform: uppercase !important;
+  color: #17090B !important;
+}
+
+/* Категория — ссылки дерева */
+.t-store__filter .t-store__filter__title {
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  color: #17090B !important;
+  text-transform: none !important;
+}
+.t-store__filter .t-store__filter__title:hover {
+  color: #7A1F2A !important;
+}
+
+/* "Показать все" */
+.t-store__filter .t-store__filter__btn-text {
+  font-size: 12px !important;
+  font-weight: 400 !important;
+  color: #17090B !important;
+  text-decoration: underline !important;
+  text-decoration-color: #7A1F2A !important;
+  text-underline-offset: 2px;
+}
+
+/* "Сбросить" */
+.t-store__filter .js-store-filter-reset {
+  font-size: 12px !important;
+  color: #55575A !important;
+}
+
+/* ---- Цвет: свотчи — тонкая рамка + бордовое кольцо на выбранном ---- */
+.t-store__filter .t-store__filter__checkmark_color {
+  border: 1px solid #D7D8D9 !important;
+  box-shadow: none !important;
+  transition: box-shadow .15s ease;
+}
+.t-store__filter .t-store__filter__checkbox_color.active .t-checkbox__indicator {
+  border: 1px solid #FFFFFF !important;
+  box-shadow: 0 0 0 1px #FFFFFF, 0 0 0 3px #7A1F2A !important;
+}
+
+/* ---- Цена: слайдер и поля ввода ---- */
+.t-store__filter .t-store__filter__range_bg {
+  background: #7A1F2A !important;
+}
+.t-store__filter .t-store__filter__price-outer {
+  background: #EDEEEE !important;
+}
+.t-store__filter .t-store__filter__range {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent !important;
+}
+.t-store__filter .t-store__filter__range::-webkit-slider-runnable-track {
+  background: transparent !important;
+}
+.t-store__filter .t-store__filter__range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #FFFFFF;
+  border: 2px solid #7A1F2A;
+  cursor: pointer;
+}
+.t-store__filter .t-store__filter__range::-moz-range-track {
+  background: transparent !important;
+}
+.t-store__filter .t-store__filter__range::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #FFFFFF;
+  border: 2px solid #7A1F2A;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+.t-store__filter .t-store__filter__input {
+  border: 1px solid #D7D8D9 !important;
+  background: #FFFFFF !important;
+  color: #17090B !important;
+  font-size: 13px !important;
+  font-variant-numeric: tabular-nums;
+}
+.t-store__filter .js-store-filter-price-btn {
+  background: var(--uf-burgundy, #7A1F2A) !important;
+  border-color: var(--uf-burgundy, #7A1F2A) !important;
+  color: #FAFAFA !important;
+}
+
+/* ---- Размер: превращаем нативный чекбокс-кружок в квадратный чип ---- */
+.t-store__filter .t-store__filter__checkbox_simple .t-checkbox__indicator {
+  display: none !important;
+}
+.t-store__filter .t-store__filter__item-controls-container_simple {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+}
+.t-store__filter .t-store__filter__checkbox_simple {
+  margin: 0 !important;
+}
+.t-store__filter .t-store__filter__title_simple {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  padding: 8px 12px !important;
+  border: 1px solid #D7D8D9 !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  color: #17090B !important;
+  transition: background .15s ease, color .15s ease, border-color .15s ease;
+}
+.t-store__filter .js-store-filter-opt-chb:checked ~ .t-store__filter__title_simple {
+  background: #17090B !important;
+  border-color: #17090B !important;
+  color: #FAFAFA !important;
+  font-weight: 600 !important;
+}
