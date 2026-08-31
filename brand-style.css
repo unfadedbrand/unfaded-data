@@ -3695,3 +3695,57 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
   color: #FAFAFA !important;
   font-weight: 600 !important;
 }
+
+/* ==========================================================================
+   Коррекция HEX для отдельных значений «Цвет», 2026-08-31
+   Решение Леры: НЕ переименовывать/не сливать сами значения характеристики
+   «Цвет» в МойСклад (описание в карточке товара трогать нельзя) — только
+   поправить, в какой цвет красится кружок-свотч. Работает через CSS по
+   точному значению (data-tooltip в фильтре, value радио-инпута в опциях
+   товара на карточке/в карточке каталога) — данные в МойСклад не тронуты.
+   См. 02_PRODUCT/color_palette_canonical_dedup_2026-08-31.md
+   ========================================================================== */
+
+/* Графит и Графитовый — по факту один и тот же цвет (подтверждено Лерой),
+   раньше «Графит» рендерился светлее «Графитового» — нелогично для
+   названия. Оба теперь = тёмный графит. */
+.t-store__filter label.t-store__filter__checkbox_color[data-tooltip="Графит"] .t-checkbox__indicator,
+.t-store__filter label.t-store__filter__checkbox_color[data-tooltip="Графитовый"] .t-checkbox__indicator {
+  background-color: #4D4D4D !important;
+}
+.t-product__option-item_color input[name="Цвет"][value="Графит"] ~ .t-product__option-checkmark,
+.t-product__option-item_color input[name="Цвет"][value="Графитовый"] ~ .t-product__option-checkmark {
+  background-color: #4D4D4D !important;
+}
+
+/* Синий — по факту тёмно-синий (подтверждено Лерой) */
+.t-store__filter label.t-store__filter__checkbox_color[data-tooltip="Синий"] .t-checkbox__indicator {
+  background-color: #0A0357 !important;
+}
+.t-product__option-item_color input[name="Цвет"][value="Синий"] ~ .t-product__option-checkmark {
+  background-color: #0A0357 !important;
+}
+
+/* Перламутровый — HEX не был задан вовсе (пустой кружок), отнесён к группе белых */
+.t-store__filter label.t-store__filter__checkbox_color[data-tooltip="Перламутровый"] .t-checkbox__indicator {
+  background-color: #EFEDE8 !important;
+}
+.t-product__option-item_color input[name="Цвет"][value="Перламутровый"] ~ .t-product__option-checkmark {
+  background-color: #EFEDE8 !important;
+}
+
+/* Сливочный — HEX не был задан, отнесён к группе пудровый/розовый */
+.t-store__filter label.t-store__filter__checkbox_color[data-tooltip="Сливочный"] .t-checkbox__indicator {
+  background-color: #E8DAD3 !important;
+}
+.t-product__option-item_color input[name="Цвет"][value="Сливочный"] ~ .t-product__option-checkmark {
+  background-color: #E8DAD3 !important;
+}
+
+/* Чайная роза — HEX не был задан, отнесена к группе пудровый/розовый */
+.t-store__filter label.t-store__filter__checkbox_color[data-tooltip="Чайная роза"] .t-checkbox__indicator {
+  background-color: #E3BDB2 !important;
+}
+.t-product__option-item_color input[name="Цвет"][value="Чайная роза"] ~ .t-product__option-checkmark {
+  background-color: #E3BDB2 !important;
+}
