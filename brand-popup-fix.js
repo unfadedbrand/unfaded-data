@@ -1139,6 +1139,94 @@ function buildStepper(active) {
   function qs(sel, ctx) { return (ctx || document).querySelector(sel); }
   function qsa(sel, ctx) { return Array.prototype.slice.call((ctx || document).querySelectorAll(sel)); }
 
+  /* ---------- переносимые (passthrough) разделы: приводим родную
+     Tilda-вёрстку к нашей типографике, не трогая ни слова текста ---------- */
+
+  /* Родной блок T056 у Tilda — это одно `[class*="__title"]` (мы его
+     выбрасываем и рисуем свой uf-svc-title) и один `[class*="__descr"]`
+     сплошным текстом, где абзацы разделены двойным <br><br>, а короткие
+     смысловые подзаголовки — просто `<span style="font-weight:600">`
+     внутри того же потока (никакой отдельной разметки заголовков у
+     Tilda для них нет). Разбираем это на нормальные <p> нашей
+     типографики (.uf-legal — уже обкатан на юридическом тексте раздела
+     «Возврат») и отдельные подзаголовки (.uf-svc-subhead). Короткий bold
+     (≤70 символов), стоящий отдельным «абзацем», — подзаголовок; более
+     длинный bold внутри абзаца — просто смысловое выделение
+     (.uf-svc-emphasis), а не заголовок раздела. */
+  function richifyDescr(descrEl) {
+    var children = Array.prototype.slice.call(descrEl.childNodes);
+    var paragraphs = [[]];
+    for (var i = 0; i < children.length; i++) {
+      var node = children[i];
+      if (node.nodeType === 1 && node.tagName === 'BR') {
+        var next = children[i + 1];
+        if (next && next.nodeType === 1 && next.tagName === 'BR') {
+          paragraphs.push([]);
+          i++;
+          continue;
+        }
+        paragraphs[paragraphs.length - 1].push(node);
+        continue;
+      }
+      if (node.nodeType === 3 && !node.textContent.trim()) continue;
+      paragraphs[paragraphs.length - 1].push(node);
+    }
+    paragraphs = paragraphs.filter(function (p) {
+      return p.some(function (n) { return n.nodeType !== 3 || n.textContent.trim(); });
+    });
+
+    var frag = document.createDocumentFragment();
+    paragraphs.forEach(function (group) {
+      var onlyEl = (group.length === 1 && group[0].nodeType === 1) ? group[0] : null;
+      var isShortBold = onlyEl && onlyEl.tagName === 'SPAN' &&
+        /font-weight/.test(onlyEl.getAttribute('style') || '') &&
+        onlyEl.textContent.trim().length <= 70;
+      if (isShortBold) {
+        var h = document.createElement('div');
+        h.className = 'uf-svc-subhead';
+        h.textContent = onlyEl.textContent.trim();
+        frag.appendChild(h);
+        return;
+      }
+      var p = document.createElement('p');
+      group.forEach(function (n) {
+        var clone = n.cloneNode(true);
+        if (clone.nodeType === 1) {
+          clone.removeAttribute('style');
+          if (clone.tagName === 'SPAN') clone.classList.add('uf-svc-emphasis');
+        }
+        p.appendChild(clone);
+      });
+      frag.appendChild(p);
+    });
+
+    descrEl.removeAttribute('style');
+    descrEl.className = 'uf-legal';
+    descrEl.innerHTML = '';
+    descrEl.appendChild(frag);
+  }
+
+  function richifyPassthrough(cloneNode, label) {
+    /* Tilda кладёт в каждый rec свой <style> со шрифтом/цветом —
+       выбрасываем, иначе он перебивает нашу типографику */
+    qsa('style', cloneNode).forEach(function (s) { s.remove(); });
+    /* родной заголовок T056 — не нужен, рисуем свой uf-svc-title, как
+       и у остальных разделов навигатора */
+    qsa('[class*="__title"]', cloneNode).forEach(function (t) { t.remove(); });
+    qsa('[class*="__descr"]', cloneNode).forEach(richifyDescr);
+    /* подчищаем прочие точечные inline-стили Tilda на обёртках —
+       вёрстка блока (отступы) уже управляется нашим CSS через классы */
+    qsa('[style]', cloneNode).forEach(function (el) { el.removeAttribute('style'); });
+
+    var head = document.createElement('div');
+    head.className = 'uf-svc-head';
+    var title = document.createElement('div');
+    title.className = 'uf-svc-title';
+    title.textContent = label;
+    head.appendChild(title);
+    cloneNode.insertBefore(head, cloneNode.firstChild);
+  }
+
   /* ---------- контент кастомных панелей ---------- */
 
   var RETURN_HTML =
@@ -1301,6 +1389,7 @@ function buildStepper(active) {
         cloneNode.classList.remove('t395__off');
         cloneNode.removeAttribute('aria-hidden');
         cloneNode.style.removeProperty('display');
+        richifyPassthrough(cloneNode, item.label);
         inner.appendChild(cloneNode);
         panel.appendChild(inner);
       }
