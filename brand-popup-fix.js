@@ -1284,13 +1284,24 @@ function buildStepper(active) {
         var inner = document.createElement('div');
         inner.className = 'uf-svc-original';
         var origNode = recByLabel[item.passthrough];
-        /* узел переносится из скрытой Tilda-вкладки — снимаем её
-           «выключенное» состояние раз и навсегда: видимостью панели
-           теперь управляет только наша логика ниже. */
-        origNode.classList.remove('t395__off');
-        origNode.removeAttribute('aria-hidden');
-        origNode.style.removeProperty('display');
-        inner.appendChild(origNode);
+        /* КЛОНИРУЕМ узел, а не переносим живой. При физическом переносе
+           (appendChild) собственный движок T395 у Tilda позже (уже после
+           нашей сборки — на инициализации самого виджета) заново находит
+           узел по исходному id и повторно вешает на него «выключенное»
+           состояние (t395__off / aria-hidden), независимо от того, где он
+           теперь лежит в DOM — воспроизводится именно на «холодной»
+           загрузке, когда наш скрипт успевает собрать навигатор раньше,
+           чем Tilda доинициализирует сам виджет. Клон полностью
+           разрывает эту связь: оригинал остаётся нетронутым внутри
+           скрытого T395, Tilda может делать с ним что угодно — на нашу
+           копию это больше не влияет. */
+        var cloneNode = origNode.cloneNode(true);
+        cloneNode.removeAttribute('id');
+        qsa('[id]', cloneNode).forEach(function (n) { n.removeAttribute('id'); });
+        cloneNode.classList.remove('t395__off');
+        cloneNode.removeAttribute('aria-hidden');
+        cloneNode.style.removeProperty('display');
+        inner.appendChild(cloneNode);
         panel.appendChild(inner);
       }
 
