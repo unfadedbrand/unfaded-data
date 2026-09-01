@@ -4058,3 +4058,111 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
   .uf-svc-faqcard { max-width: none; margin: 24px 16px 0; flex-direction: column; align-items: flex-start; }
   .uf-svc-faqcard-btn { width: 100%; justify-content: center; }
 }
+
+/* ================================================================
+   UNFADED — «Клиентский сервис»: раунд 2 фидбэка с мобильного теста
+   (реальный аккордеон, отступы на мобильном, шаги в ряд на мобильном,
+   эксцерпт+«читать полностью» для юр. текста, кнопка «Не нашли
+   ответ?» без скруглений) — 31.08.2026
+   ================================================================ */
+@media screen and (max-width: 639px) {
+  .uf-svc-nav {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    padding: 0 16px;
+  }
+  .uf-svc-navlist,
+  .uf-svc-panels {
+    display: contents;
+  }
+  .uf-svc-navitem {
+    border-bottom: 1px solid #EDEEEE;
+    padding: 16px 24px 16px 4px;
+    position: relative;
+  }
+  .uf-svc-panel {
+    padding: 4px 0 22px;
+  }
+  .uf-svc-navlist .uf-svc-navitem:nth-child(1) { order: 1; }
+  .uf-svc-panels .uf-svc-panel:nth-child(1) { order: 2; }
+  .uf-svc-navlist .uf-svc-navitem:nth-child(2) { order: 3; }
+  .uf-svc-panels .uf-svc-panel:nth-child(2) { order: 4; }
+  .uf-svc-navlist .uf-svc-navitem:nth-child(3) { order: 5; }
+  .uf-svc-panels .uf-svc-panel:nth-child(3) { order: 6; }
+  .uf-svc-navlist .uf-svc-navitem:nth-child(4) { order: 7; }
+  .uf-svc-panels .uf-svc-panel:nth-child(4) { order: 8; }
+  .uf-svc-navlist .uf-svc-navitem:nth-child(5) { order: 9; }
+  .uf-svc-panels .uf-svc-panel:nth-child(5) { order: 10; }
+  .uf-svc-navlist .uf-svc-navitem:nth-child(6) { order: 11; }
+  .uf-svc-panels .uf-svc-panel:nth-child(6) { order: 12; }
+  .uf-svc-navlist .uf-svc-navitem:nth-child(7) { order: 13; }
+  .uf-svc-panels .uf-svc-panel:nth-child(7) { order: 14; }
+  .uf-svc-navlist .uf-svc-navitem:nth-child(8) { order: 15; }
+  .uf-svc-panels .uf-svc-panel:nth-child(8) { order: 16; }
+
+  .uf-step {
+    flex-direction: row !important;
+    align-items: flex-start !important;
+    gap: 10px !important;
+  }
+
+  .uf-svc-faqcard {
+    margin-left: 0;
+    margin-right: 0;
+  }
+}
+
+.uf-legal-wrap {
+  margin-top: 20px;
+}
+.uf-legal-heading {
+  font-family: 'Onest', Arial, sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: #17090B;
+  margin: 0 0 8px;
+}
+.uf-legal-excerpt {
+  font-family: 'Onest', Arial, sans-serif;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #55575A;
+  margin: 0 0 6px;
+}
+details.uf-legal {
+  margin: 0;
+}
+details.uf-legal > summary {
+  list-style: none;
+  cursor: pointer;
+  font-family: 'Onest', Arial, sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: #7A1F2A;
+  text-decoration: underline;
+}
+details.uf-legal > summary::-webkit-details-marker {
+  display: none;
+}
+details.uf-legal > summary::marker {
+  content: '';
+}
+
+.uf-svc-faqcard-title,
+.uf-svc-faqcard-sub {
+  font-family: 'Onest', Arial, sans-serif;
+}
+.uf-svc-faqcard-btn {
+  border-radius: 0;
+  background: #7A1F2A;
+  font-family: 'Onest', Arial, sans-serif;
+  text-transform: uppercase;
+  letter-spacing: .03em;
+  font-weight: 700;
+}
+.uf-svc-faqcard-btn:hover {
+  background: #5C1720;
+}
