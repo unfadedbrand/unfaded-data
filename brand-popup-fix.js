@@ -1817,4 +1817,68 @@ function buildStepper(active) {
       }
     });
   })();
+
+  /* ================================================================
+     UNFADED — «Клиентский сервис»: раунд 2 фидбэка с мобильного теста
+     (эксцерпт + «читать полностью →» для юридического текста внутри
+     Возврата/Обмена — details.uf-legal). Текст юр. документа не
+     меняется ни на символ: эксцерпт — это verbatim-обрезка первого
+     параграфа, вычисленная кодом, а не набранная вручную.
+     31.08.2026
+     ================================================================ */
+  (function () {
+    function ensureLegalExcerpt() {
+      var detailsEls = document.querySelectorAll('details.uf-legal:not([data-uf-excerpt-done])');
+      for (var i = 0; i < detailsEls.length; i++) {
+        var d = detailsEls[i];
+        var summary = d.querySelector('summary');
+        if (!summary) continue;
+        var headingText = summary.textContent;
+        var firstP = d.querySelector('p');
+        var fullText = firstP ? firstP.textContent : '';
+        var excerpt = fullText;
+        if (fullText.length > 170) {
+          excerpt = fullText.slice(0, 170).replace(/\s+\S*$/, '') + '…';
+        }
+        var wrap = document.createElement('div');
+        wrap.className = 'uf-legal-wrap';
+        var heading = document.createElement('div');
+        heading.className = 'uf-legal-heading';
+        heading.textContent = headingText;
+        var excerptEl = document.createElement('p');
+        excerptEl.className = 'uf-legal-excerpt';
+        excerptEl.textContent = excerpt;
+        d.parentNode.insertBefore(wrap, d);
+        wrap.appendChild(heading);
+        wrap.appendChild(excerptEl);
+        wrap.appendChild(d);
+        summary.textContent = 'Читать полностью →';
+        d.addEventListener('toggle', function (ev) {
+          var el = ev.target;
+          var sum = el.querySelector('summary');
+          if (sum) sum.textContent = el.open ? 'Свернуть ↑' : 'Читать полностью →';
+        });
+        d.setAttribute('data-uf-excerpt-done', '1');
+      }
+    }
+
+    if (document.querySelector('.uf-svc-nav')) {
+      ensureLegalExcerpt();
+    }
+    var legalMo = new MutationObserver(function () {
+      if (document.querySelector('.uf-svc-nav')) ensureLegalExcerpt();
+    });
+    legalMo.observe(document.body, { childList: true, subtree: true });
+    var legalTries = 0;
+    var legalIv = setInterval(function () {
+      legalTries++;
+      ensureLegalExcerpt();
+      if (document.querySelector('details.uf-legal[data-uf-excerpt-done]') || legalTries > 240) clearInterval(legalIv);
+    }, 500);
+    document.addEventListener('click', function (e) {
+      if (e.target && e.target.closest && e.target.closest('.uf-svc-navitem')) {
+        setTimeout(ensureLegalExcerpt, 60);
+      }
+    });
+  })();
 })();
