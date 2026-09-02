@@ -1882,3 +1882,100 @@ function buildStepper(active) {
     });
   })();
 })();
+// UNFADED: один блок «Способ оплаты» в чекауте.
+// Прячем декоративный блок pay_method, оставляем родной блок Тильды
+// (paymentsystem) — он реально решает, куда уйдёт заказ — и переписываем
+// его подписи на человеческие. В скрытое поле pay_method подставляем текст,
+// соответствующий выбранному шлюзу, чтобы в RetailCRM приезжал верный способ.
+// По элементам Тильды НЕ кликаем: маршрутизацию делает сама Тильда.
+// Долями временно не показываются — платёжной системы Долями сейчас нет.
+// Откат: удалить этот блок и закоммитить.
+;(function () {
+  'use strict';
+
+  var LABELS = {
+    tinkoff: 'Оплата банковской картой / СБП (онлайн)',
+    custom:  'Оплата наличными / картой при получении'
+  };
+
+  // строки должны совпадать с вариантами поля pay_method символ в символ —
+  // по ним imb-service определяет тип оплаты в RetailCRM
+  var PAY_METHOD_TEXT = {
+    tinkoff: 'Оплата банковской картой / СБП (оплата онлайн)',
+    custom:  'Оплата наличными / картой при получении'
+  };
+
+  var HIDE_CSS =
+    'position:absolute;width:1px;height:1px;overflow:hidden;' +
+    'clip:rect(0 0 0 0);white-space:nowrap';
+
+  function hideOldBlock() {
+    var box = document.querySelector('.t-input-group_rd');
+    if (!box || box.getAttribute('data-uf-pay-hidden') === '1') return;
+    box.setAttribute('data-uf-pay-hidden', '1');
+    box.style.cssText = HIDE_CSS;
+  }
+
+  function relabel(radio, text) {
+    var lbl = radio.closest('label');
+    if (!lbl || lbl.getAttribute('data-uf-label') === text) return;
+
+    var node = null;
+    for (var i = 0; i < lbl.childNodes.length; i++) {
+      var n = lbl.childNodes[i];
+      if (n.nodeType === 3 && n.nodeValue.trim()) { node = n; break; }
+    }
+    if (node) {
+      node.nodeValue = ' ' + text;
+      lbl.setAttribute('data-uf-label', text);
+      return;
+    }
+
+    var els = lbl.querySelectorAll('span,div');
+    for (var j = 0; j < els.length; j++) {
+      if (els[j].children.length === 0 && (els[j].textContent || '').trim()) {
+        els[j].textContent = text;
+        lbl.setAttribute('data-uf-label', text);
+        return;
+      }
+    }
+  }
+
+  function relabelAll() {
+    var radios = document.querySelectorAll('input[name="paymentsystem"]');
+    for (var i = 0; i < radios.length; i++) {
+      var text = LABELS[radios[i].value];
+      if (text) relabel(radios[i], text);
+    }
+  }
+
+  function syncPayMethod() {
+    var ps = document.querySelector('input[name="paymentsystem"]:checked');
+    if (!ps) return;
+    var text = PAY_METHOD_TEXT[ps.value];
+    if (!text) return;
+
+    var pms = document.querySelectorAll('input[name="pay_method"]');
+    for (var i = 0; i < pms.length; i++) {
+      pms[i].checked = (pms[i].value === text);
+    }
+  }
+
+  function apply() {
+    if (!document.querySelector('input[name="paymentsystem"]')) return;
+    hideOldBlock();
+    relabelAll();
+    syncPayMethod();
+  }
+
+  document.addEventListener('change', function (e) {
+    if (e.target && e.target.name === 'paymentsystem') syncPayMethod();
+  }, true);
+
+  new MutationObserver(apply).observe(document.documentElement, {
+    childList: true,
+    subtree: true
+  });
+
+  apply();
+})();
