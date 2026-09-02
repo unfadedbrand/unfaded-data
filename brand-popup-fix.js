@@ -1,4 +1,4 @@
-/*
+видимыйвыбороплатытеперьреальнопереключаетшлюзТильдытехническийблокпрячется/*
  * UNFADED — фикс попапа подписки (rec1542845921).
  * CSS-приём с ::before/::after content оказался ненадёжным именно в этом
  * Zero Block блоке (текст не рисовался в реальном браузере, хотя
@@ -1881,4 +1881,66 @@ function buildStepper(active) {
       }
     });
   })();
+})();
+// UNFADED: связываем видимый выбор оплаты с реальным платёжным шлюзом Тильды.
+// pay_method (видимый блок) — просто текст, шлюз задаёт paymentsystem (технический блок).
+// Наличные/при получении -> custom (RetailCRM), Карта/СБП -> tinkoff, Долями -> tinkoff (как сейчас).
+// Откат: удалить этот блок и закоммитить.
+;(function () {
+  'use strict';
+
+  var MAP = [
+    [/налич|при получени/i, 'custom'],
+    [/банковск|СБП|онлайн/i, 'tinkoff'],
+    [/долям/i, 'tinkoff']
+  ];
+  var timer = null;
+
+  function sync() {
+    var box = document.querySelector('.t-input-group_pm');
+    if (!box) return;
+
+    if (box.getAttribute('data-uf-pay') !== '1') {
+      box.setAttribute('data-uf-pay', '1');
+      box.style.cssText =
+        'position:absolute;width:1px;height:1px;overflow:hidden;' +
+        'clip:rect(0 0 0 0);white-space:nowrap';
+    }
+
+    var checked = document.querySelector('input[name="pay_method"]:checked');
+    if (!checked) return;
+
+    var label = checked.closest('label');
+    var text = label ? label.textContent : checked.value;
+
+    var system = null;
+    for (var i = 0; i < MAP.length; i++) {
+      if (MAP[i][0].test(text)) { system = MAP[i][1]; break; }
+    }
+    if (!system) return;
+
+    var radios = document.querySelectorAll('input[name="paymentsystem"]');
+    for (var j = 0; j < radios.length; j++) {
+      if (radios[j].value === system) {
+        if (!radios[j].checked) radios[j].click();
+        return;
+      }
+    }
+  }
+
+  function schedule() {
+    clearTimeout(timer);
+    timer = setTimeout(sync, 120);
+  }
+
+  document.addEventListener('change', function (e) {
+    if (e.target && e.target.name === 'pay_method') schedule();
+  }, true);
+
+  new MutationObserver(schedule).observe(document.documentElement, {
+    childList: true,
+    subtree: true
+  });
+
+  schedule();
 })();
