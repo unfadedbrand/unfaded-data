@@ -1786,7 +1786,7 @@ function buildStepper(active) {
         '<div class="uf-svc-howstep"><b>1</b>Заполните форму — номер заказа и что случилось</div>' +
         '<div class="uf-svc-howstep"><b>2</b>Нажмите «Отправить заявку» — откроется WhatsApp с готовым сообщением</div>' +
         '<div class="uf-svc-howstep"><b>3</b>Менеджер обработает заявку и подтвердит детали</div>' +
-        '<div class="uf-svc-howstep"><b>4</b>Сдайте товар в ПВЗ — печатать и вкладывать ничего не нужно</div>' +
+        '<div class="uf-svc-howstep"><b>4</b>Отнесите вещь в ПВЗ СДЭК как клиентский возврат — номер для оператора пришлём отдельным сообщением, печатать и вкладывать ничего не нужно</div>' +
         '</div>';
       claimHead.parentNode.insertBefore(card, claimHead.nextSibling);
     }
