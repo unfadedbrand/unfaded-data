@@ -4178,3 +4178,43 @@ details.uf-legal > summary::marker {
     overflow-x: hidden;
   }
 }
+/* Чекаут, шаг «Оплата»: карточки с рамками для родного блока Тильды.
+   Раньше карточки были у .t-input-group_rd — он декоративный и теперь скрыт.
+   Покупатель видит родной блок .t-input-group_pm, Тильда рисует его строчками. */
+
+.t-form__inputsbox .t-input-group_pm .t-radio__wrapper-payment {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* у Тильды здесь display:table и padding:1px 0 0 — перебиваем,
+   иначе рамка ляжет по ширине текста */
+.t-form__inputsbox .t-input-group_pm .t-radio__wrapper-payment > .t-radio__control {
+  display: flex !important;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid var(--uf-line);
+  border-radius: 3px;
+  padding: 14px 16px !important;
+  margin: 0 !important;
+  cursor: pointer;
+  transition: border-color .15s ease, background .15s ease;
+  position: relative;
+}
+
+.t-form__inputsbox .t-input-group_pm .t-radio__wrapper-payment > .t-radio__control:hover {
+  border-color: var(--uf-gray-soft);
+}
+
+.t-form__inputsbox .t-input-group_pm .t-radio__wrapper-payment > .t-radio__control:has(input:checked) {
+  border-color: var(--uf-ink);
+  background: var(--uf-pale);
+}
+
+/* кружок: у Тильды inline-block и margin:-1px 10px 0 0 — отступ теперь даёт gap */
+.t-form__inputsbox .t-input-group_pm .t-radio__indicator {
+  flex: none;
+  display: block;
+  margin: 0 !important;
+}
