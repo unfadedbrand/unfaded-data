@@ -1883,8 +1883,11 @@ function buildStepper(active) {
   })();
 })();
 // UNFADED: связываем видимый выбор оплаты с реальным платёжным шлюзом Тильды.
-// pay_method (видимый блок) — просто текст, шлюз задаёт paymentsystem (технический блок).
+// pay_method (видимый блок) — просто текст; шлюз задаёт paymentsystem (технический блок).
 // Наличные/при получении -> custom (RetailCRM), Карта/СБП -> tinkoff, Долями -> tinkoff (как сейчас).
+// v2: после клика проверяем, что tcart.system реально переключился, и повторяем —
+//     Тильда перерисовывает блок оплаты, и одиночный клик иногда попадает в уже
+//     заменённый элемент (проверено на живом чекауте: 1 промах из 3 переключений).
 // Откат: удалить этот блок и закоммитить.
 ;(function () {
   'use strict';
@@ -1894,7 +1897,29 @@ function buildStepper(active) {
     [/банковск|СБП|онлайн/i, 'tinkoff'],
     [/долям/i, 'tinkoff']
   ];
+
   var timer = null;
+  var wanted = null;
+
+  function apply(system, attempt) {
+    if (system !== wanted) return;
+    if (attempt > 6) return;
+
+    var radios = document.querySelectorAll('input[name="paymentsystem"]');
+    var target = null;
+    for (var i = 0; i < radios.length; i++) {
+      if (radios[i].value === system) { target = radios[i]; break; }
+    }
+    if (!target) return;
+
+    if (!target.checked) target.click();
+
+    setTimeout(function () {
+      if (!window.tcart || window.tcart.system !== system) {
+        apply(system, attempt + 1);
+      }
+    }, 200);
+  }
 
   function sync() {
     var box = document.querySelector('.t-input-group_pm');
@@ -1919,13 +1944,8 @@ function buildStepper(active) {
     }
     if (!system) return;
 
-    var radios = document.querySelectorAll('input[name="paymentsystem"]');
-    for (var j = 0; j < radios.length; j++) {
-      if (radios[j].value === system) {
-        if (!radios[j].checked) radios[j].click();
-        return;
-      }
-    }
+    wanted = system;
+    apply(system, 0);
   }
 
   function schedule() {
