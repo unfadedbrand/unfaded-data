@@ -1885,9 +1885,14 @@ function buildStepper(active) {
 // UNFADED: связываем видимый выбор оплаты с реальным платёжным шлюзом Тильды.
 // pay_method (видимый блок) — просто текст; шлюз задаёт paymentsystem (технический блок).
 // Наличные/при получении -> custom (RetailCRM), Карта/СБП -> tinkoff, Долями -> tinkoff (как сейчас).
-// v2: после клика проверяем, что tcart.system реально переключился, и повторяем —
-//     Тильда перерисовывает блок оплаты, и одиночный клик иногда попадает в уже
-//     заменённый элемент (проверено на живом чекауте: 1 промах из 3 переключений).
+//
+// v3: убран цикл обратной связи. В v2 наблюдатель за DOM запускал синхронизацию на
+//     КАЖДОЕ изменение страницы, а сама синхронизация кликала по radio, что вызывало
+//     новое изменение страницы — цепочки накладывались друг на друга и вешали вкладку
+//     (воспроизведено на живом чекауте). Теперь: клики только в ответ на реальный выбор
+//     покупателя, наблюдатель лишь прячет технический блок и один раз выравнивает
+//     состояние при появлении блока; на каждое действие покупателя — не больше 8 попыток.
+//
 // Откат: удалить этот блок и закоммитить.
 ;(function () {
   'use strict';
@@ -1900,67 +1905,75 @@ function buildStepper(active) {
 
   var timer = null;
   var wanted = null;
+  var chainRunning = false;
+  var budget = 0;
+  var boxSeen = false;
+
+  function hide(box) {
+    if (box.getAttribute('data-uf-pay') === '1') return;
+    box.setAttribute('data-uf-pay', '1');
+    box.style.cssText =
+      'position:absolute;width:1px;height:1px;overflow:hidden;' +
+      'clip:rect(0 0 0 0);white-space:nowrap';
+  }
+
+  function desired() {
+    var checked = document.querySelector('input[name="pay_method"]:checked');
+    if (!checked) return null;
+    var label = checked.closest('label');
+    var text = label ? label.textContent : checked.value;
+    for (var i = 0; i < MAP.length; i++) {
+      if (MAP[i][0].test(text)) return MAP[i][1];
+    }
+    return null;
+  }
 
   function apply(system, attempt) {
-    if (system !== wanted) return;
-    if (attempt > 6) return;
+    if (system !== wanted || attempt > 8 || budget <= 0) { chainRunning = false; return; }
 
     var radios = document.querySelectorAll('input[name="paymentsystem"]');
     var target = null;
     for (var i = 0; i < radios.length; i++) {
       if (radios[i].value === system) { target = radios[i]; break; }
     }
-    if (!target) return;
+    if (!target) { chainRunning = false; return; }
 
+    if (target.checked && window.tcart && window.tcart.system === system) {
+      chainRunning = false;
+      return;
+    }
+
+    budget--;
     if (!target.checked) target.click();
 
-    setTimeout(function () {
-      if (!window.tcart || window.tcart.system !== system) {
-        apply(system, attempt + 1);
-      }
-    }, 200);
+    setTimeout(function () { apply(system, attempt + 1); }, 250);
   }
 
-  function sync() {
-    var box = document.querySelector('.t-input-group_pm');
-    if (!box) return;
-
-    if (box.getAttribute('data-uf-pay') !== '1') {
-      box.setAttribute('data-uf-pay', '1');
-      box.style.cssText =
-        'position:absolute;width:1px;height:1px;overflow:hidden;' +
-        'clip:rect(0 0 0 0);white-space:nowrap';
-    }
-
-    var checked = document.querySelector('input[name="pay_method"]:checked');
-    if (!checked) return;
-
-    var label = checked.closest('label');
-    var text = label ? label.textContent : checked.value;
-
-    var system = null;
-    for (var i = 0; i < MAP.length; i++) {
-      if (MAP[i][0].test(text)) { system = MAP[i][1]; break; }
-    }
+  function start(fromUser) {
+    var system = desired();
     if (!system) return;
-
     wanted = system;
+    if (window.tcart && window.tcart.system === system) return;
+    if (fromUser) budget = 8;
+    if (chainRunning || budget <= 0) return;
+    chainRunning = true;
     apply(system, 0);
   }
 
-  function schedule() {
-    clearTimeout(timer);
-    timer = setTimeout(sync, 120);
-  }
-
   document.addEventListener('change', function (e) {
-    if (e.target && e.target.name === 'pay_method') schedule();
+    if (!e.target || e.target.name !== 'pay_method') return;
+    clearTimeout(timer);
+    timer = setTimeout(function () { start(true); }, 100);
   }, true);
 
-  new MutationObserver(schedule).observe(document.documentElement, {
-    childList: true,
-    subtree: true
-  });
-
-  schedule();
+  new MutationObserver(function () {
+    var box = document.querySelector('.t-input-group_pm');
+    if (!box) { boxSeen = false; return; }
+    hide(box);
+    if (!boxSeen) {
+      boxSeen = true;
+      budget = 8;
+      start(false);
+    }
+  }).observe(document.documentElement, { childList: true, subtree: true });
 })();
