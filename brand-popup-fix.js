@@ -1901,8 +1901,9 @@ function buildStepper(active) {
   // строки должны совпадать с вариантами поля pay_method символ в символ —
   // по ним imb-service определяет тип оплаты в RetailCRM
   var PAY_METHOD_TEXT = {
-    tinkoff: 'Оплата банковской картой / СБП (оплата онлайн)',
-    custom:  'Оплата наличными / картой при получении'
+    tinkoff:          'Оплата банковской картой / СБП (оплата онлайн)',
+    custom:           'Оплата наличными / картой при получении',
+    'custom.dolyame': 'Оплата Долями'
   };
 
   var HIDE_CSS =
@@ -1970,6 +1971,105 @@ function buildStepper(active) {
 
   document.addEventListener('change', function (e) {
     if (e.target && e.target.name === 'paymentsystem') syncPayMethod();
+  }, true);
+
+  new MutationObserver(apply).observe(document.documentElement, {
+    childList: true,
+    subtree: true
+  });
+
+  apply();
+})();
+
+
+// UNFADED: правило примерки на чекауте.
+// При галочке «Доставка с примеркой» предоплата невозможна — покупатель
+// выкупает только то, что подошло, и итоговая сумма заранее неизвестна.
+// Прячем экспресс-доставку и все предоплатные способы, оставляя
+// «Оплата наличными / картой при получении» (paymentsystem = custom).
+// Обратного правила нет: без галочки доступно всё.
+// По элементам Тильды не кликаем, скрываем тем же clip-hiding, что и v4 —
+// поля остаются в форме. Откат: удалить этот блок и закоммитить.
+;(function () {
+  'use strict';
+
+  var HIDE_CSS =
+    'position:absolute;width:1px;height:1px;overflow:hidden;' +
+    'clip:rect(0 0 0 0);white-space:nowrap';
+
+  var ALLOWED = 'custom';
+  var EXPRESS_RE = /экспресс/i;
+  var switching = false;
+
+  function isFitting() {
+    var cb = document.querySelector('input[name="primerka"]');
+    return !!(cb && cb.checked);
+  }
+
+  function rowOf(input) {
+    return input.closest('label') || input.parentElement;
+  }
+
+  function setHidden(el, hide) {
+    if (!el) return;
+    if (hide) {
+      if (el.getAttribute('data-uf-fit-hidden') === '1') return;
+      el.setAttribute('data-uf-fit-hidden', '1');
+      el.setAttribute('data-uf-fit-css', el.style.cssText || '');
+      el.style.cssText = HIDE_CSS;
+    } else {
+      if (el.getAttribute('data-uf-fit-hidden') !== '1') return;
+      el.style.cssText = el.getAttribute('data-uf-fit-css') || '';
+      el.removeAttribute('data-uf-fit-hidden');
+      el.removeAttribute('data-uf-fit-css');
+    }
+  }
+
+  function applyPayments(fitting) {
+    var radios = document.querySelectorAll('input[name="paymentsystem"]');
+    if (!radios.length) return;
+    var needSwitch = false;
+    for (var i = 0; i < radios.length; i++) {
+      var r = radios[i];
+      var hide = fitting && r.value !== ALLOWED;
+      setHidden(rowOf(r), hide);
+      if (hide && r.checked) needSwitch = true;
+    }
+    if (needSwitch && !switching) {
+      switching = true;
+      var t = document.querySelector('input[name="paymentsystem"][value="' + ALLOWED + '"]');
+      if (t && !t.checked) {
+        t.checked = true;
+        t.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+      switching = false;
+    }
+  }
+
+  function applyDelivery(fitting) {
+    var radios = document.querySelectorAll('.t-input-group_dl input[name="tildadelivery-type"]');
+    for (var i = 0; i < radios.length; i++) {
+      var r = radios[i];
+      var row = rowOf(r);
+      var text = (row && row.textContent) || '';
+      var isExpress = EXPRESS_RE.test(text) || EXPRESS_RE.test(r.value || '');
+      setHidden(row, fitting && isExpress);
+      if (fitting && isExpress && r.checked) {
+        r.checked = false;
+        r.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    }
+  }
+
+  function apply() {
+    if (!document.querySelector('input[name="primerka"]')) return;
+    var fitting = isFitting();
+    applyPayments(fitting);
+    applyDelivery(fitting);
+  }
+
+  document.addEventListener('change', function (e) {
+    if (e.target && e.target.name === 'primerka') apply();
   }, true);
 
   new MutationObserver(apply).observe(document.documentElement, {
