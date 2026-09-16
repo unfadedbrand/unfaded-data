@@ -1833,7 +1833,7 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
 .uf-notify-btn,
 .uf-notify-btn_inline,
 .uf-notify-btn_fallback {
-  display: block !important;
+  display: block; /* !important убран 16.09.2026: конфликтовал с JS-скрытием кнопки при возврате к товару в наличии (uf-notify.md) */
   width: 100% !important;
   box-sizing: border-box !important;
   background-color: #7A1F2A !important;
