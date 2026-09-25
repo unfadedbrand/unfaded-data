@@ -263,6 +263,12 @@
 #rec1604078031 .tn-atom {
   font-family: var(--uf-font-ui) !important;
 }
+/* Текстовое поле полосы в Zero Block шире экрана телефона (торчит за оба
+   края) — на iPhone из-за этого вся страница сдвигалась вбок при касаниях.
+   Текст в поле по центру, поэтому обрезаются только пустые края. */
+#rec1604078031 .t396__artboard {
+  overflow: hidden !important;
+}
 
 /* Баннер «Доставка с примеркой по всей России» — крупный заголовок на
    тёмной подложке, тот же приём, что у промо-баннера главной (дисплейный
@@ -4056,7 +4062,7 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
   .uf-svc-h1 { font-size: 20px; margin-bottom: 18px; }
   .uf-svc-howsteps { grid-template-columns: 1fr; gap: 12px; }
   .uf-svc-faqcard { max-width: none; margin: 24px 16px 0; flex-direction: column; align-items: flex-start; }
-  .uf-svc-faqcard-btn { width: 100%; justify-content: center; }
+  .uf-svc-faqcard-btn { width: 100%; box-sizing: border-box; justify-content: center; }
 }
 
 /* ================================================================

@@ -1654,6 +1654,12 @@ function buildStepper(active) {
       itemEls[item.key] = { btn: headerBtn, panel: panel };
 
       headerBtn.addEventListener('click', function () {
+        /* На мобильном повторное нажатие на открытый пункт аккордеона его сворачивает */
+        if (!isDesktop && headerBtn.classList.contains('active')) {
+          headerBtn.classList.remove('active');
+          panel.classList.remove('active');
+          return;
+        }
         selectItem(item.key);
         if (!isDesktop) {
           setTimeout(function () { headerBtn.scrollIntoView({ block: 'start', behavior: 'smooth' }); }, 60);
