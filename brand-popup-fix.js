@@ -1310,6 +1310,52 @@ function buildStepper(active) {
     cloneNode.appendChild(doc);
   }
 
+  /* Правила программы лояльности: в отличие от Оферты/Политики, текст в
+     Tilda уже размечен (абзацы <p>, названия разделов — абзац целиком в
+     <strong>), поэтому структуру не угадываем по номерам пунктов, а берём
+     как есть. Угадывание здесь ломалось бы на ссылках вида «п. 3.1» и
+     «1 CR = 1 рубль» внутри текста. */
+  function richifyStructured(cloneNode, docTitle) {
+    var descr = qs('[field="descr"]', cloneNode) || cloneNode;
+    var doc = document.createElement('div');
+    doc.className = 'uf-svc-legal-doc';
+    var body = null;
+    qsa('p', descr).forEach(function (p) {
+      var text = p.textContent.replace(/ /g, ' ').trim();
+      if (!text) return;
+      var strong = qs('strong, b', p);
+      if (strong && strong.textContent.trim() === text) {
+        var h = document.createElement('div');
+        h.className = 'uf-clause-num';
+        h.textContent = text;
+        doc.appendChild(h);
+        body = null;
+        return;
+      }
+      if (!body) {
+        body = document.createElement('div');
+        body.className = 'uf-legal-body';
+        doc.appendChild(body);
+      }
+      var np = document.createElement('p');
+      np.innerHTML = p.innerHTML;
+      body.appendChild(np);
+    });
+
+    var head = document.createElement('div');
+    head.className = 'uf-svc-head';
+    var title = document.createElement('div');
+    title.className = 'uf-svc-title';
+    title.textContent = docTitle;
+    head.appendChild(title);
+
+    cloneNode.removeAttribute('style');
+    cloneNode.className = '';
+    cloneNode.innerHTML = '';
+    cloneNode.appendChild(head);
+    cloneNode.appendChild(doc);
+  }
+
   /* ---------- контент кастомных панелей ---------- */
 
   var RETURN_HTML =
@@ -1488,12 +1534,15 @@ function buildStepper(active) {
     /* сопоставляем по видимому тексту вкладки, а не по data-tab-number —
        у Tilda он не всегда идёт подряд (бывают пропуски после правок в редакторе) */
     var recByLabel = {};
+    var labelByTabNum = {}; /* для ссылок вида /service#!/tab/533990617-8 */
     qsa('.t395__tab', wrapper).forEach(function (li) {
       var btn = qs('.t395__title', li);
       if (!btn) return;
       var text = btn.textContent.replace(/\s+/g, ' ').trim();
       var recId = btn.getAttribute('aria-controls');
       if (recId) recByLabel[text] = document.getElementById(recId);
+      var num = li.getAttribute('data-tab-number');
+      if (num) labelByTabNum[num] = text;
     });
 
     var ITEMS = [
@@ -1504,8 +1553,28 @@ function buildStepper(active) {
       { key: 'claim', label: 'Оформить заявку', html: CLAIM_HTML },
       { key: 'contacts', label: 'Контакты', html: CONTACTS_HTML },
       { key: 'offer', label: 'Оферта', passthrough: 'Оферта' },
-      { key: 'privacy', label: 'Политика конфиденциальности', passthrough: 'Политика конфиденциальности' }
+      { key: 'privacy', label: 'Политика конфиденциальности', passthrough: 'Политика конфиденциальности' },
+      { key: 'loyalty', label: 'Программа лояльности', passthrough: 'Программа лояльности',
+        structured: true, docTitle: 'Правила программы UNFADED ACCESS SYSTEM' }
     ];
+
+    /* Вкладки Tilda, у которых в навигаторе другое имя */
+    var TAB_ALIASES = { 'Обмен и возврат': 'return' };
+
+    /* Какой раздел открыть по ссылке /service#!/tab/<id блока вкладок>-<номер>.
+       Раньше навигатор всегда открывал «Доставку», и ссылки из подвала,
+       cookie-баннера и окна «сообщить о поступлении» вели не туда. */
+    function keyFromHash() {
+      var m = /#!\/tab\/(\d+)-(\d+)/.exec(window.location.hash);
+      if (!m || root.id !== 'rec' + m[1]) return null;
+      var label = labelByTabNum[m[2]];
+      if (!label) return null;
+      if (TAB_ALIASES[label]) return TAB_ALIASES[label];
+      for (var i = 0; i < ITEMS.length; i++) {
+        if (ITEMS[i].label === label || ITEMS[i].passthrough === label) return ITEMS[i].key;
+      }
+      return null;
+    }
 
     /* Раскладка решается один раз на момент построения (по ширине окна
        в этот момент), а не переигрывается на resize — так проще и
@@ -1565,7 +1634,8 @@ function buildStepper(active) {
         cloneNode.classList.remove('t395__off');
         cloneNode.removeAttribute('aria-hidden');
         cloneNode.style.removeProperty('display');
-        richifyLegal(cloneNode, item.label);
+        if (item.structured) richifyStructured(cloneNode, item.docTitle || item.label);
+        else richifyLegal(cloneNode, item.label);
         inner.appendChild(cloneNode);
         panel.appendChild(inner);
       }
@@ -1701,7 +1771,17 @@ function buildStepper(active) {
       });
     }
 
-    selectItem('delivery');
+    var initialKey = keyFromHash();
+    selectItem(initialKey || 'delivery');
+    if (initialKey) {
+      setTimeout(function () { nav.scrollIntoView({ block: 'start' }); }, 150);
+    }
+    window.addEventListener('hashchange', function () {
+      var key = keyFromHash();
+      if (!key) return;
+      selectItem(key);
+      nav.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    });
   }
 
   /* Tilda монтирует T395-виджет асинхронно, и на «холодной» загрузке это
