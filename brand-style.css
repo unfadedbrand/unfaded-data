@@ -3796,6 +3796,7 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
 
 .uf-svc-navitem {
   display: flex; align-items: center; justify-content: space-between; width: 100%;
+  box-sizing: border-box; /* иначе отступы добавлялись к 100% и кнопка торчала за экран */
   background: none; border: none; cursor: pointer; text-align: left;
   padding: 18px 4px; font-size: 14px; font-weight: 600; color: #17090B;
   font-family: inherit;
