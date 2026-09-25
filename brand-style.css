@@ -3905,6 +3905,7 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
 .uf-field-block { margin-bottom: 16px; }
 .uf-svc-panel input[type="text"], .uf-svc-panel input[type="tel"], .uf-svc-panel textarea {
   display: block; width: 100%; margin-top: 8px; border: 1px solid #D7D8D9; padding: 11px 13px;
+  box-sizing: border-box; /* поля формы заявки не вылезают за экран телефона */
   font-size: 13px; color: #17090B; font-family: inherit; background: #FFFFFF;
 }
 .uf-svc-panel textarea { resize: vertical; }
