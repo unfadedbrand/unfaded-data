@@ -4802,3 +4802,11 @@ html.uf-co2 .t706__cartpage .t706__cartpage-products,
 html.uf-co2 .t706__cartpage .t706__cartpage-totals,
 html.uf-co2 .t706__cartpage .t706__cartwin-totalamount-wrap { padding-left: 0 !important; padding-right: 0 !important; margin-left: 0 !important; margin-right: 0 !important; }
 html.uf-co2 .t-form__inputsbox[data-uf-wizard] .t-input-phonemask__select { padding-left: 12px !important; }
+html.uf-co2 .uf-co2-promo__line { min-width: 0; width: 100%; }
+html.uf-co2 .uf-co2-promo__input { flex: 1 1 0 !important; width: auto !important; min-width: 0 !important; }
+@media screen and (max-width: 960px) {
+  /* на телефоне сводка заказа — под формой (у Тильды она сверху) */
+  html.uf-co2 .t706__cartpage-content { display: flex !important; flex-direction: column; }
+  html.uf-co2 .t706__cartpage-content > .t706__cartpage-form { order: 1; }
+  html.uf-co2 .t706__cartpage-content > .t706__cartpage-info { order: 2; }
+}

@@ -2875,9 +2875,12 @@ function buildStepper(active) {
   function markTotals(box) {
     var page = document.querySelector('.t706__cartpage');
     if (!page) return;
-    qa(page, '.t706__cartpage-totals .t706__cartwin-totalamount-row').forEach(function (row) {
+    qa(page, '.t706__cartpage-totals .t706__cartwin-totalamount-row').forEach(function (row, i) {
+      // first row is the goods subtotal (we relabel it «Товары» below, so
+      // it can't be recognised by its text), the one with the big label is
+      // the total, everything in between is delivery
       var kind = q(row, '.t706__cartwin-totalamount-label') ? 'total'
-        : /^\s*Сумма/.test((q(row, '.t706__cartwin-totalamount-info_label') || row).textContent) ? 'sum'
+        : i === 0 ? 'sum'
         : 'delivery';
       row.setAttribute('data-uf-row', kind);
       if (kind === 'sum') {
