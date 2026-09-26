@@ -259,9 +259,29 @@
   letter-spacing: 0.06em !important;
 }
 
-/* Полоса «При заказе от 30.000р доставка бесплатно!» под шапкой */
+/* Полоса «Бесплатная доставка СДЭК от 30 000 ₽ при оплате на сайте» под шапкой.
+   26.09.2026: оформлена как полоса .uf-tryon-strip под ней — бордово-чёрный фон,
+   бледный текст, UI-шрифт, заглавные с разрядкой; тонкая линия между полосами. */
+#rec1604078031 .t396__artboard,
+#rec1604078031 .t396__carrier,
+#rec1604078031 .t396__filter {
+  background-color: var(--uf-oxblood) !important;
+  background-image: none !important;
+}
+#rec1604078031 .t396__artboard {
+  border-bottom: 1px solid rgba(250, 250, 250, 0.12);
+}
 #rec1604078031 .tn-atom {
   font-family: var(--uf-font-ui) !important;
+  font-weight: 700 !important;
+  font-size: 12px !important;
+  line-height: 1.35 !important;
+  letter-spacing: 0.04em !important;
+  text-transform: uppercase !important;
+  color: var(--uf-pale) !important;
+}
+@media screen and (max-width: 479px) {
+  #rec1604078031 .tn-atom { font-size: 11px !important; }
 }
 /* Текстовое поле полосы в Zero Block шире экрана телефона (торчит за оба
    края) — на iPhone из-за этого вся страница сдвигалась вбок при касаниях.
