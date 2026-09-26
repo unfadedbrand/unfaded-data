@@ -2553,6 +2553,12 @@ function buildStepper(active) {
       var priceWrap = info.querySelector('.js-store-price-wrapper');
       var priceEl = info.querySelector('.js-product-price');
       if (!priceWrap || !priceEl) continue;
+      // Кнопка Долями — сразу под ценой: виджет грузится позже соседних
+      // вставок (плашка примерки, «Таблица размеров») и оказывался под ними.
+      var dolyame = info.querySelector('.digi-dolyame-button--wrapper');
+      if (dolyame && priceWrap.nextElementSibling !== dolyame) {
+        priceWrap.insertAdjacentElement('afterend', dolyame);
+      }
       var price = parseFloat(String(priceEl.textContent).replace(/[^\d.,]/g, '').replace(',', '.')) || 0;
       var html = price >= FREE_FROM
         ? '<b>Для этого товара доставка СДЭК бесплатная</b> при оплате на сайте. С примеркой — оплата при получении. '
