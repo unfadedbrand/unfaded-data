@@ -2174,7 +2174,10 @@ function buildStepper(active) {
   var PAY_METHOD_TEXT = {
     tinkoff:          'Оплата банковской картой / СБП (оплата онлайн)',
     custom:           'Оплата наличными / картой при получении',
-    'custom.dolyame': 'Оплата Долями'
+    'custom.dolyame': 'Оплата Долями',
+    // B19 (26.09.2026): варианта для Яндекс Пэй / Сплита в поле pay_method Тильды нет —
+    // при выборе Сплита оставалось «при получении». Добавляем вариант на лету (ниже).
+    'custom.yandexsplit': 'Оплата Яндекс Пэй / Сплит'
   };
 
   var HIDE_CSS =
@@ -2228,8 +2231,26 @@ function buildStepper(active) {
     if (!text) return;
 
     var pms = document.querySelectorAll('input[name="pay_method"]');
+    var found = false;
     for (var i = 0; i < pms.length; i++) {
-      pms[i].checked = (pms[i].value === text);
+      if (pms[i].value === text) found = true;
+    }
+    // Нужного варианта нет в поле Тильды — добавляем скрытую радиокнопку с тем же
+    // name: Тильда отправляет выбранное значение pay_method из формы как есть,
+    // в RetailCRM это обычное строковое поле.
+    if (!found && pms.length) {
+      var extra = document.createElement('input');
+      extra.type = 'radio';
+      extra.name = 'pay_method';
+      extra.value = text;
+      extra.className = pms[0].className;
+      extra.setAttribute('data-uf-extra', '1');
+      extra.style.cssText = HIDE_CSS;
+      pms[0].parentNode.parentNode.appendChild(extra);
+      pms = document.querySelectorAll('input[name="pay_method"]');
+    }
+    for (var j = 0; j < pms.length; j++) {
+      pms[j].checked = (pms[j].value === text);
     }
   }
 
