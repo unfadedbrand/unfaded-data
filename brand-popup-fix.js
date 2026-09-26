@@ -2737,3 +2737,210 @@ function buildStepper(active) {
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run);
   else run();
 })();
+
+// ============================================================
+// UNFADED — Checkout v2 layer (approved mockup 26.09.2026,
+// https://claude.ai/artifact/7ztkiLh2czJDnnAeEAq6hq)
+// Sits on top of the step wizard above without changing it: step
+// headings, the promo code moved into the order summary (it proxies the
+// real Tilda promo field, which stays inside the form so the code is
+// still sent with the order), "Ваш заказ" heading, totals that hide the
+// delivery/total rows until a city is picked (before that Tilda shows the
+// first service — express, 1 000 ₽ — and a "United States, ," hint), and
+// button captions «Далее: …» / «Оформить заказ · сумма».
+// Styles: brand-style.css, section "Checkout v2" (html.uf-co2 …).
+// While testing it is enabled per browser: ?co2=1 (remembered) / ?co2=0.
+// ============================================================
+(function () {
+  var ENABLED_BY_DEFAULT = false;
+
+  function enabled() {
+    try {
+      if (/[?&]co2=1\b/.test(location.search)) localStorage.setItem('uf-co2', '1');
+      if (/[?&]co2=0\b/.test(location.search)) localStorage.setItem('uf-co2', '0');
+      var v = localStorage.getItem('uf-co2');
+      if (v === '1') return true;
+      if (v === '0') return false;
+    } catch (e) { /* storage blocked: fall back to the default */ }
+    return ENABLED_BY_DEFAULT;
+  }
+  if (!enabled()) return;
+  document.documentElement.classList.add('uf-co2');
+
+  var HEADS = {
+    1: ['Контакты', 'Пришлём подтверждение и трек-номер.'],
+    2: ['Доставка', ''],
+    3: ['Оплата', ''],
+    4: ['Проверьте заказ', '']
+  };
+  var NEXT = { 1: 'Далее: доставка', 2: 'Далее: оплата', 3: 'Далее: проверка' };
+  var BACK = { 2: '← Контакты', 3: '← Доставка', 4: '← Оплата' };
+
+  function q(root, sel) { return root ? root.querySelector(sel) : null; }
+  function qa(root, sel) { return root ? Array.prototype.slice.call(root.querySelectorAll(sel)) : []; }
+
+  function addHeads(box) {
+    [1, 2, 3, 4].forEach(function (n) {
+      if (q(box, '.uf-co2-head[data-uf-step="' + n + '"]')) return;
+      var first = n === 4 ? q(box, '.uf-checkout-review')
+        : qa(box, '[data-uf-step="' + n + '"]').filter(function (el) {
+          return !el.classList.contains('uf-checkout-hidden-field');
+        })[0];
+      if (!first) return;
+      var head = document.createElement('div');
+      head.className = 'uf-co2-head';
+      head.setAttribute('data-uf-step', String(n));
+      head.innerHTML = '<div class="uf-co2-head__title">' + HEADS[n][0] + '</div>' +
+        (HEADS[n][1] ? '<div class="uf-co2-head__sub">' + HEADS[n][1] + '</div>' : '');
+      first.parentNode.insertBefore(head, first);
+    });
+  }
+
+  // The Telegram nickname field is being removed from the Tilda form; until
+  // then (and on cached pages) just hide it.
+  function hideNick(box) {
+    var nick = q(box, 'input[name="tg_username"]');
+    var g = nick && nick.closest('.t-input-group');
+    if (g && !g.classList.contains('uf-checkout-hidden-field')) {
+      g.classList.add('uf-checkout-hidden-field');
+      g.removeAttribute('data-uf-step');
+    }
+  }
+
+  function tildaPromoGroup(box) {
+    return qa(box, '.t-input-group_pc').filter(function (g) {
+      return q(g, 'input.t-inputpromocode');
+    })[0];
+  }
+
+  function addPromo(box) {
+    var info = document.querySelector('.t706__cartpage-info-wrapper');
+    var totals = q(info, '.t706__cartpage-totals');
+    var tg = tildaPromoGroup(box);
+    if (!info || !totals || !tg || q(info, '.uf-co2-promo')) return;
+    var tInput = q(tg, 'input.t-inputpromocode');
+    var tBtn = q(tg, '.t-inputpromocode__btn');
+    if (!tInput || !tBtn) return;
+
+    tg.classList.add('uf-co2-promo-src');
+    if (tg.getAttribute('data-uf-step') === '1') tg.removeAttribute('data-uf-step');
+
+    var row = document.createElement('div');
+    row.className = 'uf-co2-promo';
+    row.innerHTML =
+      '<label class="uf-co2-promo__label" for="uf-co2-promo-input">Промокод</label>' +
+      '<div class="uf-co2-promo__line">' +
+        '<input id="uf-co2-promo-input" class="uf-co2-promo__input" type="text" placeholder="Введите промокод" autocomplete="off">' +
+        '<button type="button" class="uf-co2-promo__btn">Применить</button>' +
+      '</div>' +
+      '<div class="uf-co2-promo__msg" aria-live="polite"></div>';
+    info.insertBefore(row, totals);
+
+    var input = q(row, 'input');
+    var btn = q(row, 'button');
+    var msg = q(row, '.uf-co2-promo__msg');
+    if (tInput.value) input.value = tInput.value;
+
+    function apply() {
+      var code = input.value.trim();
+      msg.textContent = '';
+      if (!code) { input.focus(); return; }
+      tInput.value = code;
+      tInput.dispatchEvent(new Event('input', { bubbles: true }));
+      tBtn.click();
+      // Tilda answers a wrong code with its own alert; a right one lands in
+      // tcart.promocode and the totals update by themselves.
+      setTimeout(function () {
+        var p = window.tcart && window.tcart.promocode;
+        if (p && String(p.promocode || '').toUpperCase() === code.toUpperCase()) {
+          msg.textContent = 'Промокод применён';
+        }
+      }, 2000);
+    }
+    btn.addEventListener('click', apply);
+    input.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') { e.preventDefault(); apply(); }
+    });
+  }
+
+  function addSummaryTitle() {
+    var info = document.querySelector('.t706__cartpage-info-wrapper');
+    if (!info || q(info, '.uf-co2-sumtitle')) return;
+    var h = document.createElement('div');
+    h.className = 'uf-co2-sumtitle';
+    h.textContent = 'Ваш заказ';
+    info.insertBefore(h, info.firstChild);
+  }
+
+  function markTotals(box) {
+    var page = document.querySelector('.t706__cartpage');
+    if (!page) return;
+    qa(page, '.t706__cartpage-totals .t706__cartwin-totalamount-row').forEach(function (row) {
+      var kind = q(row, '.t706__cartwin-totalamount-label') ? 'total'
+        : /^\s*Сумма/.test((q(row, '.t706__cartwin-totalamount-info_label') || row).textContent) ? 'sum'
+        : 'delivery';
+      row.setAttribute('data-uf-row', kind);
+    });
+    var guid = q(box, 'input[name="tildadelivery-guid"]');
+    page.classList.toggle('uf-co2-nodl', !(guid && guid.value));
+  }
+
+  function totalText() {
+    var t = document.querySelector('.t706__cartpage .t706__cartwin-totalamount');
+    var s = t ? t.textContent.replace(/\s+/g, ' ').replace(/р\.?$/, '').trim() : '';
+    return s ? s + ' ₽' : '';
+  }
+
+  function updateButtons(box) {
+    var step = parseInt(box.getAttribute('data-active-step'), 10) || 1;
+    var nav = q(box.parentElement, '.uf-checkout-nav');
+    var next = q(nav, '.uf-checkout-nav__next');
+    var back = q(nav, '.uf-checkout-nav__back');
+    if (next && NEXT[step] && next.textContent !== NEXT[step]) next.textContent = NEXT[step];
+    if (back && BACK[step] && back.textContent !== BACK[step]) back.textContent = BACK[step];
+    var sub = q(box, '.t-form__submit .t-submit');
+    if (sub) {
+      var label = q(sub, '.t-btnflex__text') || sub;
+      var txt = 'Оформить заказ' + (totalText() ? ' · ' + totalText() : '');
+      if (label.textContent !== txt) label.textContent = txt;
+    }
+  }
+
+  function init() {
+    var box = document.querySelector('.t-form__inputsbox[data-uf-wizard]');
+    if (!box || box.dataset.ufCo2) return !!box;
+    box.dataset.ufCo2 = '1';
+    hideNick(box);
+    addHeads(box);
+    addPromo(box);
+    addSummaryTitle();
+    markTotals(box);
+    updateButtons(box);
+
+    new MutationObserver(function () { updateButtons(box); })
+      .observe(box, { attributes: true, attributeFilter: ['data-active-step'] });
+    var totals = document.querySelector('.t706__cartpage-totals');
+    if (totals) {
+      new MutationObserver(function () { markTotals(box); updateButtons(box); })
+        .observe(totals, { childList: true, subtree: true, characterData: true });
+    }
+    box.addEventListener('change', function () { setTimeout(function () { markTotals(box); }, 300); });
+    // Tilda fills the city guid without events we can rely on; a light poll
+    // keeps the totals state honest while the checkout is open.
+    setInterval(function () {
+      if (document.body.classList.contains('t706__body_cartpageshowed')) markTotals(box);
+    }, 1000);
+    return true;
+  }
+
+  var tries = 0;
+  (function wait() {
+    if (init()) {
+      // the promo row / summary title need the info column, which Tilda
+      // renders a bit later than the form
+      var box = document.querySelector('.t-form__inputsbox[data-uf-wizard]');
+      addPromo(box); addSummaryTitle(); markTotals(box);
+    }
+    if (++tries < 150) setTimeout(wait, 400);
+  })();
+})();
