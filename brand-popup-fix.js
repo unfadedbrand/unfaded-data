@@ -2380,3 +2380,50 @@ function buildStepper(active) {
 
   apply();
 })();
+
+// ============================================================
+// UNFADED — first-screen background photos without the blur
+// Tilda's lazy loader shows a 20px placeholder (the "blur") and only
+// requests the real photo after all its scripts run plus a 200–500 ms
+// timer — seconds on mobile. This script runs right after the HTML is
+// parsed (defer), loads the photos visible on the first screen at the
+// size they're shown, and takes them out of Tilda's lazy queue so
+// they aren't downloaded twice. On a load error Tilda's loader is
+// given the element back.
+// ============================================================
+(function () {
+  var RASTER = /\.(jpe?g|png|webp)$/i;
+
+  function optimUrl(original, box) {
+    var m = /^https:\/\/static\.tildacdn\.com\/(tild[\w-]+)\/([^?#]+)$/.exec(original || '');
+    if (!m || !RASTER.test(m[2])) return null;
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    var w = Math.ceil(box.width * dpr / 100) * 100;
+    var h = Math.ceil(box.height * dpr / 100) * 100;
+    return 'https://optim.tildacdn.com/' + m[1] + '/-/resize/' + w + 'x' + h + '/-/format/webp/' + m[2] + '.webp';
+  }
+
+  function run() {
+    var vh = window.innerHeight || document.documentElement.clientHeight;
+    var els = document.querySelectorAll('.t-bgimg[data-original]');
+    for (var i = 0; i < els.length; i++) {
+      (function (el) {
+        var box = el.getBoundingClientRect();
+        if (!box.width || !box.height || box.top >= vh || box.bottom <= 0) return;
+        var url = optimUrl(el.getAttribute('data-original'), box);
+        if (!url) return;
+        el.classList.remove('t-bgimg');
+        var img = new Image();
+        img.onload = function () { el.style.backgroundImage = 'url("' + url + '")'; };
+        img.onerror = function () {
+          el.classList.add('t-bgimg');
+          if (typeof window.t_lazyload_update === 'function') window.t_lazyload_update();
+        };
+        img.src = url;
+      })(els[i]);
+    }
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run);
+  else run();
+})();
