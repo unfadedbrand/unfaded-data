@@ -4342,20 +4342,20 @@ details.uf-legal > summary::marker {
 .uf-fs {
   margin: 12px 0 4px;
   padding: 12px 14px;
-  border: 1px solid var(--uf-line);
+  border: 1px solid var(--uf-line, #D7D8D9);
   border-radius: 3px;
   background: #fff;
   font-family: var(--uf-font-ui) !important;
   font-size: 13px;
   line-height: 1.4;
-  color: var(--uf-ink);
+  color: var(--uf-ink, #17090B);
   text-align: left;
 }
 .uf-fs b { font-weight: 700; }
 .uf-fs__bar {
   height: 4px;
   margin-top: 9px;
-  background: var(--uf-metal);
+  background: var(--uf-metal, #EDEEEE);
   border-radius: 2px;
   overflow: hidden;
 }
@@ -4363,21 +4363,21 @@ details.uf-legal > summary::marker {
   display: block;
   height: 100%;
   width: 0;
-  background: var(--uf-burgundy);
+  background: var(--uf-burgundy, #7A1F2A);
   transition: width .3s ease;
 }
-.uf-fs_free { border-color: var(--uf-ink); }
+.uf-fs_free { border-color: var(--uf-ink, #17090B); }
 .uf-pdp-ship {
   margin: 14px 0 18px;
   font-family: var(--uf-font-ui) !important;
   font-size: 13px;
   line-height: 1.5;
-  color: var(--uf-ink-secondary);
+  color: var(--uf-ink-secondary, #55575A);
 }
-.uf-pdp-ship b { color: var(--uf-ink); font-weight: 700; }
+.uf-pdp-ship b { color: var(--uf-ink, #17090B); font-weight: 700; }
 .uf-pdp-ship a,
 .uf-pdp-ship a:visited {
-  color: var(--uf-ink) !important;
+  color: var(--uf-ink, #17090B) !important;
   text-decoration: underline;
   text-underline-offset: 3px;
   white-space: nowrap;
