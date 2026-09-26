@@ -2689,7 +2689,16 @@ function buildStepper(active) {
     });
   }
 
-  function run() { schedule(); footerRow(); }
+  // Tilda builds Zero Block form inputs with JS after the page is parsed,
+  // so wait for the popup form to appear before adding the footer row.
+  function run() {
+    schedule();
+    var tries = 0;
+    (function waitForm() {
+      footerRow();
+      if (!document.querySelector('.uf-sub-row') && ++tries < 40) setTimeout(waitForm, 500);
+    })();
+  }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run);
   else run();
 })();
