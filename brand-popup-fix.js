@@ -2427,3 +2427,35 @@ function buildStepper(active) {
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run);
   else run();
 })();
+
+// ============================================================
+// UNFADED — Try-on strip (catalog pages)
+// Each catalog section page has its own copy of a big Zero Block banner
+// «Доставка с примеркой по всей России» that pushed the products below
+// the first screen. Hide it (known copies are also hidden in CSS) and put
+// a one-line strip in its place, linking to the delivery tab of /service.
+// ============================================================
+(function () {
+  var RE = /доставка\s*с\s*примеркой\s*по\s*всей\s*росси/i;
+  var MORE_URL = '/service#!/tab/533990617-1';
+
+  function run() {
+    if (document.querySelector('.uf-tryon-strip')) return;
+    var recs = Array.prototype.filter.call(
+      document.querySelectorAll('.t-rec[data-record-type="396"]'),
+      function (r) { return !r.closest('#t-header, #t-footer') && RE.test(r.textContent); }
+    );
+    if (!recs.length) return;
+    recs.forEach(function (r) { r.classList.add('uf-tryon-hidden'); });
+    var strip = document.createElement('div');
+    strip.className = 'uf-tryon-strip';
+    strip.innerHTML =
+      '<span class="uf-tryon-strip__title">Доставка с примеркой по всей России</span>' +
+      '<span class="uf-tryon-strip__text">— оплачиваете только то, что подошло</span>' +
+      '<a class="uf-tryon-strip__link" href="' + MORE_URL + '">Подробнее →</a>';
+    recs[0].parentNode.insertBefore(strip, recs[0]);
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run);
+  else run();
+})();

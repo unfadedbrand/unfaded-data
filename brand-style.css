@@ -608,7 +608,11 @@
    (подтверждено скриншотом пользователя и живой проверкой на 390px).
    Правило нужно ТОЛЬКО на десктопе (где своя мобильная копия иконок
    вообще не существует в DOM) — сужаем через min-width. */
-@media screen and (min-width: 640px) {
+/* 26.09: порог был 640px, но Тильда переключает T451 на мобильную шапку
+   (свой набор иконок в .t451__burger-wrapper__mobile) до 980px включительно —
+   на планшетах 640–980px показывались ОБА набора поиска+корзины и мобильные
+   иконки съезжали на середину. Десктопная колонка — только с 981px. */
+@media screen and (min-width: 981px) {
   .t451__side_socials {
     display: flex !important;
   }
@@ -4256,4 +4260,54 @@ details.uf-legal > summary::marker {
 .t706 .t-input.uf-input-invalid,
 .t706 input.uf-input-invalid {
   border-color: var(--uf-burgundy) !important;
+}
+
+
+/* Каталог: большой баннер «Доставка с примеркой по всей России» (Zero Block,
+   своя копия на каждой странице раздела) заменён тонкой полосой
+   .uf-tryon-strip (brand-popup-fix.js, блок «Try-on strip»). Известные
+   копии скрываем сразу, чтобы не мигали до запуска скрипта; новые скрипт
+   находит по тексту и помечает .uf-tryon-hidden. */
+#rec1718857641, #rec1718862401, #rec1718862521, #rec1718862721,
+#rec1718863471, #rec1718863531, #rec1718863721, #rec1718863831,
+#rec1718864021, #rec1718864361, #rec1718865331, #rec1718866231,
+#rec1718866631, #rec1718866771, #rec1718872771,
+#rec2457734311, #rec2457707581,
+.uf-tryon-hidden {
+  display: none !important;
+}
+.uf-tryon-strip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  min-height: 44px;
+  padding: 10px 16px;
+  box-sizing: border-box;
+  background: var(--uf-oxblood);
+  color: var(--uf-pale);
+  font-family: var(--uf-font-ui) !important;
+  font-size: 13px;
+  line-height: 1.35;
+  text-align: center;
+}
+.uf-tryon-strip__title {
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 12px;
+}
+.uf-tryon-strip__text {
+  color: var(--uf-pale-secondary);
+}
+.uf-tryon-strip__link,
+.uf-tryon-strip__link:visited {
+  color: var(--uf-pale) !important;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  white-space: nowrap;
+}
+@media screen and (max-width: 640px) {
+  .uf-tryon-strip__text { display: none; }
 }
