@@ -4311,3 +4311,8 @@ details.uf-legal > summary::marker {
 @media screen and (max-width: 640px) {
   .uf-tryon-strip__text { display: none; }
 }
+/* Блок сразу под полосой .uf-tryon-strip: у каталога в Тильде стоит
+   padding-top 135px — под большой баннер, под тонкой полосой это пустота. */
+.uf-after-tryon {
+  padding-top: 40px !important;
+}

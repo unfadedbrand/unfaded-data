@@ -2454,6 +2454,11 @@ function buildStepper(active) {
       '<span class="uf-tryon-strip__text">— оплачиваете только то, что подошло</span>' +
       '<a class="uf-tryon-strip__link" href="' + MORE_URL + '">Подробнее →</a>';
     recs[0].parentNode.insertBefore(strip, recs[0]);
+    // The catalog block below has a 135px top padding set in Tilda —
+    // meant to clear the big banner, just empty space under a thin strip.
+    var next = recs[recs.length - 1].nextElementSibling;
+    while (next && (next.classList.contains('uf-tryon-hidden') || !next.offsetHeight)) next = next.nextElementSibling;
+    if (next && next.classList.contains('t-rec')) next.classList.add('uf-after-tryon');
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run);
