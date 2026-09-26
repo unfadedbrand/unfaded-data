@@ -4792,3 +4792,13 @@ html.uf-co2 .t-form__inputsbox[data-uf-wizard] .t-input-phonemask__wrap input.t-
 html.uf-co2 .t706__cartpage .t706__cartpage-totals,
 html.uf-co2 .t706__cartpage .t706__cartwin-totalamount-wrap,
 html.uf-co2 .t706__cartpage .t706__cartwin-totalamount-info { background: transparent !important; box-shadow: none !important; border-left: 0 !important; border-right: 0 !important; border-bottom: 0 !important; }
+html.uf-co2 .t-form__inputsbox[data-uf-wizard] { grid-auto-rows: auto !important; align-items: start; }
+html.uf-co2 .t-form__inputsbox[data-uf-wizard] .t-input-group_cb,
+html.uf-co2 .t-form__inputsbox[data-uf-wizard] .t-input-group_cb .t-input-subtitle { height: auto !important; min-height: 0 !important; max-height: none !important; }
+html.uf-co2 .t-form__inputsbox[data-uf-wizard] .t-input-group_cb:not(.uf-subscribe-cb) .t-input-title { font-weight: 600 !important; color: var(--co-ink) !important; font-size: 14px !important; }
+html.uf-co2 .t-form__inputsbox .t-input-group_dl .t-radio__wrapper-delivery > .t-name { display: none !important; }
+html.uf-co2 .t-form__inputsbox .t-input-group_dl .t-radio__wrapper-delivery { margin-top: 0 !important; }
+html.uf-co2 .t706__cartpage .t706__cartpage-products,
+html.uf-co2 .t706__cartpage .t706__cartpage-totals,
+html.uf-co2 .t706__cartpage .t706__cartwin-totalamount-wrap { padding-left: 0 !important; padding-right: 0 !important; margin-left: 0 !important; margin-right: 0 !important; }
+html.uf-co2 .t-form__inputsbox[data-uf-wizard] .t-input-phonemask__select { padding-left: 12px !important; }
