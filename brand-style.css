@@ -4336,3 +4336,51 @@ details.uf-legal > summary::marker {
 .uf-after-tryon {
   padding-top: 40px !important;
 }
+
+/* Бесплатная доставка СДЭК от 30 000 ₽ (26.09.2026, brand-popup-fix.js,
+   блок «Бесплатная доставка СДЭК»): полоска в корзине и строка на странице товара. */
+.uf-fs {
+  margin: 12px 0 4px;
+  padding: 12px 14px;
+  border: 1px solid var(--uf-line);
+  border-radius: 3px;
+  background: #fff;
+  font-family: var(--uf-font-ui) !important;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--uf-ink);
+  text-align: left;
+}
+.uf-fs b { font-weight: 700; }
+.uf-fs__bar {
+  height: 4px;
+  margin-top: 9px;
+  background: var(--uf-metal);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.uf-fs__bar > i {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: var(--uf-burgundy);
+  transition: width .3s ease;
+}
+.uf-fs_free { border-color: var(--uf-ink); }
+.uf-pdp-ship {
+  margin: 14px 0 6px;
+  padding-top: 10px;
+  border-top: 1px solid var(--uf-line);
+  font-family: var(--uf-font-ui) !important;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--uf-ink-secondary);
+}
+.uf-pdp-ship b { color: var(--uf-ink); font-weight: 700; }
+.uf-pdp-ship a,
+.uf-pdp-ship a:visited {
+  color: var(--uf-ink) !important;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  white-space: nowrap;
+}

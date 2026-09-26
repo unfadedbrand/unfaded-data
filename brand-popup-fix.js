@@ -2464,3 +2464,122 @@ function buildStepper(active) {
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run);
   else run();
 })();
+
+
+// ============================================================
+// UNFADED — Бесплатная доставка СДЭК от 30 000 ₽ (задача от 26.09.2026)
+// 1) Корзина: полоска «Добавьте ещё N ₽ до бесплатной доставки СДЭК» /
+//    «✓ У вас бесплатная доставка СДЭК…» / при примерке — пояснение, что
+//    доставка оплачивается при получении. В боковой корзине под «Сумма»
+//    и в итогах на шаге оформления.
+// 2) Страница товара: строка о доставке под ценой (и под кнопкой Долями).
+// Сам порог живёт в настройках служб доставки Тильды («СДЭК: до двери»,
+// «СДЭК: до ПВЗ») — при смене порога поменять и FREE_FROM здесь.
+// Откат: удалить этот блок и стили .uf-fs / .uf-pdp-ship в brand-style.css.
+// ============================================================
+(function () {
+  'use strict';
+
+  var FREE_FROM = 30000;
+  var MORE_URL = '/service#!/tab/533990617-1';
+
+  function rub(n) {
+    return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' ₽';
+  }
+
+  // Сумма товаров с учётом скидок: итог минус доставка.
+  function cartSum() {
+    var c = window.tcart;
+    if (!c || !c.products || !c.products.length) return null;
+    var amount = parseFloat(c.amount) || 0;
+    var dlv = c.delivery && parseFloat(c.delivery.price) || 0;
+    var sum = amount - dlv;
+    if (!(sum > 0)) sum = parseFloat(c.prodamount) || 0;
+    return sum;
+  }
+
+  function isFitting() {
+    var cb = document.querySelector('input[name="primerka"]');
+    return !!(cb && cb.checked);
+  }
+
+  function fsState() {
+    var sum = cartSum();
+    if (sum === null) return null;
+    if (isFitting()) {
+      return { key: 'fit', html: 'С примеркой доставка СДЭК оплачивается при получении — вы платите только за то, что подошло.', bar: -1 };
+    }
+    if (sum >= FREE_FROM) {
+      return { key: 'free', html: '<b>✓ У вас бесплатная доставка СДЭК</b> при оплате на сайте', bar: 100 };
+    }
+    var left = FREE_FROM - sum;
+    return { key: 'left' + Math.round(left), html: 'Добавьте ещё <b>' + rub(left) + '</b> до бесплатной доставки СДЭК', bar: Math.max(3, Math.round(sum / FREE_FROM * 100)) };
+  }
+
+  function renderFs(anchor, where, st) {
+    var box = where === 'after' ? anchor.nextElementSibling : anchor.lastElementChild;
+    if (!box || !box.classList || !box.classList.contains('uf-fs')) {
+      box = document.createElement('div');
+      box.className = 'uf-fs';
+      box.innerHTML = '<div class="uf-fs__text"></div><div class="uf-fs__bar"><i></i></div>';
+      if (where === 'after') anchor.insertAdjacentElement('afterend', box);
+      else anchor.appendChild(box);
+    }
+    if (!st) { box.style.display = 'none'; return; }
+    box.style.display = '';
+    if (box.getAttribute('data-key') === st.key) return;
+    box.setAttribute('data-key', st.key);
+    box.querySelector('.uf-fs__text').innerHTML = st.html;
+    var bar = box.querySelector('.uf-fs__bar');
+    bar.style.display = st.bar < 0 ? 'none' : '';
+    if (st.bar >= 0) bar.firstChild.style.width = st.bar + '%';
+    box.classList.toggle('uf-fs_free', st.key === 'free');
+  }
+
+  function applyCart() {
+    var st = fsState();
+    var side = document.querySelector('.t706__sidebar-totalamount-info');
+    if (side) renderFs(side, 'after', st);
+    var page = document.querySelector('.t706__cartpage-totals');
+    if (page) renderFs(page, 'append', st);
+  }
+
+  function applyPdp() {
+    var infos = document.querySelectorAll('.t-store__prod-popup__info');
+    for (var i = 0; i < infos.length; i++) {
+      var info = infos[i];
+      var priceWrap = info.querySelector('.js-store-price-wrapper');
+      var priceEl = info.querySelector('.js-product-price');
+      if (!priceWrap || !priceEl) continue;
+      var price = parseFloat(String(priceEl.textContent).replace(/[^\d.,]/g, '').replace(',', '.')) || 0;
+      var html = price >= FREE_FROM
+        ? '<b>Для этого товара доставка СДЭК бесплатная</b> при оплате на сайте. С примеркой — оплата при получении. '
+        : 'Доставка СДЭК по России — от 250 ₽, <b>бесплатно от ' + rub(FREE_FROM) + '</b> при оплате на сайте. С примеркой — оплата при получении. ';
+      html += '<a href="' + MORE_URL + '">Подробнее →</a>';
+      var line = info.querySelector('.uf-pdp-ship');
+      if (!line) {
+        line = document.createElement('div');
+        line.className = 'uf-pdp-ship';
+        var dolyame = info.querySelector('.digi-dolyame-button--wrapper');
+        var anchor = dolyame && dolyame.parentElement === priceWrap.parentElement ? dolyame : priceWrap;
+        anchor.insertAdjacentElement('afterend', line);
+      }
+      if (line.getAttribute('data-price') !== String(price)) {
+        line.setAttribute('data-price', String(price));
+        line.innerHTML = html;
+      }
+    }
+  }
+
+  function tick() {
+    try { applyCart(); } catch (e) {}
+    try { applyPdp(); } catch (e) {}
+  }
+
+  document.addEventListener('change', function (e) {
+    if (e.target && e.target.name === 'primerka') setTimeout(tick, 50);
+  }, true);
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', tick);
+  else tick();
+  setInterval(tick, 700);
+})();
