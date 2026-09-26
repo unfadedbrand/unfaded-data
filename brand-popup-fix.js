@@ -38,10 +38,12 @@
   // заглушку) СРАЗУ, как только оно появляется в DOM, и держим его
   // актуальным по мере ввода email — так обе проверки проходят.
   function fillNameFallback(nameInput, emailInput) {
+    // 26.09: раньше сюда шла часть e-mail до «@», и она становилась именем
+    // клиентки в RetailCRM («ivanova88, здравствуйте!» в приветственном
+    // письме). Теперь всегда одна заглушка — сервер delivery-calc
+    // (/create/user) её не записывает, а письмо без имени здоровается просто
+    // «Здравствуйте!».
     var fallback = 'Подписчик';
-    if (emailInput && emailInput.value && emailInput.value.indexOf('@') > -1) {
-      fallback = emailInput.value.split('@')[0];
-    }
     if (!nameInput.value.trim() || nameInput.value === nameInput.__ufAutoValue) {
       nameInput.value = fallback;
       nameInput.__ufAutoValue = fallback;
@@ -2583,4 +2585,105 @@ function buildStepper(active) {
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', tick);
   else tick();
   setInterval(tick, 700);
+})();
+
+// ============================================================
+// UNFADED — subscribe popup timing + desktop footer row
+// The popup (rec1542845921 inside T1093 wrapper rec1542842021) used to be
+// opened by Tilda's T354 trigger in the header, i.e. the moment the page
+// loaded. T354 is now hidden in Tilda; here the popup opens after 25 s on
+// desktop, at most once per 30 days (same cookie `popup_shown` T354 used,
+// so people who already saw it aren't shown it again). On mobile the same
+// form is rendered inline above the footer (see the popup fix at the top of
+// this file), so no timer there.
+// Because a closed popup never comes back, desktop also gets a permanent
+// one-line form above the footer. It fills in and submits the popup's own
+// Tilda form, so subscriptions go to the same services (RetailCRM via
+// delivery-calc, Tilda CRM, Telegram) and the success message is Tilda's.
+// ============================================================
+(function () {
+  var MOBILE_MAX = 639;
+  var DELAY_MS = 25000;
+  var COOKIE = 'popup_shown';
+  var HOOK = '#subscribe-popup';
+  var FOOTER_REC = 'rec1777413841';
+
+  function isDesktop() { return window.innerWidth > MOBILE_MAX; }
+  function hasCookie() {
+    return document.cookie.split(';').some(function (c) { return c.trim().indexOf(COOKIE + '=') === 0; });
+  }
+  function setCookie() {
+    var d = new Date();
+    d.setTime(d.getTime() + 30 * 24 * 3600 * 1000);
+    document.cookie = COOKIE + '=yes; expires=' + d.toGMTString() + '; path=/';
+  }
+  function busy() {
+    return /cartwinshowed|cartsidebarshowed|popupshowed/.test(document.body.className) ||
+      !!document.querySelector('.t-popup_show');
+  }
+  function openPopup() {
+    var a = document.createElement('a');
+    a.href = HOOK;
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  }
+
+  function schedule() {
+    if (!isDesktop() || hasCookie()) return;
+    setTimeout(function tryOpen() {
+      if (hasCookie()) return;
+      if (busy()) { setTimeout(tryOpen, 10000); return; }
+      setCookie();
+      openPopup();
+    }, DELAY_MS);
+  }
+
+  function footerRow() {
+    if (!isDesktop() || document.querySelector('.uf-sub-row')) return;
+    var footer = document.getElementById(FOOTER_REC);
+    var popupForm = document.querySelector('#rec1542845921 form');
+    if (!footer || !popupForm) return;
+    var row = document.createElement('div');
+    row.className = 'uf-sub-row';
+    row.innerHTML =
+      '<div class="uf-sub-row__text"><div class="uf-sub-row__title">Ранний доступ к новым дропам и −10% на первый заказ</div>' +
+      '<div class="uf-sub-row__sub">Письма UNFADED — без спама, только новые коллекции и закрытые продажи.</div></div>' +
+      '<form class="uf-sub-row__form" novalidate>' +
+        '<div class="uf-sub-row__line"><input type="email" class="uf-sub-row__input" placeholder="Ваш e-mail" autocomplete="email" required>' +
+        '<button type="submit" class="uf-sub-row__btn">Подписаться</button></div>' +
+        '<label class="uf-sub-row__consent"><input type="checkbox" required> <span>Я согласна(-ен) на <a href="/service#!/tab/533990617-5" target="_blank">обработку персональных данных</a> и получение рассылки</span></label>' +
+        '<div class="uf-sub-row__msg" aria-live="polite"></div>' +
+      '</form>';
+    footer.parentNode.insertBefore(row, footer);
+
+    var form = row.querySelector('form');
+    var email = row.querySelector('input[type=email]');
+    var consent = row.querySelector('input[type=checkbox]');
+    var msg = row.querySelector('.uf-sub-row__msg');
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      msg.textContent = '';
+      if (!email.value.trim() || !email.checkValidity()) { msg.textContent = 'Проверьте e-mail'; email.focus(); return; }
+      if (!consent.checked) { msg.textContent = 'Отметьте согласие на обработку данных'; return; }
+      var pEmail = popupForm.querySelector('input[name="email"]');
+      var pPolicy = popupForm.querySelector('input[name="policy"]');
+      var pSubmit = popupForm.querySelector('.t-submit, [type="submit"]');
+      if (!pEmail || !pSubmit) { msg.textContent = 'Не получилось, попробуйте ещё раз'; return; }
+      setCookie();
+      openPopup();
+      setTimeout(function () {
+        pEmail.value = email.value.trim();
+        pEmail.dispatchEvent(new Event('input', { bubbles: true }));
+        if (pPolicy && !pPolicy.checked) pPolicy.click();
+        pSubmit.click();
+        form.reset();
+      }, 400);
+    });
+  }
+
+  function run() { schedule(); footerRow(); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run);
+  else run();
 })();

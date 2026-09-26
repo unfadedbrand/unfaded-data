@@ -4382,3 +4382,51 @@ details.uf-legal > summary::marker {
   text-underline-offset: 3px;
   white-space: nowrap;
 }
+
+/* Постоянная строка подписки над футером — только десктоп
+   (brand-popup-fix.js, «subscribe popup timing + desktop footer row»).
+   На мобильном над футером уже стоит сама форма попапа. */
+.uf-sub-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+  padding: 36px 40px;
+  background: var(--uf-oxblood);
+  color: var(--uf-pale);
+  font-family: var(--uf-font-ui) !important;
+}
+.uf-sub-row__title {
+  font-family: var(--uf-font-heading) !important;
+  font-weight: 700;
+  font-size: 18px;
+  line-height: 1.3;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+.uf-sub-row__sub { margin-top: 6px; font-size: 13px; color: var(--uf-pale-secondary); }
+.uf-sub-row__form { flex: 0 1 460px; }
+.uf-sub-row__line { display: flex; gap: 8px; }
+.uf-sub-row__input {
+  flex: 1; min-width: 0; height: 44px; padding: 0 14px;
+  border: 1px solid rgba(250, 250, 250, .35); border-radius: 2px;
+  background: transparent; color: var(--uf-pale);
+  font-family: var(--uf-font-ui) !important; font-size: 14px; outline: none;
+}
+.uf-sub-row__input::placeholder { color: var(--uf-pale-secondary); }
+.uf-sub-row__input:focus { border-color: var(--uf-pale); }
+.uf-sub-row__btn {
+  height: 44px; padding: 0 22px; border: none; border-radius: 2px; cursor: pointer;
+  background: var(--uf-burgundy); color: #fff;
+  font-family: var(--uf-font-ui) !important; font-size: 12px; font-weight: 600;
+  letter-spacing: .05em; text-transform: uppercase;
+}
+.uf-sub-row__btn:hover { background: var(--uf-burgundy-deep); }
+.uf-sub-row__consent {
+  display: flex; gap: 8px; align-items: flex-start; margin-top: 10px;
+  font-size: 11.5px; line-height: 1.4; color: var(--uf-pale-secondary); cursor: pointer;
+}
+.uf-sub-row__consent input { margin: 2px 0 0; accent-color: var(--uf-burgundy); }
+.uf-sub-row__consent a { color: var(--uf-pale) !important; text-decoration: underline; }
+.uf-sub-row__msg { margin-top: 6px; font-size: 12px; color: #f2b8bd; }
+@media screen and (max-width: 639px) { .uf-sub-row { display: none !important; } }
