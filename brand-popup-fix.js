@@ -2456,7 +2456,7 @@ function buildStepper(active) {
     recs[0].parentNode.insertBefore(strip, recs[0]);
     // The catalog block below has a 135px top padding set in Tilda —
     // meant to clear the big banner, just empty space under a thin strip.
-    var next = recs[recs.length - 1].nextElementSibling;
+    var next = recs[0].nextElementSibling;
     while (next && (next.classList.contains('uf-tryon-hidden') || !next.offsetHeight)) next = next.nextElementSibling;
     if (next && next.classList.contains('t-rec')) next.classList.add('uf-after-tryon');
   }
