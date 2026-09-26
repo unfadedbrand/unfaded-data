@@ -873,10 +873,13 @@
         el.dataset.ufAssigned = '1';
       }
     });
+    // Put the newsletter checkbox under the last payment group (the visible
+    // list of payment methods is .t-input-group_pm, after .t-input-group_rd).
     var subCb = q(box, '.uf-subscribe-cb');
-    var rdGroup = q(box, '.t-input-group_rd');
-    if (subCb && rdGroup && (rdGroup.compareDocumentPosition(subCb) & Node.DOCUMENT_POSITION_PRECEDING)) {
-      rdGroup.parentNode.insertBefore(subCb, rdGroup.nextSibling);
+    var payGroups = qa(box, '.t-input-group_rd, .t-input-group_pm');
+    var lastPay = payGroups[payGroups.length - 1];
+    if (subCb && lastPay && subCb.previousElementSibling !== lastPay) {
+      lastPay.parentNode.insertBefore(subCb, lastPay.nextSibling);
     }
     // Second promo-code field: confirmed 2026-08-30 (real RetailCRM order
     // data checked by the site owner) that only the FIRST "Промокод" field
