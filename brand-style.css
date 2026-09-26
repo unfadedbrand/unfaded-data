@@ -4221,6 +4221,14 @@ details.uf-legal > summary::marker {
   position: relative;
 }
 
+/* B13 (26.09.2026): Тильда прячет способы оплаты, недоступные для выбранной
+   доставки, инлайном display:none — правило выше с !important его перебивало,
+   и, например, «при получении» оставалась видна у СДЭК без примерки. */
+.t-form__inputsbox .t-input-group_pm .t-radio__wrapper-payment > .t-radio__control[style*="display: none"],
+.t-form__inputsbox .t-input-group_pm .t-radio__wrapper-payment > .t-radio__control[style*="display:none"] {
+  display: none !important;
+}
+
 .t-form__inputsbox .t-input-group_pm .t-radio__wrapper-payment > .t-radio__control:hover {
   border-color: var(--uf-gray-soft);
 }
