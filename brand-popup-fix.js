@@ -2749,10 +2749,10 @@ function buildStepper(active) {
 // first service — express, 1 000 ₽ — and a "United States, ," hint), and
 // button captions «Далее: …» / «Оформить заказ · сумма».
 // Styles: brand-style.css, section "Checkout v2" (html.uf-co2 …).
-// While testing it is enabled per browser: ?co2=1 (remembered) / ?co2=0.
+// On for everyone; ?co2=0 / ?co2=1 override it per browser (remembered).
 // ============================================================
 (function () {
-  var ENABLED_BY_DEFAULT = false;
+  var ENABLED_BY_DEFAULT = true; // включено для всех 26.09.2026; откат — false
 
   function enabled() {
     try {
