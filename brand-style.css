@@ -1825,6 +1825,16 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
   border-bottom: 1px solid #7A1F2A;
 }
 
+/* «или в Telegram» сразу за «Написать в WhatsApp» (26.09.2026) — тот же шрифт,
+   что у .uf-wa; отдельная ссылка, т.к. .uf-wa сам является <a>. */
+.uf-tg {
+  font-family: 'Onest', Arial, sans-serif !important;
+  font-size: 12px !important;
+  text-decoration: none !important;
+  margin-left: 4px;
+  white-space: nowrap;
+}
+
 
 /* === UNFADED — «Узнать о поступлении»: кнопка и попап приведены к фирменному стилю (29.08.2026) ===
    Кнопка/попап #uf-notify* заведены как встроенный <style id="uf-auto-style"> в описание КАЖДОГО

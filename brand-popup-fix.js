@@ -390,6 +390,7 @@
     if (wa.previousElementSibling !== note) {
       note.parentElement.appendChild(wa);
     }
+    ensureTgNextToWa(wa);
     if (wa.querySelector('.uf-wa-text')) return;
     var dot = wa.querySelector('.uf-wdot');
     var fullText = wa.textContent.replace(/\s+/g, ' ').trim();
@@ -410,6 +411,29 @@
     link.textContent = marker;
     textWrap.appendChild(link);
     wa.appendChild(textWrap);
+  }
+
+  // Рядом с «Написать в WhatsApp» — ссылка на Telegram службы заботы
+  // (@unfaded_notify_bot, чаты RetailCRM). Отдельный <a>, а не внутри .uf-wa:
+  // .uf-wa сам является ссылкой, вложенные ссылки недопустимы.
+  var TG_SUPPORT_URL = 'https://t.me/unfaded_notify_bot';
+  function ensureTgNextToWa(wa) {
+    var next = wa.nextElementSibling;
+    if (next && next.classList.contains('uf-tg')) return;
+    var tg = document.createElement('a');
+    tg.className = 'uf-tg';
+    tg.href = TG_SUPPORT_URL;
+    tg.target = '_blank';
+    tg.rel = 'noopener';
+    var lead = document.createElement('span');
+    lead.className = 'uf-wa-lead';
+    lead.textContent = 'или ';
+    var link = document.createElement('span');
+    link.className = 'uf-wa-link-text';
+    link.textContent = 'в Telegram';
+    tg.appendChild(lead);
+    tg.appendChild(link);
+    wa.insertAdjacentElement('afterend', tg);
   }
 
   function ensureNoteNoBulb() {
@@ -1127,6 +1151,7 @@ function buildStepper(active) {
    ================================================================ */
 (function () {
   'use strict';
+  var TG_SUPPORT_URL = 'https://t.me/unfaded_notify_bot'; // Telegram службы заботы (чаты RetailCRM)
 
   var WA_NUMBER = '79938955008';
 
@@ -1399,7 +1424,7 @@ function buildStepper(active) {
         '<div class="uf-step-text">Обмен завершён, доплачивать за услугу не нужно.</div></div></div>' +
     '</div>' +
     '<div class="uf-callout"><b>Кто оплачивает пересылку.</b> Обмен оплачивает покупатель — кроме случаев, когда мы ошиблись с размером или моделью: тогда пересылку компенсирует UNFADED.</div>' +
-    '<div class="uf-svc-contact">Можно и напрямую: WhatsApp <a href="https://wa.me/' + WA_NUMBER + '">+7&nbsp;993&nbsp;895&nbsp;50&nbsp;08</a> или <a href="mailto:unfadedwork@gmail.com">unfadedwork@gmail.com</a>.</div>';
+    '<div class="uf-svc-contact">Можно и напрямую: WhatsApp <a href="https://wa.me/' + WA_NUMBER + '">+7&nbsp;993&nbsp;895&nbsp;50&nbsp;08</a>, <a href="' + TG_SUPPORT_URL + '" target="_blank" rel="noopener">Telegram</a> или <a href="mailto:unfadedwork@gmail.com">unfadedwork@gmail.com</a>.</div>';
 
   var CLAIM_HTML =
     '<div class="uf-svc-head"><div class="uf-svc-title">Заявка на возврат или обмен</div><span class="uf-badge">Без бумажного бланка</span></div>' +
@@ -1476,7 +1501,7 @@ function buildStepper(active) {
       '<div class="uf-svc-way"><span class="uf-svc-way-dot"></span><span>Через сервис «Яндекс Сплит»</span></div>' +
       '<div class="uf-svc-way"><span class="uf-svc-way-dot"></span><span>Курьеру при получении — картой или наличными (только при доставке с примеркой)</span></div>' +
     '</div>' +
-    '<div class="uf-callout" style="margin-bottom:8px;">Оформить и оплатить заказ можно на официальном сайте либо через менеджера — по ссылке в WhatsApp.</div>' +
+    '<div class="uf-callout" style="margin-bottom:8px;">Оформить и оплатить заказ можно на официальном сайте либо через менеджера — в WhatsApp или Telegram.</div>' +
     '<div class="uf-svc-method" style="border-top:1px solid #EDEEEE; margin-top:22px;">' +
       '<div class="uf-legal-title">Оплата при получении курьеру</div>' +
       '<div class="uf-legal-body" style="margin-bottom:0;"><p>Наличными или картой — доступно только при оформлении доставки с примеркой. Возврат денег при оплате при получении осуществляется только по реквизитам банковской карты, указанным в заявлении на возврат.</p></div>' +
@@ -1511,6 +1536,7 @@ function buildStepper(active) {
       '<div class="uf-svc-contact-row" style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">' +
         '<div><div class="uf-label" style="margin-bottom:6px;">Телефон / WhatsApp</div><div class="uf-svc-contact-value">+7 993 895-50-08</div></div>' +
         '<a href="https://wa.me/' + WA_NUMBER + '" class="uf-svc-contact-btn">Написать в WhatsApp</a>' +
+        '<a href="' + TG_SUPPORT_URL + '" target="_blank" rel="noopener" class="uf-svc-contact-btn">Написать в Telegram</a>' +
       '</div>' +
       '<div class="uf-svc-contact-row">' +
         '<div class="uf-label" style="margin-bottom:6px;">Email</div>' +
@@ -1523,7 +1549,7 @@ function buildStepper(active) {
     '</div>' +
     '<div style="margin-top:28px;">' +
       '<div class="uf-label" style="margin-bottom:10px;">Сотрудничество</div>' +
-      '<div class="uf-callout">Если у вас есть предложение о сотрудничестве с брендом — отправьте сообщение на почту <b>unfadedwork@gmail.com</b> или напишите нам в WhatsApp.</div>' +
+      '<div class="uf-callout">Если у вас есть предложение о сотрудничестве с брендом — отправьте сообщение на почту <b>unfadedwork@gmail.com</b> или напишите нам в WhatsApp или Telegram.</div>' +
     '</div>';
 
   /* ---------- инициализация ---------- */
@@ -1849,8 +1875,9 @@ function buildStepper(active) {
       card.className = 'uf-svc-faqcard';
       card.innerHTML =
         '<div><div class="uf-svc-faqcard-title">Не нашли ответ?</div>' +
-        '<div class="uf-svc-faqcard-sub">Служба поддержки: WhatsApp с 09:00 до 21:00 по МСК · unfadedwork@gmail.com</div></div>' +
-        '<a class="uf-svc-faqcard-btn" href="https://wa.me/' + WA_NUMBER + '" target="_blank" rel="noopener">Написать в WhatsApp</a>';
+        '<div class="uf-svc-faqcard-sub">Служба поддержки: WhatsApp и Telegram с 09:00 до 21:00 по МСК · unfadedwork@gmail.com</div></div>' +
+        '<a class="uf-svc-faqcard-btn" href="https://wa.me/' + WA_NUMBER + '" target="_blank" rel="noopener">Написать в WhatsApp</a>' +
+        '<a class="uf-svc-faqcard-btn" href="' + TG_SUPPORT_URL + '" target="_blank" rel="noopener">Написать в Telegram</a>';
       nav.parentNode.insertBefore(card, nav.nextSibling);
     }
 
