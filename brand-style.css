@@ -4240,6 +4240,7 @@ details.uf-legal > summary::marker {
 /* Checkout: address not picked from Tilda's suggestion list (brand-popup-fix.js, findDeliveryProblem) */
 .uf-field-error {
   margin-top: 6px;
+  font-family: var(--uf-font-ui) !important;
   font-size: 12px;
   line-height: 1.35;
   color: var(--uf-burgundy);

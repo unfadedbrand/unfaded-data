@@ -1002,18 +1002,22 @@ function buildStepper(active) {
         clearFieldError(t);
       }
     }, true);
-    form.addEventListener('click', function (e) {
+    // Tilda picks the suggestion on mousedown and removes the list before
+    // `click` fires, so listen for the press itself.
+    function onPick(e) {
       var item = e.target.closest && e.target.closest('.searchbox-list-item');
       if (!item) return;
       var wrap = item.closest('.searchbox-inner-wrapper');
       var input = wrap && q(wrap, 'input.searchbox-input');
       if (!input) return;
-      // Tilda fills the value in its own click handler; mark after it runs.
+      // Tilda fills the value in its own handler; mark after it runs.
       setTimeout(function () {
         input.dataset.ufTyped = '0';
         clearFieldError(input);
       }, 300);
-    }, true);
+    }
+    form.addEventListener('mousedown', onPick, true);
+    form.addEventListener('touchstart', onPick, true);
   }
 
   function clearFieldError(input) {
@@ -1026,10 +1030,14 @@ function buildStepper(active) {
   function showFieldError(input, text) {
     clearFieldError(input);
     var block = input.closest('.t-input-block') || input.parentElement;
-    var err = document.createElement('div');
-    err.className = 'uf-field-error';
-    err.textContent = text;
-    block.appendChild(err);
+    // Tilda sometimes shows its own message for the same field — don't double it.
+    var own = block && q(block, '.t-input-error');
+    if (!(own && own.textContent.trim() && isShown(own, block))) {
+      var err = document.createElement('div');
+      err.className = 'uf-field-error';
+      err.textContent = text;
+      block.appendChild(err);
+    }
     input.classList.add('uf-input-invalid');
     if (input.scrollIntoView) input.scrollIntoView({ block: 'center', behavior: 'smooth' });
   }
