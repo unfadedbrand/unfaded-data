@@ -2880,6 +2880,10 @@ function buildStepper(active) {
         : /^\s*Сумма/.test((q(row, '.t706__cartwin-totalamount-info_label') || row).textContent) ? 'sum'
         : 'delivery';
       row.setAttribute('data-uf-row', kind);
+      if (kind === 'sum') {
+        var lt = q(row, '.t706__cartwin-totalamount-info_label-text');
+        if (lt && lt.textContent !== 'Товары') lt.textContent = 'Товары';
+      }
     });
     var guid = q(box, 'input[name="tildadelivery-guid"]');
     page.classList.toggle('uf-co2-nodl', !(guid && guid.value));
