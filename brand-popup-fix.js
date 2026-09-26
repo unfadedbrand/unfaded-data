@@ -980,6 +980,120 @@ function buildStepper(active) {
       '</div>';
   }
 
+  // Delivery address must be picked from Tilda's suggestion lists. Tilda
+  // marks these fields with data-tilda-req (not the HTML `required`
+  // attribute), so checkValidity() lets empty/hand-typed values through,
+  // and its own state (streetGuid) is not reset when the text is retyped.
+  // We track it ourselves: a trusted keystroke marks the field "typed",
+  // a click on a .searchbox-list-item of that field marks it "picked".
+  // Values Tilda restores itself (saved address) are never "typed".
+  var ADDR_FIELDS = {
+    'tildadelivery-city': 'Выберите город из выпадающего списка',
+    'tildadelivery-street': 'Выберите улицу из выпадающего списка',
+    'tildadelivery-pickup-name': 'Выберите пункт выдачи из списка или на карте'
+  };
+
+  function trackAddressPicks(form) {
+    form.addEventListener('input', function (e) {
+      var t = e.target;
+      if (!e.isTrusted || !t.name) return;
+      if (ADDR_FIELDS[t.name] || t.name === 'tildadelivery-house') {
+        t.dataset.ufTyped = '1';
+        clearFieldError(t);
+      }
+    }, true);
+    form.addEventListener('click', function (e) {
+      var item = e.target.closest && e.target.closest('.searchbox-list-item');
+      if (!item) return;
+      var wrap = item.closest('.searchbox-inner-wrapper');
+      var input = wrap && q(wrap, 'input.searchbox-input');
+      if (!input) return;
+      // Tilda fills the value in its own click handler; mark after it runs.
+      setTimeout(function () {
+        input.dataset.ufTyped = '0';
+        clearFieldError(input);
+      }, 300);
+    }, true);
+  }
+
+  function clearFieldError(input) {
+    var block = input.closest('.t-input-block') || input.parentElement;
+    var err = block && q(block, '.uf-field-error');
+    if (err) err.remove();
+    input.classList.remove('uf-input-invalid');
+  }
+
+  function showFieldError(input, text) {
+    clearFieldError(input);
+    var block = input.closest('.t-input-block') || input.parentElement;
+    var err = document.createElement('div');
+    err.className = 'uf-field-error';
+    err.textContent = text;
+    block.appendChild(err);
+    input.classList.add('uf-input-invalid');
+    if (input.scrollIntoView) input.scrollIntoView({ block: 'center', behavior: 'smooth' });
+  }
+
+  // Shown inside `root`: ignores the wizard hiding the whole step, so the
+  // check also works from the review step (before the final submit).
+  function isShown(el, root) {
+    if (!el) return false;
+    for (var n = el; n && n !== root; n = n.parentElement) {
+      if (window.getComputedStyle(n).display === 'none') return false;
+    }
+    return true;
+  }
+
+  function deliveryState() {
+    return (window.tcart_newDelivery && window.tcart_newDelivery.deliveryState) || {};
+  }
+
+  // Returns the first delivery input that blocks moving on, with a message.
+  function findDeliveryProblem(box) {
+    var dl = q(box, '.t-input-group_dl');
+    if (!dl) return null;
+    var state = deliveryState();
+    var delivery = (window.tcart && window.tcart.delivery) || {};
+
+    var city = q(dl, 'input[name="tildadelivery-city"]');
+    if (isShown(city, dl)) {
+      var guid = q(dl, 'input[name="tildadelivery-guid"]');
+      if (!city.value.trim() || city.dataset.ufTyped === '1' || !(guid && guid.value)) {
+        return { input: city, text: ADDR_FIELDS['tildadelivery-city'] };
+      }
+    }
+
+    var types = qa(dl, 'input[name="tildadelivery-type"]');
+    if (types.length && !types.some(function (r) { return r.checked; })) {
+      return { input: types[0], text: 'Выберите способ доставки' };
+    }
+
+    var street = q(dl, 'input[name="tildadelivery-street"]');
+    if (isShown(street, dl) && street.getAttribute('data-tilda-req') === '1') {
+      if (!street.value.trim() || street.dataset.ufTyped === '1' || !state.streetGuid) {
+        return { input: street, text: ADDR_FIELDS['tildadelivery-street'] };
+      }
+    }
+
+    var pickup = q(dl, 'input[name="tildadelivery-pickup-name"]');
+    if (isShown(pickup, dl)) {
+      if (!pickup.value.trim() || pickup.dataset.ufTyped === '1' || !delivery['pickup-id']) {
+        return { input: pickup, text: ADDR_FIELDS['tildadelivery-pickup-name'] };
+      }
+    }
+
+    var missing = null;
+    qa(dl, 'input[data-tilda-req="1"]').forEach(function (input) {
+      if (missing || !isShown(input, dl) || input.type === 'radio') return;
+      if (!input.value.trim()) missing = input;
+    });
+    if (missing) {
+      var label = missing.name === 'tildadelivery-house' ? 'Укажите номер дома' : 'Заполните это поле';
+      return { input: missing, text: label };
+    }
+    return null;
+  }
+
   function validateStep(box, step) {
     var invalid = null;
     qa(box, '[data-uf-step="' + step + '"] input, [data-uf-step="' + step + '"] textarea').forEach(function (input) {
@@ -990,6 +1104,13 @@ function buildStepper(active) {
     if (invalid) {
       invalid.reportValidity();
       return false;
+    }
+    if (step === 2) {
+      var problem = findDeliveryProblem(box);
+      if (problem) {
+        showFieldError(problem.input, problem.text);
+        return false;
+      }
     }
     return true;
   }
@@ -1067,6 +1188,19 @@ function buildStepper(active) {
       if (!validateStep(box, current)) return;
       if (current < 4) setStep(box, q(box.parentElement, '.uf-checkout-stepper'), current + 1);
     });
+
+    trackAddressPicks(form);
+
+    // Last line of defence: never let Tilda submit with an unconfirmed
+    // address (capture phase runs before Tilda's own submit handler).
+    form.addEventListener('click', function (e) {
+      if (!e.target.closest || !e.target.closest('.t-submit')) return;
+      if (!findDeliveryProblem(box)) return;
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      setStep(box, q(box.parentElement, '.uf-checkout-stepper'), 2);
+      validateStep(box, 2);
+    }, true);
 
     review.addEventListener('click', function (e) {
       var btn = e.target.closest('[data-uf-goto]');

@@ -4236,3 +4236,15 @@ details.uf-legal > summary::marker {
   display: block;
   margin: 0 !important;
 }
+
+/* Checkout: address not picked from Tilda's suggestion list (brand-popup-fix.js, findDeliveryProblem) */
+.uf-field-error {
+  margin-top: 6px;
+  font-size: 12px;
+  line-height: 1.35;
+  color: var(--uf-burgundy);
+}
+.t706 .t-input.uf-input-invalid,
+.t706 input.uf-input-invalid {
+  border-color: var(--uf-burgundy) !important;
+}
