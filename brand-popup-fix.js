@@ -2920,7 +2920,14 @@ function buildStepper(active) {
     var wrap = document.querySelector('.t706__cartpage-open-form-wrap');
     if (!wrap || wrap.offsetParent === null) return;
     var b = wrap.querySelector('a, button, .t-btn, .t-submit');
-    if (b) b.click();
+    if (!b) return;
+    b.click();
+    // Tilda then scrolls down to the form, past the name field; the form
+    // is at the top now anyway, so bring the page back up
+    var page = document.querySelector('.t706__cartpage');
+    [60, 400, 900].forEach(function (t) {
+      setTimeout(function () { if (page) page.scrollTop = 0; }, t);
+    });
   }
 
   function init() {
