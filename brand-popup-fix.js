@@ -2234,7 +2234,9 @@ function buildStepper(active) {
 // выкупает только то, что подошло, и итоговая сумма заранее неизвестна.
 // Прячем экспресс-доставку и все предоплатные способы, оставляя
 // «Оплата наличными / картой при получении» (paymentsystem = custom).
-// Обратного правила нет: без галочки доступно всё.
+// С 26.09.2026 (B13) есть и обратное правило для СДЭК: без галочки службы
+// «… с примеркой» скрыты, а оплату при получении Тильда у обычных служб СДЭК
+// не предлагает (настройки доставки в Тильде).
 // По элементам Тильды не кликаем, скрываем тем же clip-hiding, что и v4 —
 // поля остаются в форме. Откат: удалить этот блок и закоммитить.
 ;(function () {
@@ -2293,19 +2295,63 @@ function buildStepper(active) {
     }
   }
 
+  // B13 (26.09.2026): у СДЭК две пары служб в Тильде — обычные («СДЭК: до двери»,
+  // «СДЭК: до ПВЗ»: порог 30 000, только предоплата) и «… с примеркой» (без порога,
+  // только оплата при получении). С галочкой показываем только «с примеркой»,
+  // без галочки — только обычные. Пока служб «с примеркой» в Тильде нет,
+  // обычные СДЭК не прячем, чтобы примерку можно было оформить.
+  var CDEK_RE = /сдэк/i;
+  var FIT_SVC_RE = /с\s+примеркой/i;
+
+  function cdekKind(text) {
+    return /двер/i.test(text) ? 'door' : (/пвз/i.test(text) ? 'pvz' : '');
+  }
+
   function applyDelivery(fitting) {
     var radios = document.querySelectorAll('.t-input-group_dl input[name="tildadelivery-type"]');
+    var items = [];
+    var hasFitCdek = false;
     for (var i = 0; i < radios.length; i++) {
       var r = radios[i];
       var row = rowOf(r);
-      var text = (row && row.textContent) || '';
-      var isExpress = EXPRESS_RE.test(text) || EXPRESS_RE.test(r.value || '');
-      setHidden(row, fitting && isExpress);
-      if (fitting && isExpress && r.checked) {
-        r.checked = false;
-        r.dispatchEvent(new Event('change', { bubbles: true }));
+      var text = ((row && row.textContent) || '') + ' ' + (r.value || '');
+      var cdek = CDEK_RE.test(text);
+      var fitSvc = cdek && FIT_SVC_RE.test(text);
+      if (fitSvc) hasFitCdek = true;
+      items.push({ r: r, row: row, cdek: cdek, fitSvc: fitSvc, kind: cdekKind(text), express: EXPRESS_RE.test(text) });
+    }
+
+    var switchFrom = null;
+    for (var j = 0; j < items.length; j++) {
+      var it = items[j];
+      var hide = false;
+      if (fitting && it.express) hide = true;
+      if (it.cdek) {
+        if (fitting && hasFitCdek && !it.fitSvc) hide = true;
+        if (!fitting && it.fitSvc) hide = true;
+      }
+      setHidden(it.row, hide);
+      it.hidden = hide;
+      if (hide && it.r.checked) switchFrom = it;
+    }
+
+    if (!switchFrom || switching) return;
+    switching = true;
+    // Выбранная служба спряталась: для СДЭК переключаем на парную (дверь ↔ дверь,
+    // ПВЗ ↔ ПВЗ) кликом, чтобы Тильда пересчитала доставку; иначе просто снимаем выбор.
+    var target = null;
+    if (switchFrom.cdek) {
+      for (var k = 0; k < items.length; k++) {
+        if (!items[k].hidden && items[k].cdek && items[k].kind === switchFrom.kind) { target = items[k]; break; }
       }
     }
+    if (target) {
+      target.r.click();
+    } else {
+      switchFrom.r.checked = false;
+      switchFrom.r.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+    switching = false;
   }
 
   function apply() {
