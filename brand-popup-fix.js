@@ -859,6 +859,12 @@
           el.setAttribute('data-uf-step', '1');
           el.dataset.ufAssigned = '1';
         }
+      } else if (el.matches('.t-input-group_cb') && el.querySelector('input[name="subscribe_news"]')) {
+        // «Получать новости…» (поле subscribe_news, 26.09) — на шаг «Оплата»,
+        // под способами оплаты; в RetailCRM уходит через модуль imb.
+        el.setAttribute('data-uf-step', '3');
+        el.classList.add('uf-subscribe-cb');
+        el.dataset.ufAssigned = '1';
       } else if (el.matches('.t-input-group_cb, .t-input-group_dl')) {
         el.setAttribute('data-uf-step', '2');
         el.dataset.ufAssigned = '1';
@@ -867,6 +873,11 @@
         el.dataset.ufAssigned = '1';
       }
     });
+    var subCb = q(box, '.uf-subscribe-cb');
+    var rdGroup = q(box, '.t-input-group_rd');
+    if (subCb && rdGroup && (rdGroup.compareDocumentPosition(subCb) & Node.DOCUMENT_POSITION_PRECEDING)) {
+      rdGroup.parentNode.insertBefore(subCb, rdGroup.nextSibling);
+    }
     // Second promo-code field: confirmed 2026-08-30 (real RetailCRM order
     // data checked by the site owner) that only the FIRST "Промокод" field
     // reaches CRM — this one ("Промокод_2", after pay_method) is dead.
