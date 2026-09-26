@@ -2472,7 +2472,7 @@ function buildStepper(active) {
 //    «✓ У вас бесплатная доставка СДЭК…» / при примерке — пояснение, что
 //    доставка оплачивается при получении. В боковой корзине под «Сумма»
 //    и в итогах на шаге оформления.
-// 2) Страница товара: строка о доставке под ценой (и под кнопкой Долями).
+// 2) Страница товара: строка о доставке под кнопкой «Добавить в корзину».
 // Сам порог живёт в настройках служб доставки Тильды («СДЭК: до двери»,
 // «СДЭК: до ПВЗ») — при смене порога поменять и FREE_FROM здесь.
 // Откат: удалить этот блок и стили .uf-fs / .uf-pdp-ship в brand-style.css.
@@ -2560,9 +2560,10 @@ function buildStepper(active) {
       if (!line) {
         line = document.createElement('div');
         line.className = 'uf-pdp-ship';
-        var dolyame = info.querySelector('.digi-dolyame-button--wrapper');
-        var anchor = dolyame && dolyame.parentElement === priceWrap.parentElement ? dolyame : priceWrap;
-        anchor.insertAdjacentElement('afterend', line);
+        // Под кнопкой «Добавить в корзину»: выше, под ценой, соседние вставки
+        // (плашка примерки, «Таблица размеров») сдвигали строку в блок размеров.
+        var btnWrap = info.querySelector('.t-store__prod-popup__btn-wrapper');
+        (btnWrap || priceWrap).insertAdjacentElement('afterend', line);
       }
       if (line.getAttribute('data-price') !== String(price)) {
         line.setAttribute('data-price', String(price));

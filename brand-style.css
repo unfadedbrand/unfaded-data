@@ -4368,9 +4368,7 @@ details.uf-legal > summary::marker {
 }
 .uf-fs_free { border-color: var(--uf-ink); }
 .uf-pdp-ship {
-  margin: 14px 0 6px;
-  padding-top: 10px;
-  border-top: 1px solid var(--uf-line);
+  margin: 14px 0 18px;
   font-family: var(--uf-font-ui) !important;
   font-size: 13px;
   line-height: 1.5;
