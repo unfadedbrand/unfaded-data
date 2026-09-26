@@ -4743,3 +4743,52 @@ html.uf-co2 .t706__cartpage.uf-co2-nodl .t706__cartwin-totalamount-row[data-uf-r
 @media screen and (max-width: 980px) {
   html.uf-co2 .t706__cartpage-info-wrapper { margin-top: 24px; border-radius: 0; }
 }
+
+/* Checkout v2 — правки после живой проверки (26.09) */
+html.uf-co2 .t706__cartpage .t706__product > .t706__product-thumb { grid-column: 1 !important; grid-row: 1 / span 2 !important; }
+html.uf-co2 .t706__cartpage .t706__product > .t706__product-title { grid-column: 2 !important; grid-row: 1 !important; }
+html.uf-co2 .t706__cartpage .t706__product > .t706__product-amount { grid-column: 3 !important; grid-row: 1 !important; }
+html.uf-co2 .t706__cartpage .t706__product > .t706__product-plusminus {
+  grid-column: 2 !important;
+  grid-row: 2 !important;
+  display: inline-flex !important;
+  flex-direction: row !important;
+  align-items: center;
+  gap: 8px;
+  width: auto !important;
+}
+html.uf-co2 .t706__cartpage .t706__product > .t706__product-del-wrapper { grid-column: 3 !important; grid-row: 2 !important; align-self: center; }
+html.uf-co2 .t706__cartpage .t706__product-plusminus > span {
+  width: 24px !important;
+  height: 24px !important;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  margin: 0 !important;
+}
+html.uf-co2 .t706__cartpage .t706__product-minus,
+html.uf-co2 .t706__cartpage .t706__product-plus { border: 1px solid var(--co-line-strong); border-radius: 2px; cursor: pointer; }
+html.uf-co2 .t706__cartpage .t706__product-minus img,
+html.uf-co2 .t706__cartpage .t706__product-plus img { width: 10px !important; height: 10px !important; }
+html.uf-co2 .t706__cartpage .t706__product-quantity { font-size: 13px !important; font-variant-numeric: tabular-nums; }
+
+html.uf-co2 .t-form__inputsbox[data-uf-wizard] .t-input-phonemask__wrap {
+  height: 48px !important;
+  padding: 0 !important;
+  border: 1px solid var(--co-line-strong) !important;
+  border-radius: 2px !important;
+  box-sizing: border-box !important;
+  align-items: center;
+  background: #fff !important;
+}
+html.uf-co2 .t-form__inputsbox[data-uf-wizard] .t-input-phonemask__wrap:focus-within { border-color: var(--co-ink) !important; box-shadow: 0 0 0 1px var(--co-ink); }
+html.uf-co2 .t-form__inputsbox[data-uf-wizard] .t-input-phonemask__wrap input.t-input {
+  height: 46px !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  padding-left: 6px !important;
+}
+
+html.uf-co2 .t706__cartpage .t706__cartpage-totals,
+html.uf-co2 .t706__cartpage .t706__cartwin-totalamount-wrap,
+html.uf-co2 .t706__cartpage .t706__cartwin-totalamount-info { background: transparent !important; box-shadow: none !important; border-left: 0 !important; border-right: 0 !important; border-bottom: 0 !important; }
