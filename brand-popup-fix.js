@@ -2913,6 +2913,16 @@ function buildStepper(active) {
     }
   }
 
+  // On phones Tilda hides the form behind its own «Оформить заказ» button
+  // above the summary; the approved layout shows the form straight away
+  // (summary below it), so press that button for the customer.
+  function openMobileForm() {
+    var wrap = document.querySelector('.t706__cartpage-open-form-wrap');
+    if (!wrap || wrap.offsetParent === null) return;
+    var b = wrap.querySelector('a, button, .t-btn, .t-submit');
+    if (b) b.click();
+  }
+
   function init() {
     var box = document.querySelector('.t-form__inputsbox[data-uf-wizard]');
     if (!box || box.dataset.ufCo2) return !!box;
@@ -2935,8 +2945,11 @@ function buildStepper(active) {
     // Tilda fills the city guid without events we can rely on; a light poll
     // keeps the totals state honest while the checkout is open.
     setInterval(function () {
-      if (document.body.classList.contains('t706__body_cartpageshowed')) markTotals(box);
+      if (!document.body.classList.contains('t706__body_cartpageshowed')) return;
+      markTotals(box);
+      openMobileForm();
     }, 1000);
+    openMobileForm();
     return true;
   }
 
