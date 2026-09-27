@@ -388,8 +388,11 @@
   function ensureWaBelowSizeNote() {
     var wa = document.querySelector('.uf-wa');
     var note = document.getElementById('uf-size-stock-note');
-    if (!wa || !note) return;
-    if (wa.previousElementSibling !== note) {
+    if (!wa) return;
+    // 27.09.2026: строки остатка («Осталось 1 шт…») нет у товара, которого нет
+    // ни в одном размере, — раньше тогда выходили здесь, и рядом с WhatsApp
+    // не появлялся Telegram. Строка остатка нужна только для места ссылки.
+    if (note && wa.previousElementSibling !== note) {
       note.parentElement.appendChild(wa);
     }
     ensureTgNextToWa(wa);
