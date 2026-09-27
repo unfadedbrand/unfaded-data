@@ -4884,3 +4884,9 @@ html.uf-co2 .uf-co2-promo__input { flex: 1 1 0 !important; width: auto !importan
 }
 /* старая цена целиком («50 900 RUB» не рвётся посередине) */
 #ufs-overlay .ufs-card__old { display: inline-block; white-space: nowrap; }
+
+/* Вкладка «Доставка и оплата» в карточке товара — единый текст из
+   brand-popup-fix.js (блок «product card: Доставка и оплата tab»). */
+.uf-ship-tab p { margin: 0 0 10px; }
+.uf-ship-tab p:last-child { margin-bottom: 0; }
+.uf-ship-tab a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
