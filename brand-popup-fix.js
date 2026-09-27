@@ -2404,6 +2404,23 @@ function buildStepper(active) {
   // «Экспресс… 1 000 ₽, United States» первым, что видела покупательница).
   // Показываем экспресс только когда город подтверждён и это Москва.
   var MOSCOW_RE = /москв/i;
+  // B25 (27.09.2026): «Доставка по всему Миру» — международный тариф, для
+  // российских адресов его быть не должно. Логика переехала сюда из
+  // инлайнового скрипта подрядчика в подвале Тильды (блок rec800157782):
+  // тот жил только в интерфейсе Тильды, не версионировался и опрашивал DOM
+  // каждые 300 мс. Здесь она работает в общем цикле с правилом примерки.
+  var WORLD_RE = /по\s*всему\s*миру/i;
+
+  function isRussia() {
+    var delivery = (window.tcart && window.tcart.delivery) || {};
+    if (delivery.country) return String(delivery.country).toLowerCase() === 'ru';
+    // Пока Тильда не посчитала доставку — смотрим подпись под полем города,
+    // как это делал прежний скрипт: «Россия, г Москва».
+    var city = document.querySelector('input[name="tildadelivery-city"]');
+    var block = city && city.closest('.t-input-block');
+    var descr = block && block.querySelector('.t-input-description');
+    return !!(descr && /росси/i.test(descr.textContent || ''));
+  }
 
   function isMoscow() {
     var city = document.querySelector('input[name="tildadelivery-city"]');
@@ -2415,6 +2432,7 @@ function buildStepper(active) {
 
   function applyDelivery(fitting) {
     var moscow = isMoscow();
+    var russia = isRussia();
     var radios = document.querySelectorAll('.t-input-group_dl input[name="tildadelivery-type"]');
     var items = [];
     var hasFitCdek = false;
@@ -2425,7 +2443,7 @@ function buildStepper(active) {
       var cdek = CDEK_RE.test(text);
       var fitSvc = cdek && FIT_SVC_RE.test(text);
       if (fitSvc) hasFitCdek = true;
-      items.push({ r: r, row: row, cdek: cdek, fitSvc: fitSvc, kind: cdekKind(text), express: EXPRESS_RE.test(text) });
+      items.push({ r: r, row: row, cdek: cdek, fitSvc: fitSvc, kind: cdekKind(text), express: EXPRESS_RE.test(text), world: WORLD_RE.test(text) });
     }
 
     var switchFrom = null;
@@ -2433,6 +2451,7 @@ function buildStepper(active) {
       var it = items[j];
       var hide = false;
       if (it.express && (fitting || !moscow)) hide = true;
+      if (it.world && russia) hide = true;
       if (it.cdek) {
         if (fitting && hasFitCdek && !it.fitSvc) hide = true;
         if (!fitting && it.fitSvc) hide = true;
