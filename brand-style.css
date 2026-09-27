@@ -5108,3 +5108,77 @@ html.uf-co2 .uf-co2-promo__input { flex: 1 1 0 !important; width: auto !importan
   .uf-xs-img { width: 46px; }
   .uf-xs-nm { font-size: 12px; }
 }
+
+/* ============================================================
+   UNFADED ACCESS SYSTEM — списание CREDITS в корзине (E1.6, 27.09.2026).
+   Стили в одном ключе с блоком промокода выше: те же высоты, рамки и шрифт.
+   Откат: удалить этот блок и блок uf-cr в brand-popup-fix.js.
+   ============================================================ */
+html.uf-co2 .uf-cr { margin: 0 0 16px; display: flex; flex-direction: column; gap: 10px; }
+
+html.uf-co2 .uf-cr__toggle {
+  align-self: flex-start;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-family: 'Onest', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--co-ink);
+  border-bottom: 1px solid var(--co-line-strong);
+  cursor: pointer;
+}
+html.uf-co2 .uf-cr__toggle:hover { border-bottom-color: var(--co-ink); }
+
+html.uf-co2 .uf-cr__body { display: flex; flex-direction: column; gap: 10px; }
+html.uf-co2 .uf-cr__step { display: flex; flex-direction: column; gap: 6px; }
+html.uf-co2 .uf-cr__label { font-family: 'Onest', sans-serif; font-size: 12px; color: var(--co-ink-2); }
+html.uf-co2 .uf-cr__line { display: flex; gap: 8px; }
+
+html.uf-co2 .uf-cr__input {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--co-line-strong);
+  border-radius: 2px;
+  background: #fff;
+  font-family: 'Onest', sans-serif;
+  font-size: 14px;
+  color: var(--co-ink);
+  outline: none;
+}
+html.uf-co2 .uf-cr__input:focus { border-color: var(--co-ink); box-shadow: 0 0 0 1px var(--co-ink); }
+html.uf-co2 .uf-cr__input_code { letter-spacing: 0.4em; text-align: center; max-width: 140px; }
+
+html.uf-co2 .uf-cr__btn {
+  flex: none;
+  height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--co-ink);
+  border-radius: 2px;
+  background: #fff;
+  color: var(--co-ink);
+  font-family: 'Onest', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+}
+html.uf-co2 .uf-cr__btn:hover { background: var(--co-ink); color: #fff; }
+html.uf-co2 .uf-cr__btn_busy { opacity: 0.5; cursor: default; }
+html.uf-co2 .uf-cr__btn_busy:hover { background: #fff; color: var(--co-ink); }
+
+html.uf-co2 .uf-cr__balance { font-family: 'Onest', sans-serif; font-size: 13px; color: var(--co-ink); }
+html.uf-co2 .uf-cr__hint { color: var(--co-ink-2); }
+
+html.uf-co2 .uf-cr__msg { font-family: 'Onest', sans-serif; font-size: 12px; line-height: 1.5; color: var(--co-ink-2); }
+html.uf-co2 .uf-cr__msg_err { color: #7A1F2A; }
+html.uf-co2 .uf-cr__msg_ok { color: #1F6B3A; }
+
+@media (max-width: 560px) {
+  html.uf-co2 .uf-cr__line { flex-wrap: wrap; }
+  html.uf-co2 .uf-cr__btn { width: 100%; }
+  html.uf-co2 .uf-cr__input_code { max-width: none; }
+}
