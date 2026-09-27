@@ -3271,3 +3271,140 @@ function buildStepper(active) {
   fix();
   new MutationObserver(fix).observe(document.documentElement, { childList: true, subtree: true });
 })();
+
+/* ============================================================
+   UNFADED — «Дополните образ»: макет «Сплит» и зачёркнутая старая цена
+   (27.09.2026).
+
+   ПОЧЕМУ ЭТО ЗДЕСЬ, А НЕ В HEAD-КОДЕ ТИЛЬДЫ.
+   Блок строит функция buildOutfitHtml в HEAD-коде сайта. Переписать её там
+   не получается: HEAD-код занимает ~50 КБ, а страницы товара внутри папки
+   «Каталог» (/catalog/<раздел>/tproduct/...) отдаются с потолком около
+   64 КБ на документ. Прибавка всего в 1 КБ вытолкнула их за предел — Тильда
+   стала резать HTML на середине, и такие страницы открывались пустыми
+   (проверено 27.09: 65 158 байт и ноль блоков вместо 246 352 и семнадцати).
+   Поэтому HEAD-код оставлен нетронутым, а разметку блока пересобирает этот
+   модуль — он грузится с GitHub и размер документа не увеличивает.
+
+   ЧТО ДЕЛАЕТ.
+   1. Заворачивает заголовок и ряд в .uf-outfit-split — колонка с заголовком
+      слева, карточки справа. Без этого блок разваливался, когда кандидат
+      один: в трёхколоночной сетке одна карточка занимала треть полосы,
+      а такой случай у 28 товаров из 30.
+   2. Проставляет ряду data-uf-count — по нему brand-style.css («Раунд 12»)
+      выбирает число колонок.
+   3. Дорисовывает зачёркнутую старую цену: в HEAD-коде её нет, поле oldPrice
+      берём из data.json по ссылке карточки.
+
+   Стили: brand-style.css, раздел «Раунд 12 (27.09.2026)».
+   ============================================================ */
+(function () {
+  var DATA_URL = 'https://unfadedbrand.github.io/unfaded-data/data.json';
+  var oldPriceByUrl = null;
+
+  // Цена в data.json лежит строкой «27 000 ₽». Карточки каталога пишут число
+  // и подпись «RUB» раздельно (см. .t-store__card__price-currency в
+  // brand-style.css) — разбираем так же, чтобы блок не отличался от сайта.
+  function priceParts(raw) {
+    var text = String(raw == null ? '' : raw);
+    var m = text.match(/^\s*([\d\s ]+?)\s*₽\s*$/);
+    return m ? { value: m[1], currency: 'RUB' } : { value: text, currency: '' };
+  }
+
+  function loadOldPrices() {
+    if (oldPriceByUrl) return Promise.resolve(oldPriceByUrl);
+    return fetch(DATA_URL)
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        var map = {};
+        var outfits = (d && d.outfits) || {};
+        Object.keys(outfits).forEach(function (sku) {
+          (outfits[sku] || []).forEach(function (it) {
+            if (it && it.url && it.oldPrice) map[it.url] = it.oldPrice;
+          });
+        });
+        oldPriceByUrl = map;
+        return map;
+      })
+      .catch(function () { oldPriceByUrl = {}; return oldPriceByUrl; });
+  }
+
+  function addOldPrice(card, map) {
+    var price = card.querySelector('.uf-outfit-price');
+    if (!price || card.querySelector('.uf-outfit-price-old')) return;
+    var old = map[card.getAttribute('href')];
+    if (!old) return;
+
+    // Цену и зачёркнутую старую держим в одной строке: .uf-outfit-price
+    // оставляем как есть, чтобы ensureOutfitPriceFormat ниже по файлу
+    // по-прежнему разбирал её сам.
+    var wrap = document.createElement('div');
+    wrap.className = 'uf-outfit-prices';
+    price.parentNode.insertBefore(wrap, price);
+    wrap.appendChild(price);
+
+    var parts = priceParts(old);
+    var el = document.createElement('div');
+    el.className = 'uf-outfit-price-old';
+    var value = document.createElement('span');
+    value.className = 'uf-outfit-price-value';
+    value.textContent = parts.value;
+    el.appendChild(value);
+    if (parts.currency) {
+      var cur = document.createElement('span');
+      cur.className = 'uf-outfit-price-currency';
+      cur.textContent = parts.currency;
+      el.appendChild(cur);
+    }
+    wrap.appendChild(el);
+  }
+
+  function restyle(root, map) {
+    var title = root.querySelector('.uf-outfit-title');
+    var row = root.querySelector('.uf-outfit-row');
+    if (!title || !row) return;
+
+    if (!root.querySelector('.uf-outfit-split')) {
+      var split = document.createElement('div');
+      split.className = 'uf-outfit-split';
+      var head = document.createElement('div');
+      head.className = 'uf-outfit-head';
+      root.insertBefore(split, title);
+      split.appendChild(head);
+      head.appendChild(title);
+      split.appendChild(row);
+    }
+
+    var cards = row.querySelectorAll('.uf-outfit-card');
+    row.setAttribute('data-uf-count', String(Math.min(cards.length, 4)));
+    [].forEach.call(cards, function (card) { addOldPrice(card, map); });
+  }
+
+  function apply() {
+    var blocks = document.querySelectorAll('.uf-outfit');
+    if (!blocks.length) return;
+    var pending = [];
+    [].forEach.call(blocks, function (b) {
+      if (b.getAttribute('data-uf-split') !== '1') pending.push(b);
+    });
+    if (!pending.length) return;
+    loadOldPrices().then(function (map) {
+      pending.forEach(function (b) {
+        // HEAD-код перерисовывает блок при смене товара — тогда атрибут
+        // пропадает вместе со старой разметкой и мы соберём его заново.
+        if (b.getAttribute('data-uf-split') === '1') return;
+        restyle(b, map);
+        b.setAttribute('data-uf-split', '1');
+      });
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', apply);
+  } else {
+    apply();
+  }
+  // Блок появляется после того, как Тильда отрисует карточку товара, и
+  // пересобирается при переходе между товарами — следим за деревом.
+  new MutationObserver(apply).observe(document.documentElement, { childList: true, subtree: true });
+})();
