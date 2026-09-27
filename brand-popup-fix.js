@@ -423,8 +423,17 @@
   // .uf-wa сам является ссылкой, вложенные ссылки недопустимы.
   var TG_SUPPORT_URL = 'https://t.me/unfaded_notify_bot';
   function ensureTgNextToWa(wa) {
+    // Ссылка всегда одна и стоит сразу за WhatsApp: если WhatsApp переехал
+    // под строку остатка, существующая ссылка едет за ним, лишние удаляются
+    // (27.09: после переезда оставалась вторая «или в Telegram» над «Размер»).
+    var all = Array.prototype.slice.call(document.querySelectorAll('.uf-tg'));
     var next = wa.nextElementSibling;
-    if (next && next.classList.contains('uf-tg')) return;
+    var keep = (next && next.classList.contains('uf-tg')) ? next : all[0];
+    all.forEach(function (x) { if (x !== keep) x.remove(); });
+    if (keep) {
+      if (wa.nextElementSibling !== keep) wa.insertAdjacentElement('afterend', keep);
+      return;
+    }
     var tg = document.createElement('a');
     tg.className = 'uf-tg';
     tg.href = TG_SUPPORT_URL;
