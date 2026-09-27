@@ -3598,9 +3598,11 @@ function buildStepper(active) {
     var host = document.querySelector('.t706__cartpage_showed .t706__cartpage-products') ||
                document.querySelector('.t706__cartpage-products');
     if (!host) return;
-    // на шаге оплаты блок не показываем — ничего не должно мелькать у платежа
-    var payStep = /оплат/i.test((document.querySelector('.t706__cartpage-info-wrapper') || {}).innerText || '') &&
-                  !!document.querySelector('[class*="uf-co2"] [class*="pay"]');
+    // На шаге оплаты блок не показываем — ничего не должно мелькать у платежа.
+    // Шаг берём у самого шагомера: искать слово «оплата» в тексте колонки
+    // нельзя, там есть строка «бесплатная доставка при оплате на сайте».
+    var step = document.querySelector('.uf-checkout-stepper__item.is-active');
+    var payStep = !!step && /оплат/i.test(step.textContent || '');
     var existing = document.getElementById('uf-xs');
     var c = cart();
     var products = c.products || [];
