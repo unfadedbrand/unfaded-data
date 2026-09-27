@@ -2399,7 +2399,22 @@ function buildStepper(active) {
     return /двер/i.test(text) ? 'door' : (/пвз/i.test(text) ? 'pvz' : '');
   }
 
+  // B12 (27.09.2026): «Экспресс доставка за 3 часа по Москве» показывалась всем,
+  // в том числе до выбора города — Тильда предвыбирала её первой (в аудите:
+  // «Экспресс… 1 000 ₽, United States» первым, что видела покупательница).
+  // Показываем экспресс только когда город подтверждён и это Москва.
+  var MOSCOW_RE = /москв/i;
+
+  function isMoscow() {
+    var city = document.querySelector('input[name="tildadelivery-city"]');
+    if (!city || !city.value.trim()) return false;
+    if (city.dataset.ufTyped === '1') return false; // город набран руками, не выбран из подсказки
+    var delivery = (window.tcart && window.tcart.delivery) || {};
+    return MOSCOW_RE.test(city.value) || MOSCOW_RE.test(delivery.city || '');
+  }
+
   function applyDelivery(fitting) {
+    var moscow = isMoscow();
     var radios = document.querySelectorAll('.t-input-group_dl input[name="tildadelivery-type"]');
     var items = [];
     var hasFitCdek = false;
@@ -2417,7 +2432,7 @@ function buildStepper(active) {
     for (var j = 0; j < items.length; j++) {
       var it = items[j];
       var hide = false;
-      if (fitting && it.express) hide = true;
+      if (it.express && (fitting || !moscow)) hide = true;
       if (it.cdek) {
         if (fitting && hasFitCdek && !it.fitSvc) hide = true;
         if (!fitting && it.fitSvc) hide = true;
