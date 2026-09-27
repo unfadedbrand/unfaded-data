@@ -5133,6 +5133,11 @@ html.uf-co2 .uf-cr__toggle:hover { border-bottom-color: var(--co-ink); }
 
 html.uf-co2 .uf-cr__body { display: flex; flex-direction: column; gap: 10px; }
 html.uf-co2 .uf-cr__step { display: flex; flex-direction: column; gap: 6px; }
+/* display: flex выше перебивает встроенное [hidden] — возвращаем скрытие явно,
+   иначе все шаги видны сразу (замечено на живой корзине 27.09). */
+html.uf-co2 .uf-cr__body[hidden],
+html.uf-co2 .uf-cr__step[hidden],
+html.uf-co2 .uf-cr__line[hidden] { display: none; }
 html.uf-co2 .uf-cr__label { font-family: 'Onest', sans-serif; font-size: 12px; color: var(--co-ink-2); }
 html.uf-co2 .uf-cr__line { display: flex; gap: 8px; }
 
