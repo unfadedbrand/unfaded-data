@@ -3560,7 +3560,19 @@ function buildStepper(active) {
       quantity: 1,
       amount: price
     };
-    if (typeof window.tcart__addProduct === 'function') window.tcart__addProduct(item);
+    if (typeof window.tcart__addProduct !== 'function') return;
+    window.tcart__addProduct(item);
+
+    // tcart__addProduct кладёт позицию в объект корзины, но открытую страницу
+    // заказа не перерисовывает: сумма и полоса доставки менялись, а список
+    // «Ваш заказ» оставался прежним. Дёргаем ту же цепочку, что Тильда зовёт
+    // при изменении количества.
+    ['tcart__updateTotalProductsinCartObj', 'tcart__saveLocalObj',
+     'tcart__reDrawProducts', 'tcart__reDrawTotal', 'tcart__reDrawCartIcon',
+     'tcart__addEvents__forProducts'].forEach(function (fn) {
+      try { if (typeof window[fn] === 'function') window[fn](); } catch (e) {}
+    });
+    lastKey = '';   // состав корзины изменился — пересобрать подборку
   }
 
   function rowHtml(cand, product, editions, gap) {
@@ -3601,8 +3613,14 @@ function buildStepper(active) {
     loadData().then(function (d) {
       var outfits = d.outfits || {};
       var known = Object.keys(outfits);
-      var inCart = {};
-      products.forEach(function (p) { inCart[String(p.sku || '').trim()] = 1; });
+      var inCartArticles = {};
+      products.forEach(function (p) {
+        var a = articleOf(p.sku, known);
+        if (a) inCartArticles[a] = 1;
+        Object.keys(d.store_map || {}).forEach(function (k) {
+          if (String(p.sku || '').indexOf(k) === 0) inCartArticles[k] = 1;
+        });
+      });
 
       // кандидаты всех позиций корзины, без того, что уже в корзине
       var picked = [], seen = {};
@@ -3612,6 +3630,9 @@ function buildStepper(active) {
         outfits[art].forEach(function (cand) {
           if (seen[cand.url]) return;
           seen[cand.url] = 1;
+          // уже лежащее в корзине предлагать незачем
+          var a = urlToArticle[cand.url];
+          if (a && inCartArticles[a]) return;
           picked.push(cand);
         });
       });
