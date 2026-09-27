@@ -4882,3 +4882,5 @@ html.uf-co2 .uf-co2-promo__input { flex: 1 1 0 !important; width: auto !importan
   #ufs-overlay .ufs-card__price { text-transform: uppercase !important; }
   #ufs-overlay .ufs-card__old { margin-left: 6px !important; }
 }
+/* старая цена целиком («50 900 RUB» не рвётся посередине) */
+#ufs-overlay .ufs-card__old { display: inline-block; white-space: nowrap; }
