@@ -4890,3 +4890,105 @@ html.uf-co2 .uf-co2-promo__input { flex: 1 1 0 !important; width: auto !importan
 .uf-ship-tab p { margin: 0 0 10px; }
 .uf-ship-tab p:last-child { margin-bottom: 0; }
 .uf-ship-tab a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+
+/* ============================================================
+   Раунд 12 (27.09.2026): «Дополните образ» — макет «Сплит».
+
+   До этого раунда сетка блока была жёстко трёхколоночной на ПК и
+   двухколоночной на мобильном (см. раунды 8-9 выше). Она рассчитана ровно
+   на три карточки, а после заполнения данных выяснилось, что у 28 товаров
+   из 30 кандидат ровно один — одна карточка в трёхколоночной сетке занимала
+   треть полосы и читалась как сломанная вёрстка.
+
+   Заголовок вынесен в отдельную левую колонку (.uf-outfit-split): она
+   держит композицию, поэтому одна карточка справа выглядит законченной.
+   Число колонок справа задаёт data-uf-count, его проставляет
+   buildOutfitHtml в HEAD-коде Тильды. Карточки при 1-2 кандидатах
+   ограничены 232px, иначе блок допродажи спорит с фото самого товара
+   (до этого раунда карточка была 442x590 — почти как главное фото).
+   ============================================================ */
+.uf-outfit-split {
+  max-width: 1400px !important;
+  margin: 0 auto !important;
+  display: grid !important;
+  grid-template-columns: minmax(200px, 1fr) 3fr !important;
+  gap: 34px !important;
+  align-items: start !important;
+}
+/* заголовок теперь живёт в своей колонке — нижний отступ ему не нужен */
+.uf-outfit .uf-outfit-title { margin: 0 !important; }
+
+.uf-outfit .uf-outfit-row {
+  display: grid !important;
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  gap: 16px !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+}
+.uf-outfit .uf-outfit-row[data-uf-count="1"] {
+  grid-template-columns: minmax(0, 232px) !important;
+}
+.uf-outfit .uf-outfit-row[data-uf-count="2"] {
+  grid-template-columns: repeat(2, minmax(0, 232px)) !important;
+}
+.uf-outfit .uf-outfit-row[data-uf-count="3"] {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+}
+
+/* Цена: текущая и зачёркнутая старая в одну строку — тот же порядок и тот же
+   стиль, что в карточках каталога (.t-store__card__price_old выше по файлу).
+   Старую цену отдаёт data.json полем oldPrice, разметку строит
+   buildOutfitHtml. */
+.uf-outfit-prices {
+  display: flex !important;
+  align-items: baseline !important;
+  gap: 8px !important;
+  flex-wrap: wrap !important;
+}
+.uf-outfit-price-old {
+  color: rgba(250, 250, 250, .4) !important;
+  text-decoration: line-through !important;
+  white-space: nowrap !important;
+}
+.uf-outfit-price-old .uf-outfit-price-value,
+.uf-outfit-price-old .uf-outfit-price-currency {
+  color: inherit !important;
+}
+
+@media screen and (max-width: 639px) {
+  .uf-outfit-split {
+    grid-template-columns: 1fr !important;
+    gap: 18px !important;
+  }
+  /* на мобильном всегда две колонки, независимо от числа кандидатов;
+     заодно снимаем краевой вынос ряда из раунда 9 (margin -18px) */
+  .uf-outfit .uf-outfit-row,
+  .uf-outfit .uf-outfit-row[data-uf-count="1"],
+  .uf-outfit .uf-outfit-row[data-uf-count="2"],
+  .uf-outfit .uf-outfit-row[data-uf-count="3"] {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+  }
+  /* одинокая последняя карточка больше не растягивается на всю строку —
+     в двухколоночной сетке она просто занимает свою колонку */
+  .uf-outfit-card:nth-last-child(1):nth-child(odd) {
+    grid-column: auto !important;
+    max-width: none !important;
+  }
+  .uf-outfit-prices { gap: 6px !important; }
+}
+
+/* 640-999px: на узком десктопе и планшете колонка заголовка забирала бы у
+   карточек слишком много ширины (при minmax(200px,1fr)левая колонка не сжимается
+   ниже 200px) — складываем сплит в стопку, сетка карточек остаётся прежней. */
+@media screen and (min-width: 640px) and (max-width: 999px) {
+  .uf-outfit-split {
+    grid-template-columns: 1fr !important;
+    gap: 20px !important;
+  }
+}
