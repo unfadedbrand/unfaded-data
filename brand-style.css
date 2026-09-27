@@ -4826,3 +4826,59 @@ html.uf-co2 .uf-co2-promo__input { flex: 1 1 0 !important; width: auto !importan
 @media (min-width: 980px) {
   #ufs-overlay.ufs-is-start .ufs-overlay__body { display: block; }
 }
+
+/* Поиск: карточки товаров — как в каталоге/на главной (.t-store__card):
+   фото 3:4 без отступа, тёмная плашка #17090B с линией сверху, название
+   Onest 14px обычным регистром #FAFAFA, цена 12px с прозрачностью .55,
+   «RUB», зачёркнутая старая цена .4; на телефоне 10px/14px с разрядкой
+   0.064em (те же значения, что у .t-store__card__title/__price выше).
+   Сетка — зазор 3px, как у .t-store__card-list. */
+#ufs-overlay .ufs-grid { gap: 3px !important; }
+#ufs-overlay .ufs-card {
+  display: flex !important;
+  flex-direction: column;
+  background: var(--uf-color-ink, #17090B) !important;
+  color: var(--uf-color-paper, #FAFAFA) !important;
+}
+#ufs-overlay .ufs-card__img {
+  aspect-ratio: 3 / 4 !important;
+  margin: 0 !important;
+}
+#ufs-overlay .ufs-card__title {
+  margin: 0 !important;
+  padding: 12px 15px 8px !important;
+  border-top: 1px solid rgba(250,250,250,.14);
+  font-family: var(--uf-font-body, 'Onest'), Arial, sans-serif !important;
+  font-size: 14px !important;
+  line-height: 18.9px !important;
+  font-weight: 400 !important;
+  letter-spacing: normal !important;
+  text-transform: none !important;
+  color: var(--uf-color-paper, #FAFAFA) !important;
+}
+#ufs-overlay .ufs-card__price {
+  padding: 0 15px 14px !important;
+  font-family: var(--uf-font-body, 'Onest'), Arial, sans-serif !important;
+  font-size: 12px !important;
+  line-height: 16.2px !important;
+  font-weight: 400 !important;
+  color: rgba(250,250,250,.55) !important;
+}
+#ufs-overlay .ufs-card__old {
+  margin-left: 8px !important;
+  font-size: 12px !important;
+  font-weight: 300 !important;
+  color: rgba(250,250,250,.4) !important;
+  text-decoration: line-through !important;
+}
+@media screen and (max-width: 639px) {
+  #ufs-overlay .ufs-card__title,
+  #ufs-overlay .ufs-card__price,
+  #ufs-overlay .ufs-card__old {
+    font-size: 10px !important;
+    line-height: 14px !important;
+    letter-spacing: 0.064em !important;
+  }
+  #ufs-overlay .ufs-card__price { text-transform: uppercase !important; }
+  #ufs-overlay .ufs-card__old { margin-left: 6px !important; }
+}

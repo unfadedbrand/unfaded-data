@@ -2991,7 +2991,20 @@ function buildStepper(active) {
       return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
     });
   }
-  function price(n) { return String(Math.round(n || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' ₽'; }
+  // same currency label as the catalog cards («RUB», see .t-store__card__price-currency)
+  function price(n) { return String(Math.round(n || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' RUB'; }
+
+  // Results rendered by the HEAD search code print «₽»; switch them to «RUB»
+  // so search cards read like the catalog ones.
+  function fixCurrency(root) {
+    var w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    var n;
+    while ((n = w.nextNode())) {
+      if (n.nodeValue.indexOf('₽') !== -1 && n.parentNode.closest('.ufs-card__price')) {
+        n.nodeValue = n.nodeValue.replace(/\s*₽/g, ' RUB');
+      }
+    }
+  }
 
   function load(cb) {
     if (index) return cb();
@@ -3059,6 +3072,12 @@ function buildStepper(active) {
     ov.dataset.ufStart = '1';
     var input = ov.querySelector('.ufs-overlay__input');
     if (input) input.addEventListener('input', function () { sync(ov); });
+    var results = ov.querySelector('.ufs-overlay__results');
+    if (results) {
+      fixCurrency(results);
+      new MutationObserver(function () { fixCurrency(results); })
+        .observe(results, { childList: true, subtree: true });
+    }
     new MutationObserver(function () {
       if (ov.classList.contains('uf-open')) {
         sync(ov);
