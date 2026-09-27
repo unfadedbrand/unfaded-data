@@ -1017,6 +1017,10 @@ function buildStepper(active) {
         t.dataset.ufTyped = '1';
         clearFieldError(t);
       }
+      // B18: убираем подсказку об ошибке, как только поле начали заполнять.
+      if (t.getAttribute('data-tilda-req') === '1' || t.name === 'tildaspec-phone-part[]') {
+        clearFieldError(t);
+      }
     }, true);
     // Tilda picks the suggestion on mousedown and removes the list before
     // `click` fires, so listen for the press itself.
@@ -1118,6 +1122,44 @@ function buildStepper(active) {
     return null;
   }
 
+  // B18: обязательные поля Тильда помечает своим data-tilda-req="1", а не
+  // HTML-атрибутом required — checkValidity() пропускал пустые ФИО, e-mail и
+  // телефон, и «Далее» уводил на следующий шаг. Проверяем признак Тильды сами.
+  // Телефон особый: значение лежит в скрытом input[name="Phone"], а вводит
+  // покупательница в соседнее видимое поле — ошибку показываем у видимого.
+  var REQUIRED_LABELS = {
+    Name: 'Укажите имя и фамилию',
+    Email: 'Укажите адрес e-mail',
+    Phone: 'Укажите номер телефона'
+  };
+  var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+  function visibleTwin(input) {
+    if (input.type !== 'hidden') return input;
+    var block = input.closest('.t-input-block') || input.parentElement;
+    var twin = block && q(block, 'input:not([type="hidden"])');
+    return twin || input;
+  }
+
+  function findRequiredProblem(box, step) {
+    var problem = null;
+    qa(box, '[data-uf-step="' + step + '"] input, [data-uf-step="' + step + '"] textarea').forEach(function (input) {
+      if (problem) return;
+      if (input.getAttribute('data-tilda-req') !== '1') return;
+      if (input.type === 'radio' || input.type === 'checkbox') return;
+      var target = visibleTwin(input);
+      if (target.offsetParent === null) return;
+      if (!input.value.trim()) {
+        problem = { input: target, text: REQUIRED_LABELS[input.name] || 'Заполните это поле' };
+        return;
+      }
+      if (input.name === 'Email' && !EMAIL_RE.test(input.value.trim())) {
+        problem = { input: target, text: 'Проверьте адрес e-mail' };
+      }
+    });
+    return problem;
+  }
+
   function validateStep(box, step) {
     var invalid = null;
     qa(box, '[data-uf-step="' + step + '"] input, [data-uf-step="' + step + '"] textarea').forEach(function (input) {
@@ -1135,6 +1177,11 @@ function buildStepper(active) {
         showFieldError(problem.input, problem.text);
         return false;
       }
+    }
+    var required = findRequiredProblem(box, step);
+    if (required) {
+      showFieldError(required.input, required.text);
+      return false;
     }
     return true;
   }
