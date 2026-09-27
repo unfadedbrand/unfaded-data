@@ -5009,3 +5009,21 @@ html.uf-co2 .uf-co2-promo__input { flex: 1 1 0 !important; width: auto !importan
 .t-store__prod-snippet__container .t-store__relevants__container {
   display: none !important;
 }
+
+/* Товар не в наличии: код сайта (HEAD) прячет серую «Нет в наличии» и ставит
+   «Узнать о поступлении», но при медленной загрузке Тильда иногда
+   перерисовывает серую кнопку уже после этого — и они стояли рядом, слипшись
+   (жалоба Леры 27.09, «Топ с баской, шампань»). Правило не зависит от порядка
+   загрузки: есть кнопка «Узнать о поступлении» — серой нет, а «Узнать…»
+   во всю ширину. Запасной вариант для старых браузеров без :has() —
+   блок «notify button guard» в brand-popup-fix.js. */
+.t-store__prod-popup__btn-wrapper:has(.uf-notify-btn) .t-store__prod-popup__btn_disabled,
+.t-store__prod-popup__btn-wrapper.uf-has-notify .t-store__prod-popup__btn_disabled {
+  display: none !important;
+}
+.t-store__prod-popup__btn-wrapper:has(.uf-notify-btn) .uf-notify-btn,
+.t-store__prod-popup__btn-wrapper.uf-has-notify .uf-notify-btn {
+  flex: 1 1 100% !important;
+  width: 100% !important;
+  margin-left: 0 !important;
+}

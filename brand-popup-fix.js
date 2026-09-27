@@ -3408,3 +3408,22 @@ function buildStepper(active) {
   // пересобирается при переходе между товарами — следим за деревом.
   new MutationObserver(apply).observe(document.documentElement, { childList: true, subtree: true });
 })();
+
+// ============================================================
+// UNFADED — notify button guard (27.09.2026)
+// Out-of-stock product: the HEAD code hides Tilda's grey «Нет в наличии»
+// button and adds «Узнать о поступлении». On slow loads Tilda re-renders the
+// grey button afterwards and both end up side by side. CSS (:has) handles it
+// in modern browsers; this marks the wrapper for the rest.
+// ============================================================
+(function () {
+  function mark() {
+    var btns = document.querySelectorAll('.uf-notify-btn');
+    for (var i = 0; i < btns.length; i++) {
+      var w = btns[i].closest('.t-store__prod-popup__btn-wrapper');
+      if (w && !w.classList.contains('uf-has-notify')) w.classList.add('uf-has-notify');
+    }
+  }
+  mark();
+  new MutationObserver(mark).observe(document.documentElement, { childList: true, subtree: true });
+})();
