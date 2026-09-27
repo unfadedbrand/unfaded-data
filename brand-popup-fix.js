@@ -3455,7 +3455,7 @@ function buildStepper(active) {
   var MAX = 3;                  // больше в узкой колонке превращается в список
   var FREE_SHIPPING = 30000;    // порог бесплатной доставки, ₽
 
-  var data = null, urlToArticle = null, editionsCache = {}, busy = false, lastKey = '';
+  var data = null, urlToArticle = null, editionsCache = {}, inFlight = {}, busy = false, lastKey = '';
 
   function money(n) {
     return String(Math.round(n || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' RUB';
@@ -3505,17 +3505,24 @@ function buildStepper(active) {
     if (!place) return Promise.resolve(null);
     var part = place[0], recid = place[1];
     if (editionsCache[part]) return Promise.resolve(editionsCache[part][article] || null);
+    // Несколько кандидатов часто лежат в одном разделе и запрашиваются
+    // параллельно — держим один запрос на раздел, иначе гонка оставляла
+    // часть строк без размеров и блок не отрисовывался.
+    if (inFlight[part]) {
+      return inFlight[part].then(function (by) { return by[article] || null; });
+    }
     var url = API + '?storepartuid=' + part + '&recid=' + recid +
       '&c=1&slice=1&getparts=true&size=1000&flag_root=withroot';
-    return fetch(url).then(function (r) { return r.json(); }).then(function (j) {
+    inFlight[part] = fetch(url).then(function (r) { return r.json(); }).then(function (j) {
       var by = {};
       (j.products || []).forEach(function (p) {
         var a = (p.externalid || '').trim();
         if (a) by[a] = p;
       });
       editionsCache[part] = by;
-      return by[article] || null;
-    }).catch(function () { editionsCache[part] = {}; return null; });
+      return by;
+    }).catch(function () { editionsCache[part] = {}; return {}; });
+    return inFlight[part].then(function (by) { return by[article] || null; });
   }
 
   function sizeOf(edition) {
