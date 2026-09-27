@@ -4810,3 +4810,19 @@ html.uf-co2 .uf-co2-promo__input { flex: 1 1 0 !important; width: auto !importan
   html.uf-co2 .t706__cartpage-content > .t706__cartpage-form { order: 1; }
   html.uf-co2 .t706__cartpage-content > .t706__cartpage-info { order: 2; }
 }
+
+/* Поиск: стартовый экран при пустом запросе (brand-popup-fix.js,
+   «search overlay: start screen»). Пока запрос пустой — категории и товары,
+   как только начали печатать — обычные результаты. */
+.ufs-start { display: none; }
+#ufs-overlay.ufs-is-start .ufs-start { display: block; }
+#ufs-overlay.ufs-is-start .ufs-overlay__side,
+#ufs-overlay.ufs-is-start .ufs-overlay__results { display: none; }
+.ufs-start__label {
+  font-size: 11px; color: #767676; text-transform: uppercase;
+  letter-spacing: .4px; margin: 4px 0 10px;
+}
+.ufs-start__chips { margin-bottom: 24px; }
+@media (min-width: 980px) {
+  #ufs-overlay.ufs-is-start .ufs-overlay__body { display: block; }
+}

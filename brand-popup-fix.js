@@ -2971,3 +2971,108 @@ function buildStepper(active) {
     if (++tries < 150) setTimeout(wait, 400);
   })();
 })();
+
+// ============================================================
+// UNFADED — search overlay: start screen (27.09.2026)
+// The search window (#ufs-overlay, built by the site-wide HEAD code) showed
+// nothing until something was typed, while the page behind it is locked —
+// so on open there was nothing to scroll ("поиск не скролится"). Now an
+// empty query shows category chips and a scrollable product grid from the
+// same search index; typing hides it and the normal results take over.
+// Styles: brand-style.css, ".ufs-start".
+// ============================================================
+(function () {
+  var INDEX_URL = 'https://unfadedbrand.github.io/unfaded-data/search-index.json';
+  var SHOW = 24;
+  var index = null, loading = false;
+
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  function price(n) { return String(Math.round(n || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' ₽'; }
+
+  function load(cb) {
+    if (index) return cb();
+    if (loading) return;
+    loading = true;
+    fetch(INDEX_URL).then(function (r) { return r.json(); })
+      .then(function (d) { index = Array.isArray(d) ? d : []; cb(); })
+      .catch(function () { index = []; })
+      .then(function () { loading = false; });
+  }
+
+  function cards(list) {
+    return list.slice(0, SHOW).map(function (p) {
+      return '<a class="ufs-card" href="' + esc(p.url) + '">' +
+        '<div class="ufs-card__img" style="background-image:url(\'' + esc(p.img) + '\')"></div>' +
+        '<div class="ufs-card__title">' + esc(p.title) + '</div>' +
+        '<div class="ufs-card__price">' + price(p.price) +
+        (p.oldPrice ? '<span class="ufs-card__old">' + price(p.oldPrice) + '</span>' : '') +
+        '</div></a>';
+    }).join('');
+  }
+
+  function render(start, cat) {
+    var counts = {}, order = [];
+    index.forEach(function (p) {
+      var c = p.primaryCategory;
+      if (!c) return;
+      if (!counts[c]) { counts[c] = 0; order.push(c); }
+      counts[c]++;
+    });
+    order.sort(function (a, b) { return counts[b] - counts[a]; });
+    var chips = '<button type="button" class="ufs-chip' + (cat ? '' : ' uf-active') + '" data-cat="">Все</button>' +
+      order.map(function (c) {
+        return '<button type="button" class="ufs-chip' + (c === cat ? ' uf-active' : '') + '" data-cat="' + esc(c) + '">' + esc(c) + '</button>';
+      }).join('');
+    var list = cat ? index.filter(function (p) { return p.primaryCategory === cat; }) : index;
+    start.innerHTML =
+      '<div class="ufs-start__label">Категории</div><div class="ufs-chips ufs-start__chips">' + chips + '</div>' +
+      '<div class="ufs-start__label">' + (cat ? esc(cat) : 'Смотрите также') + '</div>' +
+      '<div class="ufs-grid">' + cards(list) + '</div>';
+  }
+
+  function sync(ov) {
+    var body = ov.querySelector('.ufs-overlay__body');
+    var input = ov.querySelector('.ufs-overlay__input');
+    if (!body || !input) return;
+    var start = body.querySelector('.ufs-start');
+    if (!start) {
+      start = document.createElement('div');
+      start.className = 'ufs-start';
+      body.appendChild(start);
+      start.addEventListener('click', function (e) {
+        var chip = e.target.closest('.ufs-chip');
+        if (!chip) return;
+        render(start, chip.getAttribute('data-cat'));
+      });
+    }
+    var empty = !input.value.trim();
+    ov.classList.toggle('ufs-is-start', empty);
+    if (empty && !start.firstChild) load(function () { if (index.length) render(start, ''); });
+  }
+
+  function wire(ov) {
+    if (ov.dataset.ufStart) return;
+    ov.dataset.ufStart = '1';
+    var input = ov.querySelector('.ufs-overlay__input');
+    if (input) input.addEventListener('input', function () { sync(ov); });
+    new MutationObserver(function () {
+      if (ov.classList.contains('uf-open')) {
+        sync(ov);
+        var b = ov.querySelector('.ufs-overlay__body');
+        if (b) b.scrollTop = 0;
+      }
+    }).observe(ov, { attributes: true, attributeFilter: ['class'] });
+    if (ov.classList.contains('uf-open')) sync(ov);
+  }
+
+  var ov0 = document.getElementById('ufs-overlay');
+  if (ov0) wire(ov0);
+  new MutationObserver(function () {
+    var ov = document.getElementById('ufs-overlay');
+    if (ov) wire(ov);
+  }).observe(document.body, { childList: true });
+})();
