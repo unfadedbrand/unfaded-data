@@ -3427,3 +3427,252 @@ function buildStepper(active) {
   mark();
   new MutationObserver(mark).observe(document.documentElement, { childList: true, subtree: true });
 })();
+
+/* ============================================================
+   UNFADED — «Добавить к заказу»: кросс-сейл в чекауте (27.09.2026)
+
+   Блок в сводке заказа, между списком товаров и итогами. Рекомендации берём
+   из того же ключа outfits в data.json, что и «Дополните образ» на карточке
+   товара: корзина хранит позицию вместе с артикулом и размером
+   (sku «TLB02SS26S»), отрезаем размер — получаем ключ подборки.
+
+   Размер выбирается прямо в строке, поэтому чекаут не закрывается и
+   введённые данные не теряются. Чтобы чипсы размеров были честными, живые
+   остатки берём у API магазина Тильды; адрес раздела для каждого артикула
+   лежит в data.json (store_map: артикул -> [storepartuid, recid]).
+
+   Объект для корзины собираем ровно той же формы, что делает сама Тильда
+   при добавлении со страницы товара: uid и inv — у выбранного размера,
+   gen_uid — у товара, recid — из адреса страницы. Проверено сверкой поля
+   в поле с позицией, добавленной через интерфейс.
+
+   Стили: brand-style.css, раздел «Раунд 14».
+   ============================================================ */
+(function () {
+  var DATA_URL  = 'https://unfadedbrand.github.io/unfaded-data/data.json';
+  var INDEX_URL = 'https://unfadedbrand.github.io/unfaded-data/search-index.json';
+  var API = 'https://store.tildaapi.com/api/getproductslist/';
+  var MAX = 3;                  // больше в узкой колонке превращается в список
+  var FREE_SHIPPING = 30000;    // порог бесплатной доставки, ₽
+
+  var data = null, urlToArticle = null, editionsCache = {}, busy = false, lastKey = '';
+
+  function money(n) {
+    return String(Math.round(n || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' RUB';
+  }
+  function num(raw) {
+    var m = String(raw == null ? '' : raw).match(/[\d\s ]+/);
+    return m ? parseInt(m[0].replace(/\s| /g, ''), 10) : 0;
+  }
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  function cart() {
+    try { return JSON.parse(localStorage.getItem('tcart') || '{}'); } catch (e) { return {}; }
+  }
+
+  // «TLB02SS26S» -> «TLB02SS26». Размеры — суффиксы, поэтому ищем самый
+  // длинный артикул из подборки, которым начинается sku позиции.
+  function articleOf(sku, known) {
+    sku = String(sku || '').trim();
+    var best = null;
+    for (var i = 0; i < known.length; i++) {
+      if (sku.indexOf(known[i]) === 0 && (!best || known[i].length > best.length)) best = known[i];
+    }
+    return best;
+  }
+
+  function loadData() {
+    if (data && urlToArticle) return Promise.resolve(data);
+    return Promise.all([
+      fetch(DATA_URL).then(function (r) { return r.json(); }),
+      fetch(INDEX_URL).then(function (r) { return r.json(); })
+    ]).then(function (res) {
+      data = res[0];
+      urlToArticle = {};
+      (res[1] || []).forEach(function (i) { urlToArticle[i.url] = String(i.sku || '').trim(); });
+      return data;
+    }).catch(function () {
+      data = { outfits: {}, store_map: {} }; urlToArticle = {}; return data;
+    });
+  }
+
+  // Живые размеры товара: у API спрашиваем раздел целиком и запоминаем.
+  function loadEditions(article) {
+    var place = (data.store_map || {})[article];
+    if (!place) return Promise.resolve(null);
+    var part = place[0], recid = place[1];
+    if (editionsCache[part]) return Promise.resolve(editionsCache[part][article] || null);
+    var url = API + '?storepartuid=' + part + '&recid=' + recid +
+      '&c=1&slice=1&getparts=true&size=1000&flag_root=withroot';
+    return fetch(url).then(function (r) { return r.json(); }).then(function (j) {
+      var by = {};
+      (j.products || []).forEach(function (p) {
+        var a = (p.externalid || '').trim();
+        if (a) by[a] = p;
+      });
+      editionsCache[part] = by;
+      return by[article] || null;
+    }).catch(function () { editionsCache[part] = {}; return null; });
+  }
+
+  function sizeOf(edition) {
+    return edition['Размер'] || edition['размер'] || edition.size || '';
+  }
+
+  // Форма позиции — как у Тильды: uid и inv берём у выбранного размера.
+  function addToCart(product, edition) {
+    var m = String(product.url || '').match(/tproduct\/(\d+)-/);
+    var options = [];
+    ['Размер', 'Цвет'].forEach(function (k) {
+      if (edition[k]) options.push({ option: k, variant: edition[k] });
+    });
+    var price = num(edition.price) || num(product.price);
+    var item = {
+      name: product.title,
+      price: price,
+      img: (product.gallery && JSON.parse(product.gallery)[0] || {}).img || '',
+      recid: m ? m[1] : '',
+      lid: String(edition.uid),
+      pack_label: product.pack_label || 'lwh',
+      pack_m: String(product.pack_m || '0'),
+      pack_x: String(product.pack_x || '0'),
+      pack_y: String(product.pack_y || '0'),
+      pack_z: String(product.pack_z || '0'),
+      part_uids: (function () {
+        try { return JSON.parse(product.partuids).map(String); } catch (e) { return []; }
+      })(),
+      gen_uid: String(product.uid),
+      url: product.url,
+      options: options,
+      sku: edition.sku,
+      uid: String(edition.uid),
+      inv: parseInt(edition.quantity, 10) || 0,
+      quantity: 1,
+      amount: price
+    };
+    if (typeof window.tcart__addProduct === 'function') window.tcart__addProduct(item);
+  }
+
+  function rowHtml(cand, product, editions, gap) {
+    var sizes = editions.map(function (e) {
+      var q = parseInt(e.quantity, 10) || 0;
+      return '<button type="button" class="uf-xs-sz" data-sku="' + esc(e.sku) + '"' +
+        (q > 0 ? '' : ' disabled') + '>' + esc(sizeOf(e)) + '</button>';
+    }).join('');
+    var price = num(cand.price);
+    var hint = (gap > 0 && price >= gap) ? '<span class="uf-xs-free">доставка станет бесплатной</span>' : '';
+    return '<div class="uf-xs-row" data-article="' + esc(product.externalid) + '">' +
+      '<img class="uf-xs-img" src="' + esc(cand.image) + '" alt="">' +
+      '<div class="uf-xs-body">' +
+        '<p class="uf-xs-nm">' + esc(cand.name) + '</p>' +
+        '<p class="uf-xs-pr">' + money(price) +
+          (cand.oldPrice ? '<s>' + money(num(cand.oldPrice)) + '</s>' : '') + hint + '</p>' +
+        '<div class="uf-xs-sizes">' + sizes + '</div>' +
+      '</div></div>';
+  }
+
+  function build() {
+    if (busy) return;
+    var host = document.querySelector('.t706__cartpage_showed .t706__cartpage-products') ||
+               document.querySelector('.t706__cartpage-products');
+    if (!host) return;
+    // на шаге оплаты блок не показываем — ничего не должно мелькать у платежа
+    var payStep = /оплат/i.test((document.querySelector('.t706__cartpage-info-wrapper') || {}).innerText || '') &&
+                  !!document.querySelector('[class*="uf-co2"] [class*="pay"]');
+    var existing = document.getElementById('uf-xs');
+    var c = cart();
+    var products = c.products || [];
+    if (!products.length || payStep) { if (existing) existing.remove(); lastKey = ''; return; }
+
+    var key = products.map(function (p) { return p.sku + 'x' + p.quantity; }).join('|');
+    if (key === lastKey && existing) return;
+
+    busy = true;
+    loadData().then(function (d) {
+      var outfits = d.outfits || {};
+      var known = Object.keys(outfits);
+      var inCart = {};
+      products.forEach(function (p) { inCart[String(p.sku || '').trim()] = 1; });
+
+      // кандидаты всех позиций корзины, без того, что уже в корзине
+      var picked = [], seen = {};
+      products.forEach(function (p) {
+        var art = articleOf(p.sku, known);
+        if (!art || !outfits[art]) return;
+        outfits[art].forEach(function (cand) {
+          if (seen[cand.url]) return;
+          seen[cand.url] = 1;
+          picked.push(cand);
+        });
+      });
+      if (!picked.length) { if (existing) existing.remove(); lastKey = key; busy = false; return; }
+
+      var total = num(c.prodamount || c.amount || 0);
+      var gap = FREE_SHIPPING - total;
+
+      // если до бесплатной доставки немного — вперёд идут те, кто её закрывает
+      if (gap > 0) {
+        picked.sort(function (a, b) {
+          var ca = num(a.price) >= gap ? 0 : 1, cb = num(b.price) >= gap ? 0 : 1;
+          return ca - cb || num(a.price) - num(b.price);
+        });
+      }
+      picked = picked.slice(0, MAX);
+
+      Promise.all(picked.map(function (cand) {
+        var art = urlToArticle[cand.url] || null;
+        return (art ? loadEditions(art) : Promise.resolve(null)).then(function (prod) {
+          return { cand: cand, product: prod };
+        });
+      })).then(function (rows) {
+        rows = rows.filter(function (r) {
+          return r.product && (r.product.editions || []).some(function (e) {
+            return (parseInt(e.quantity, 10) || 0) > 0;
+          });
+        });
+        if (!rows.length) { if (existing) existing.remove(); lastKey = key; busy = false; return; }
+
+        var head = (gap > 0 && rows.some(function (r) { return num(r.cand.price) >= gap; }))
+          ? '<p class="uf-xs-t">До бесплатной доставки — ' + money(gap) + '</p>'
+          : '<p class="uf-xs-t">Добавить к заказу</p>';
+
+        var html = '<div id="uf-xs" class="uf-xs">' + head +
+          rows.map(function (r) {
+            return rowHtml(r.cand, r.product, r.product.editions || [], gap);
+          }).join('') + '</div>';
+
+        if (existing) existing.remove();
+        host.insertAdjacentHTML('afterend', html);
+        lastKey = key;
+
+        document.querySelectorAll('#uf-xs .uf-xs-sz').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var art = btn.closest('.uf-xs-row').getAttribute('data-article');
+            var row = rows.filter(function (r) { return r.product.externalid === art; })[0];
+            if (!row) return;
+            var ed = (row.product.editions || []).filter(function (e) {
+              return e.sku === btn.getAttribute('data-sku');
+            })[0];
+            if (ed) addToCart(row.product, ed);
+          });
+        });
+        busy = false;
+      });
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', build);
+  } else {
+    build();
+  }
+  // корзина открывается и пересобирается динамически — следим за деревом
+  var t = null;
+  new MutationObserver(function () {
+    clearTimeout(t);
+    t = setTimeout(build, 350);
+  }).observe(document.documentElement, { childList: true, subtree: true });
+})();

@@ -5027,3 +5027,84 @@ html.uf-co2 .uf-co2-promo__input { flex: 1 1 0 !important; width: auto !importan
   width: 100% !important;
   margin-left: 0 !important;
 }
+
+/* ============================================================
+   Раунд 14 (27.09.2026): «Добавить к заказу» — кросс-сейл в чекауте.
+   Блок вставляется под список товаров в сводке заказа
+   (.t706__cartpage-products), разметку строит brand-popup-fix.js.
+   Колонка светлая и узкая (516px на ПК), поэтому здесь не тёмная полоса,
+   как на карточке товара, а компактные строки: мини-фото, название, цена
+   и чипсы размеров. Размер выбирается тут же — чекаут не закрывается.
+   ============================================================ */
+.uf-xs {
+  margin: 16px 0 0;
+  padding: 16px 0 2px;
+  border-top: 1px solid #E6E1DF;
+  font-family: 'Onest', Arial, sans-serif;
+}
+.uf-xs-t {
+  font-size: 11px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: #17090B;
+  margin: 0 0 12px;
+}
+.uf-xs-row {
+  display: grid;
+  grid-template-columns: 52px 1fr;
+  gap: 12px;
+  align-items: center;
+  padding: 11px 0;
+  border-top: 1px solid #E6E1DF;
+}
+.uf-xs-row:first-of-type { border-top: 0; }
+.uf-xs-img {
+  width: 52px;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  display: block;
+}
+.uf-xs-nm {
+  font-size: 12.5px;
+  line-height: 1.35;
+  color: #17090B;
+  margin: 0 0 5px;
+}
+.uf-xs-pr {
+  font-size: 12px;
+  color: #6B6163;
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+.uf-xs-pr s { color: #A79C9E; margin-left: 6px; }
+.uf-xs-free {
+  display: block;
+  color: #7A1F2A;
+  margin-top: 3px;
+  font-size: 11px;
+}
+.uf-xs-sizes { display: flex; gap: 5px; margin-top: 7px; flex-wrap: wrap; }
+.uf-xs-sz {
+  font-family: inherit;
+  font-size: 11px;
+  line-height: 1;
+  padding: 6px 9px;
+  border: 1px solid #E6E1DF;
+  background: #fff;
+  color: #17090B;
+  border-radius: 2px;
+  cursor: pointer;
+}
+.uf-xs-sz:hover { border-color: #17090B; }
+.uf-xs-sz[disabled] {
+  color: #BDB4B6;
+  background: #F7F5F4;
+  cursor: default;
+  text-decoration: line-through;
+}
+@media screen and (max-width: 639px) {
+  .uf-xs-row { grid-template-columns: 46px 1fr; gap: 10px; }
+  .uf-xs-img { width: 46px; }
+  .uf-xs-nm { font-size: 12px; }
+}
