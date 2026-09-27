@@ -5000,3 +5000,12 @@ html.uf-co2 .uf-co2-promo__input { flex: 1 1 0 !important; width: auto !importan
 .t-store__prod-snippet__container:has(#uf-outfit-standalone) {
   padding-bottom: 0 !important;
 }
+
+/* Раунд 13 (27.09.2026): на карточке товара убираем родной блок рекомендаций
+   Тильды (.t-store__relevants__container) — его заменил «Дополните образ»
+   с подобранными вручную парами. Он же был белой полосой в 40px между тёмным
+   блоком и подвалом: контейнер стоит сразу под #uf-outfit-standalone и, даже
+   когда карточки в нём не отрисованы, занимает высоту со стрелками слайдера. */
+.t-store__prod-snippet__container .t-store__relevants__container {
+  display: none !important;
+}
