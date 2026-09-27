@@ -4992,3 +4992,11 @@ html.uf-co2 .uf-co2-promo__input { flex: 1 1 0 !important; width: auto !importan
     gap: 20px !important;
   }
 }
+
+/* Раунд 10 обнулял нативный padding-bottom контейнера товара только на ПК
+   (@media min-width:640px выше по файлу) — на мобильном под блоком
+   оставалась белая полоса 60px до следующей секции страницы.
+   Снимаем отступ на всех ширинах. */
+.t-store__prod-snippet__container:has(#uf-outfit-standalone) {
+  padding-bottom: 0 !important;
+}
