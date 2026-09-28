@@ -1646,7 +1646,7 @@ function buildStepper(active) {
       '<div class="uf-step"><div class="uf-step-num">4</div><div><div class="uf-step-title">Готово</div>' +
         '<div class="uf-step-text">Обмен завершён, доплачивать за услугу не нужно.</div></div></div>' +
     '</div>' +
-    '<div class="uf-callout"><b>Кто оплачивает пересылку.</b> Обмен оплачивает покупатель — кроме случаев, когда мы ошиблись с размером или моделью: тогда пересылку компенсирует UNFADED.</div>' +
+    '<div class="uf-callout"><b>Кто оплачивает пересылку.</b> Обмен для вас бесплатный: и отправку обратно, и новую посылку оплачиваем мы — в пункте выдачи платить не нужно.</div>' +
     '<div class="uf-svc-contact">Можно и напрямую: WhatsApp <a href="https://wa.me/' + WA_NUMBER + '">+7&nbsp;993&nbsp;895&nbsp;50&nbsp;08</a>, <a href="' + TG_SUPPORT_URL + '" target="_blank" rel="noopener">Telegram</a> или <a href="mailto:unfadedwork@gmail.com">unfadedwork@gmail.com</a>.</div>';
 
   var CLAIM_HTML =
