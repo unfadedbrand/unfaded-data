@@ -3015,8 +3015,10 @@ function buildStepper(active) {
       // first row is the goods subtotal (we relabel it «Товары» below, so
       // it can't be recognised by its text), the one with the big label is
       // the total, everything in between is delivery
+      var text = row.textContent.replace(/\s+/g, ' ').trim();
       var kind = q(row, '.t706__cartwin-totalamount-label') ? 'total'
         : i === 0 ? 'sum'
+        : /^(Промокод|Скидка|CREDITS|Сумма со скидкой)/.test(text) ? 'discount'
         : 'delivery';
       row.setAttribute('data-uf-row', kind);
       if (kind === 'sum') {
@@ -3811,41 +3813,53 @@ function buildStepper(active) {
 
   // --- вёрстка блока ---
 
+  // Один блок на корзину, содержимое меняется по шагам:
+  // intro → phone → code → amount → done. Макет утверждён 29.09.
   function build(info, totals) {
     var box = document.createElement('div');
     box.className = 'uf-cr';
     box.innerHTML =
-      '<button type="button" class="uf-cr__toggle">Списать CREDITS</button>' +
-      '<div class="uf-cr__body" hidden>' +
-        '<div class="uf-cr__step uf-cr__step_phone">' +
-          '<label class="uf-cr__label" for="uf-cr-phone">Телефон, которым вы пользуетесь в клубе</label>' +
-          '<div class="uf-cr__line">' +
-            '<input id="uf-cr-phone" class="uf-cr__input" type="tel" inputmode="tel" placeholder="+7 999 000-00-00" autocomplete="tel">' +
-            '<button type="button" class="uf-cr__btn uf-cr__btn_code">Получить код</button>' +
-          '</div>' +
+      '<div class="uf-cr__title">CREDITS · клуб UNFADED</div>' +
+      '<div class="uf-cr__step uf-cr__step_intro">' +
+        '<p class="uf-cr__text">Спишите баллы в счёт заказа <span>— до&nbsp;30% стоимости товаров.</span></p>' +
+        '<button type="button" class="uf-cr__link uf-cr__open">Списать CREDITS</button>' +
+        '<p class="uf-cr__join">Ещё не в клубе? Вступите в <a href="https://t.me/unfaded_club_bot" target="_blank" rel="noopener">@unfaded_club_bot</a> — 1&nbsp;000&nbsp;CREDITS на следующую покупку.</p>' +
+      '</div>' +
+      '<div class="uf-cr__step uf-cr__step_phone" hidden>' +
+        '<label class="uf-cr__label" for="uf-cr-phone">Телефон, который вы указали в клубе</label>' +
+        '<div class="uf-cr__line">' +
+          '<input id="uf-cr-phone" class="uf-cr__input" type="tel" inputmode="tel" placeholder="+7 999 000-00-00" autocomplete="tel">' +
+          '<button type="button" class="uf-cr__btn uf-cr__btn_code">Получить код</button>' +
         '</div>' +
-        '<div class="uf-cr__step uf-cr__step_code" hidden>' +
-          '<label class="uf-cr__label" for="uf-cr-code">Код из Telegram</label>' +
-          '<div class="uf-cr__line">' +
-            '<input id="uf-cr-code" class="uf-cr__input uf-cr__input_code" type="text" inputmode="numeric" maxlength="4" placeholder="0000" autocomplete="one-time-code">' +
-            '<button type="button" class="uf-cr__btn uf-cr__btn_verify">Подтвердить</button>' +
-          '</div>' +
+        '<div class="uf-cr__note">Код придёт в бот @unfaded_club_bot.</div>' +
+      '</div>' +
+      '<div class="uf-cr__step uf-cr__step_code" hidden>' +
+        '<label class="uf-cr__label" for="uf-cr-code">Код из Telegram</label>' +
+        '<div class="uf-cr__line">' +
+          '<input id="uf-cr-code" class="uf-cr__input uf-cr__input_code" type="text" inputmode="numeric" maxlength="4" placeholder="0000" autocomplete="one-time-code">' +
+          '<button type="button" class="uf-cr__btn uf-cr__btn_verify">Подтвердить</button>' +
         '</div>' +
-        '<div class="uf-cr__step uf-cr__step_amount" hidden>' +
-          '<div class="uf-cr__balance"></div>' +
-          '<div class="uf-cr__line">' +
-            '<input id="uf-cr-amount" class="uf-cr__input" type="number" inputmode="numeric" min="0" step="1">' +
-            '<button type="button" class="uf-cr__btn uf-cr__btn_apply">Списать</button>' +
-          '</div>' +
+        '<div class="uf-cr__note">Действует 5 минут. <button type="button" class="uf-cr__link uf-cr__link_small uf-cr__back">Другой номер</button></div>' +
+      '</div>' +
+      '<div class="uf-cr__step uf-cr__step_amount" hidden>' +
+        '<div class="uf-cr__balance"><span>На балансе</span><b></b></div>' +
+        '<div class="uf-cr__line">' +
+          '<input id="uf-cr-amount" class="uf-cr__input" type="number" inputmode="numeric" min="0" step="1" aria-label="Сколько CREDITS списать">' +
+          '<button type="button" class="uf-cr__btn uf-cr__btn_apply">Списать</button>' +
         '</div>' +
-        '<div class="uf-cr__msg" aria-live="polite"></div>' +
-      '</div>';
+        '<div class="uf-cr__note uf-cr__limit"></div>' +
+      '</div>' +
+      '<div class="uf-cr__step uf-cr__step_done" hidden>' +
+        '<div class="uf-cr__done"></div>' +
+        '<button type="button" class="uf-cr__link uf-cr__link_small uf-cr__cancel">Отменить</button>' +
+      '</div>' +
+      '<div class="uf-cr__msg" aria-live="polite"></div>';
     info.insertBefore(box, totals);
     return box;
   }
 
   function show(box, step) {
-    ['phone', 'code', 'amount'].forEach(function (name) {
+    ['intro', 'phone', 'code', 'amount', 'done'].forEach(function (name) {
       var el = box.querySelector('.uf-cr__step_' + name);
       if (el) el.hidden = name !== step;
     });
@@ -3875,15 +3889,39 @@ function buildStepper(active) {
     return true;
   }
 
+  // Снимаем промокод списания из корзины Тильды — у неё нет своей функции
+  // для этого, поэтому убираем его из объекта корзины и перерисовываем итог.
+  function removePromo() {
+    var c = window.tcart;
+    if (c && c.promocode) delete c.promocode;
+    ['.t-input-group_pc input.t-inputpromocode', '.uf-co2-promo__input'].forEach(function (sel) {
+      var el = document.querySelector(sel);
+      if (el) el.value = '';
+    });
+    try {
+      if (typeof window.tcart__updateTotalProductsinCartObj === 'function') window.tcart__updateTotalProductsinCartObj();
+      if (typeof window.tcart__reDrawTotal === 'function') window.tcart__reDrawTotal();
+      if (typeof window.tcart__saveLocalObj === 'function') window.tcart__saveLocalObj();
+    } catch (e) {}
+  }
+
   function wire(box) {
     var phone = box.querySelector('#uf-cr-phone');
     var code = box.querySelector('#uf-cr-code');
     var amount = box.querySelector('#uf-cr-amount');
 
-    box.querySelector('.uf-cr__toggle').addEventListener('click', function () {
-      var body = box.querySelector('.uf-cr__body');
-      body.hidden = !body.hidden;
-      if (!body.hidden && !state.token) phone.focus();
+    box.querySelector('.uf-cr__open').addEventListener('click', function () {
+      say(box, '');
+      show(box, 'phone');
+      phone.focus();
+    });
+
+    box.querySelector('.uf-cr__back').addEventListener('click', function () {
+      state.token = null;
+      code.value = '';
+      say(box, '');
+      show(box, 'phone');
+      phone.focus();
     });
 
     box.querySelector('.uf-cr__btn_code').addEventListener('click', function () {
@@ -3894,7 +3932,6 @@ function buildStepper(active) {
       say(box, '');
       post('/club/checkout/code', { phone: digits, cart: cartItems() }).then(function (data) {
         state.token = data.token;
-        say(box, data.message || '');
         show(box, 'code');
         code.focus();
       }).catch(function (e) {
@@ -3912,16 +3949,17 @@ function buildStepper(active) {
         state.pass = data.shipping_pass || null;
         state.freeFrom = typeof data.free_shipping_from === 'number' ? data.free_shipping_from : DEFAULT_FREE_FROM;
         document.dispatchEvent(new CustomEvent('uf:access-verified'));
-        box.querySelector('.uf-cr__balance').innerHTML = data.reason
-          ? 'Баланс <b>' + cr(data.balance) + ' CR</b>'
-          : 'Баланс <b>' + cr(data.balance) + ' CR</b> · в этом заказе можно списать до <b>' + cr(data.max) + ' CR</b>' +
-            ' <span class="uf-cr__hint">(до ' + data.cap_percent + '% стоимости товаров без скидки)</span>';
+        box.querySelector('.uf-cr__balance b').textContent = cr(data.balance) + ' CR';
+        var line = box.querySelector('.uf-cr__step_amount .uf-cr__line');
+        var limit = box.querySelector('.uf-cr__limit');
         show(box, 'amount');
         if (data.reason) {
-          box.querySelector('.uf-cr__step_amount').querySelector('.uf-cr__line').hidden = true;
-          say(box, data.reason);
+          line.hidden = true;
+          limit.textContent = data.reason;
           return;
         }
+        line.hidden = false;
+        limit.textContent = 'Лимит для этого заказа — ' + cr(data.max) + ' CR (' + data.cap_percent + '% товаров без скидки).';
         amount.max = data.max;
         amount.min = data.min;
         amount.value = data.max;
@@ -3940,22 +3978,63 @@ function buildStepper(active) {
       post('/club/checkout/apply', { token: state.token, amount: value }).then(function (data) {
         state.applied = data.discountsum;
         state.promo = data.promocode;
+        var done = box.querySelector('.uf-cr__done');
         if (applyPromo(data.promocode)) {
-          say(box, 'Списано ' + cr(data.discountsum) + ' CR — скидка ' + rub(data.discountsum) +
-                   '. Бронь держится ' + data.held_until_minutes + ' минут.', 'ok');
+          done.textContent = 'Списано ' + cr(data.discountsum) + ' CR — скидка уже в сумме.';
         } else {
-          say(box, 'Промокод ' + data.promocode + ' — введите его в поле «Промокод»', 'ok');
+          done.textContent = 'Списано ' + cr(data.discountsum) + ' CR. Введите код ' + data.promocode + ' в поле «Промокод».';
         }
-        box.querySelector('.uf-cr__step_amount').hidden = true;
+        show(box, 'done');
       }).catch(function (e) {
         say(box, e.message, 'err');
       }).then(function () { busy(btn, false); });
+    });
+
+    box.querySelector('.uf-cr__cancel').addEventListener('click', function () {
+      var btn = this;
+      busy(btn, true);
+      post('/club/checkout/cancel', { token: state.token }).catch(function () {
+        // бронь всё равно снимется сама по сроку — корзину освобождаем в любом случае
+      }).then(function () {
+        removePromo();
+        state.applied = 0;
+        state.promo = null;
+        amount.value = amount.max || '';
+        say(box, '');
+        show(box, 'amount');
+        busy(btn, false);
+      });
+    });
+  }
+
+  // В итогах корзины строку скидки по нашему промокоду подписываем «CREDITS»,
+  // а строки «Промокод: CREDITS-…» и «Сумма со скидкой» прячем — как в макете.
+  function markCreditsRows() {
+    var rows = document.querySelectorAll('.t706__cartpage .t706__cartpage-totals .t706__cartwin-totalamount-row');
+    Array.prototype.forEach.call(rows, function (row) {
+      var text = row.textContent.replace(/\s+/g, ' ').trim();
+      var mine = !!state.promo;
+      var kind = /^Промокод/.test(text) ? 'code'
+        : /^Сумма со скидкой/.test(text) ? 'subtotal'
+        : /^(Скидка|CREDITS)/.test(text) ? 'discount'
+        : '';
+      if (!kind) { row.removeAttribute('data-uf-cr'); return; }
+      row.setAttribute('data-uf-cr', mine ? kind : 'promo');
+      if (kind === 'discount') {
+        var walker = document.createTreeWalker(row, NodeFilter.SHOW_TEXT);
+        while (walker.nextNode()) {
+          var n = walker.currentNode;
+          if (mine && /Скидка/.test(n.nodeValue)) n.nodeValue = n.nodeValue.replace('Скидка', 'CREDITS');
+          else if (!mine && /CREDITS/.test(n.nodeValue)) n.nodeValue = n.nodeValue.replace('CREDITS', 'Скидка');
+        }
+      }
     });
   }
 
   function mount() {
     var info = document.querySelector('.t706__cartpage-info-wrapper');
     var totals = info && info.querySelector('.t706__cartpage-totals');
+    markCreditsRows();
     if (!info || !totals || info.querySelector('.uf-cr')) return;
     wire(build(info, totals));
   }
