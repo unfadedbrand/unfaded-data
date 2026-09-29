@@ -5184,3 +5184,45 @@ html.uf-co2 .t706__cartpage .t706__cartwin-totalamount-row[data-uf-cr="subtotal"
   html.uf-co2 .uf-cr__btn { padding: 0 10px; font-size: 11px; letter-spacing: .02em; }
   html.uf-co2 .uf-cr__input { padding: 0 10px; }
 }
+
+/* ================================================================
+   UNFADED — «Клиентский сервис»: вкладка «Клуб: вопрос — ответ»
+   (/service#club-faq) — по утверждённому макету 29.09.2026
+   ================================================================ */
+.uf-faq { max-width: 640px; }
+.uf-faq-group { margin-top: 30px; }
+.uf-faq-group:first-child { margin-top: 22px; }
+.uf-faq-group .uf-legal-title { margin-bottom: 0; padding-bottom: 10px; border-bottom: 1px solid #17090B; }
+.uf-faq-q {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px; width: 100%;
+  box-sizing: border-box; background: none; border: none; border-bottom: 1px solid #EDEEEE; cursor: pointer;
+  text-align: left; padding: 15px 4px; font-size: 14px; line-height: 1.45; font-weight: 400; color: #17090B;
+  font-family: inherit;
+}
+.uf-faq-q svg { flex: none; color: #8F9294; transition: transform .2s ease; }
+.uf-faq-q[aria-expanded="true"] { color: #7A1F2A; border-bottom-color: transparent; }
+.uf-faq-q[aria-expanded="true"] svg { color: #7A1F2A; transform: rotate(180deg); }
+.uf-faq-a { display: none; padding: 0 4px 18px; border-bottom: 1px solid #EDEEEE; margin-bottom: 0; }
+.uf-faq-q[aria-expanded="true"] + .uf-faq-a { display: block; }
+.uf-faq-a ul { margin: 0 0 10px; padding-left: 18px; }
+.uf-faq-a li { margin-bottom: 4px; }
+.uf-faq-a li::marker { color: #7A1F2A; }
+.uf-faq-a a, .uf-faq-inline { color: #7A1F2A; font-weight: 600; }
+.uf-faq-table { width: 100%; border-collapse: collapse; font-size: 12.5px; margin: 2px 0 4px; }
+.uf-faq-table th {
+  font-size: 10.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #8F9294;
+  text-align: left; padding: 0 8px 8px 0; border-bottom: 1px solid #EDEEEE;
+}
+.uf-faq-table td { padding: 10px 8px 10px 0; border-bottom: 1px solid #EDEEEE; color: #55575A; }
+.uf-faq-table td:first-child { color: #17090B; font-weight: 600; white-space: nowrap; }
+.uf-faq-table th:last-child, .uf-faq-table td:last-child { text-align: right; padding-right: 0; }
+.uf-faq-a a.uf-faq-cta {
+  display: inline-block; margin-top: 12px; background: #17090B; color: #FAFAFA; padding: 12px 24px;
+  font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; text-decoration: none;
+}
+.uf-faq-a a.uf-faq-cta:hover { background: #7A1F2A; }
+@media screen and (max-width: 639px) {
+  .uf-faq-q { padding: 14px 0; font-size: 13.5px; }
+  .uf-faq-a { padding: 0 0 16px; }
+  .uf-faq-a a.uf-faq-cta { display: block; text-align: center; }
+}
