@@ -5178,7 +5178,9 @@ html.uf-co2 .t706__cartpage .t706__cartwin-totalamount-row[data-uf-cr="discount"
 html.uf-co2 .t706__cartpage .t706__cartwin-totalamount-row[data-uf-cr="code"],
 html.uf-co2 .t706__cartpage .t706__cartwin-totalamount-row[data-uf-cr="subtotal"] { display: none !important; }
 
-@media (max-width: 380px) {
-  html.uf-co2 .uf-cr__btn { padding: 0 12px; letter-spacing: .03em; }
-}
+/* Узкий телефон (390 px, живой тест 29.09): кнопка «Получить код» съедала
+   место, и номер телефона в поле был виден не целиком. */
+@media (max-width: 420px) {
+  html.uf-co2 .uf-cr__btn { padding: 0 10px; font-size: 11px; letter-spacing: .02em; }
+  html.uf-co2 .uf-cr__input { padding: 0 10px; }
 }
