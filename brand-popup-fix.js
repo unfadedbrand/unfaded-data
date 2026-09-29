@@ -1631,24 +1631,24 @@ function buildStepper(active) {
       '<div class="uf-svc-pill">14 дней на возврат</div>' +
     '</div>' +
     '<div class="uf-steps">' +
-      '<div class="uf-step"><div class="uf-step-num">1</div><div><div class="uf-step-title">Оставь заявку</div>' +
+      '<div class="uf-step"><div class="uf-step-num">1</div><div><div class="uf-step-title">Оставьте заявку</div>' +
         '<div class="uf-step-text"><a href="#" class="uf-jump" data-uf-jump-type="Возврат">Заполнить онлайн, 2 минуты &rarr;</a></div></div></div>' +
       '<div class="uf-step"><div class="uf-step-num">2</div><div><div class="uf-step-title">Отправка СДЭК</div>' +
-        '<div class="uf-step-text">Сдай товар в ближайший ПВЗ — печатать и вкладывать ничего не нужно, обратную пересылку оплачиваем мы.</div></div></div>' +
+        '<div class="uf-step-text">Сдайте товар в ближайший ПВЗ — печатать и вкладывать ничего не нужно, обратную пересылку оплачиваем мы.</div></div></div>' +
       '<div class="uf-step"><div class="uf-step-num">3</div><div><div class="uf-step-title">Проверка</div>' +
         '<div class="uf-step-text">Проверяем товарный вид и бирки на складе.</div></div></div>' +
       '<div class="uf-step"><div class="uf-step-num">4</div><div><div class="uf-step-title">Возврат денег</div>' +
         '<div class="uf-step-text">В течение 7 дней после того, как посылка придёт к нам.</div></div></div>' +
     '</div>' +
-    '<div class="uf-callout"><b>Заказывала с примеркой?</b> Платишь при получении только за то, что подошло, — остальное можно сразу оставить в пункте выдачи или отдать курьеру.</div>' +
+    '<div class="uf-callout"><b>Заказывали с примеркой?</b> Платите при получении только за то, что подошло, — остальное можно сразу оставить в пункте выдачи или отдать курьеру.</div>' +
     '<details class="uf-legal"><summary>Условия возврата товара — полный текст</summary>' +
       '<p>Покупатель вправе отказаться от товара в любое время до его получения, а после получения — в течение 14 дней (Закон РФ «О защите прав потребителей»; Правила продажи товаров по договору розничной купли-продажи, утв. Постановлением Правительства РФ от 31.12.2020 №&nbsp;2463).</p>' +
       '<p>Возврат товара надлежащего качества возможен, если сохранены его товарный вид (нет следов носки, сохранены фабричные ярлыки и бирки) и потребительские свойства, а также документ, подтверждающий факт и условия покупки. Отсутствие документа не лишает возможности подтвердить покупку другими доказательствами. Обратную пересылку оплачиваем мы — в пункте выдачи платить не нужно.</p>' +
-      '<p><b>Оформление возврата (через ПВЗ).</b> Оставь заявку онлайн — бумажный бланк вкладывать в посылку не нужно. Проверь бирки и ярлыки, упакуй посылку. Приходи в ближайший пункт выдачи СДЭК, назови менеджеру номер накладной, по которой получала заказ, и скажи, что оформляешь клиентский возврат. Номер накладной — в личном кабинете СДЭК или в трек-номере из письма (11 цифр).</p>' +
-      '<p><b>Оформление возврата (через личный кабинет СДЭК).</b> Оставь заявку онлайн — бланк не нужен. Открой личный кабинет СДЭК → «Возврат товара» → укажи UNFADED или нужный заказ → заполни ФИО, город отправления, размер посылки, пункт СДЭК для сдачи, характер груза «Одежда» → «ОФОРМИТЬ ВОЗВРАТ». Номер созданной накладной назови менеджеру СДЭК в пункте выдачи.</p>' +
+      '<p><b>Оформление возврата (через ПВЗ).</b> Оставьте заявку онлайн — бумажный бланк вкладывать в посылку не нужно. Проверьте наличие бирок и ярлыков, упакуйте посылку. Обратитесь в ближайший пункт выдачи СДЭК, сообщите менеджеру номер накладной, по которой получали заказ, и что оформляете клиентский возврат. Номер накладной — в личном кабинете СДЭК или в трек-номере из письма (11 цифр).</p>' +
+      '<p><b>Оформление возврата (через личный кабинет СДЭК).</b> Оставьте заявку онлайн — бланк не нужен. Перейдите в личный кабинет СДЭК → «Возврат товара» → укажите UNFADED или нужный заказ → заполните ФИО, город отправления, размер посылки, пункт СДЭК для сдачи, характер груза «Одежда» → «ОФОРМИТЬ ВОЗВРАТ». Номер созданной накладной сообщите менеджеру СДЭК в пункте выдачи.</p>' +
       '<p><b>Срок и способ возврата денег.</b> Деньги возвращаем в течение 7 дней после того, как посылка придёт к нам. Оплата картой или СБП — на ту же карту или счёт; «Долями» и «Яндекс Сплит» — через сервис, график платежей пересчитается; оплата при получении — по реквизитам карты из заявки. Срок зачисления зависит от банка.</p>' +
       '<p><b>Когда в возврате могут отказать.</b> Если товар утратил товарный вид или потребительские свойства (следы носки, нет бирок) либо возврат заявлен позже 14 дней после получения.</p>' +
-      '<p><b>Брак или наша ошибка.</b> Если в товаре обнаружен дефект или мы прислали не тот размер или модель — напиши нам и приложи фото. Пересылку в этом случае оплачивает UNFADED; ты можешь выбрать замену, устранение недостатка или возврат денег.</p>' +
+      '<p><b>Брак или наша ошибка.</b> Если в товаре обнаружен дефект или мы прислали не тот размер или модель — напишите нам и приложите фото. Пересылку в этом случае оплачивает UNFADED; вы можете выбрать замену, устранение недостатка или возврат денег.</p>' +
     '</details>';
 
   var EXCHANGE_HTML =
@@ -1658,21 +1658,21 @@ function buildStepper(active) {
     '</div>' +
     '<div class="uf-svc-lead">Не подошёл размер или пришла не та модель? Меняем без лишних вопросов — это отдельный процесс от возврата.</div>' +
     '<div class="uf-steps">' +
-      '<div class="uf-step"><div class="uf-step-num">1</div><div><div class="uf-step-title">Оставь заявку</div>' +
+      '<div class="uf-step"><div class="uf-step-num">1</div><div><div class="uf-step-title">Оставьте заявку</div>' +
         '<div class="uf-step-text"><a href="#" class="uf-jump" data-uf-jump-type="Обмен">Заполнить онлайн, 2 минуты &rarr;</a></div></div></div>' +
       '<div class="uf-step"><div class="uf-step-num">2</div><div><div class="uf-step-title">Отправка</div>' +
-        '<div class="uf-step-text">Сдай товар в ПВЗ СДЭК — печатать и вкладывать ничего не нужно.</div></div></div>' +
-      '<div class="uf-step"><div class="uf-step-num">3</div><div><div class="uf-step-title">Новый товар едет к тебе</div>' +
+        '<div class="uf-step-text">Сдайте товар в ПВЗ СДЭК — печатать и вкладывать ничего не нужно.</div></div></div>' +
+      '<div class="uf-step"><div class="uf-step-num">3</div><div><div class="uf-step-title">Новый товар едет к вам</div>' +
         '<div class="uf-step-text">После проверки отправляем нужный размер или модель.</div></div></div>' +
       '<div class="uf-step"><div class="uf-step-num">4</div><div><div class="uf-step-title">Готово</div>' +
         '<div class="uf-step-text">Обмен завершён, доплачивать за услугу не нужно.</div></div></div>' +
     '</div>' +
-    '<div class="uf-callout"><b>Кто оплачивает пересылку.</b> Обмен для тебя бесплатный: и отправку обратно, и новую посылку оплачиваем мы — в пункте выдачи платить не нужно.</div>' +
+    '<div class="uf-callout"><b>Кто оплачивает пересылку.</b> Обмен для вас бесплатный: и отправку обратно, и новую посылку оплачиваем мы — в пункте выдачи платить не нужно.</div>' +
     '<div class="uf-svc-contact">Можно и напрямую: WhatsApp <a href="https://wa.me/' + WA_NUMBER + '">+7&nbsp;993&nbsp;895&nbsp;50&nbsp;08</a>, <a href="' + TG_SUPPORT_URL + '" target="_blank" rel="noopener">Telegram</a> или <a href="mailto:unfadedwork@gmail.com">unfadedwork@gmail.com</a>.</div>';
 
   var CLAIM_HTML =
     '<div class="uf-svc-head"><div class="uf-svc-title">Заявка на возврат или обмен</div><span class="uf-badge">Без бумажного бланка</span></div>' +
-    '<div class="uf-svc-lead">Заполни здесь — не нужно писать менеджеру, скачивать и распечатывать бланк.</div>' +
+    '<div class="uf-svc-lead">Заполните здесь — не нужно писать менеджеру, скачивать и распечатывать бланк.</div>' +
     '<div class="uf-toggle" data-uf-field="type">' +
       '<button type="button" class="active" data-value="Возврат">Возврат</button>' +
       '<button type="button" data-value="Обмен">Обмен</button>' +
@@ -1690,7 +1690,7 @@ function buildStepper(active) {
         '<button type="button" class="uf-chip uf-chip-return-only" data-value="Передумал(а)">Передумал(а)</button>' +
       '</div>' +
     '</div>' +
-    '<label class="uf-field-block uf-conditional" data-uf-show-if="reason=Брак/дефект" hidden>Опиши, в чём брак<textarea data-uf-field="defect" rows="2" placeholder="Например: разошёлся шов на левом рукаве"></textarea></label>' +
+    '<label class="uf-field-block uf-conditional" data-uf-show-if="reason=Брак/дефект" hidden>Опишите, в чём брак<textarea data-uf-field="defect" rows="2" placeholder="Например: разошёлся шов на левом рукаве"></textarea></label>' +
     '<div class="uf-field-block"><div class="uf-label">Как был оплачен заказ</div>' +
       '<div class="uf-chips" data-uf-field="payment">' +
         '<button type="button" class="uf-chip" data-value="Картой на сайте">Картой на сайте</button>' +
@@ -1700,7 +1700,7 @@ function buildStepper(active) {
     '<label class="uf-field-block uf-conditional" data-uf-show-if="payment=Наложенным платежом" hidden>Реквизиты для возврата денег<input type="text" data-uf-field="requisites" placeholder="Номер карты и банк"></label>' +
     '<button type="button" class="uf-submit" data-uf-submit>Отправить заявку</button>' +
     '<div class="uf-svc-note">После отправки откроется WhatsApp с готовым сообщением — печатать и вкладывать в посылку ничего не нужно.</div>' +
-    '<div class="uf-svc-error" data-uf-error hidden>Заполни номер заказа и телефон, чтобы отправить заявку.</div>';
+    '<div class="uf-svc-error" data-uf-error hidden>Заполните номер заказа и телефон, чтобы отправить заявку.</div>';
 
   /* Доставка/Оплата/Контакты — короткий, редко меняющийся справочный
      контент; текст сверен построчно с живым сайтом (вкладки «Доставка»/
@@ -1727,7 +1727,7 @@ function buildStepper(active) {
     '</div>' +
     '<div class="uf-svc-method">' +
       '<div class="uf-legal-title">Доставка с примеркой</div>' +
-      '<div class="uf-legal-body"><p>СДЭК в пункт выдачи или курьером до двери, по всей России. При оформлении отметь «Я хочу примерить товар». На примерку — 15 минут и до 7 позиций; оплачиваешь при получении, картой или наличными, только то, что подошло. Стоимость доставки — по тарифу СДЭК, оплачивается при получении; бесплатная доставка от 30 000 ₽ на заказы с примеркой не распространяется.</p></div>' +
+      '<div class="uf-legal-body"><p>СДЭК в пункт выдачи или курьером до двери, по всей России. При оформлении отметьте «Я хочу примерить товар». На примерку — 15 минут и до 7 позиций; оплачиваете при получении, картой или наличными, только то, что подошло. Стоимость доставки — по тарифу СДЭК, оплачивается при получении; бесплатная доставка от 30 000 ₽ на заказы с примеркой не распространяется.</p></div>' +
     '</div>' +
     '<div class="uf-svc-method" style="border-bottom:none;">' +
       '<div class="uf-legal-title">Экспресс-доставка по Москве</div>' +
@@ -1751,20 +1751,20 @@ function buildStepper(active) {
     '</div>' +
     '<div class="uf-svc-method">' +
       '<div class="uf-legal-title">Оплата через сервис «Долями»</div>' +
-      '<div class="uf-legal-body" style="margin-bottom:0;"><p>Сегодня ты оплачиваешь только 25% стоимости покупки, остальное — тремя платежами раз в две недели. Сервис может взять с клиента сервисный сбор, который устанавливается индивидуально. Оплатить можно картами любых платёжных систем.</p></div>' +
+      '<div class="uf-legal-body" style="margin-bottom:0;"><p>Сегодня оплачивается только 25% стоимости покупки, остальное — тремя платежами раз в две недели. Сервис может взять с клиента сервисный сбор, который устанавливается индивидуально. Оплатить можно картами любых платёжных систем.</p></div>' +
       '<ol class="uf-svc-mini-steps">' +
-        '<li>Собери корзину с покупками на сайте</li>' +
-        '<li>Выбери «Долями» в способах оплаты</li>' +
-        '<li>Укажи телефон, ФИО, дату рождения и e-mail</li>' +
-        '<li>Оплати 25% онлайн — остальное спишется автоматически, по графику в приложении «Долями»</li>' +
+        '<li>Сформируйте корзину с покупками на сайте</li>' +
+        '<li>Выберите «Долями» в способах оплаты</li>' +
+        '<li>Укажите телефон, ФИО, дату рождения и e-mail</li>' +
+        '<li>Оплатите 25% онлайн — остальное спишется автоматически, по графику в приложении «Долями»</li>' +
       '</ol>' +
     '</div>' +
     '<div class="uf-svc-method" style="border-bottom:none;">' +
       '<div class="uf-legal-title">Оплата через сервис «Яндекс Сплит»</div>' +
       '<div class="uf-legal-body" style="margin-bottom:0;"><p>Сплит делит оплату на части, которые списываются в течение 2, 4 или 6 месяцев. Это не кредит и не рассрочка — нет длинных анкет, проверки кредитной истории и скрытых условий.</p></div>' +
       '<ol class="uf-svc-mini-steps">' +
-        '<li>Выбери «Яндекс Сплит» в способах оплаты в корзине</li>' +
-        '<li>Выбери комфортный срок и оплати первую часть</li>' +
+        '<li>Выберите «Яндекс Сплит» в способах оплаты в корзине</li>' +
+        '<li>Выберите комфортный срок и оплатите первую часть</li>' +
         '<li>Остальные платежи спишутся по графику — он придёт в письме и виден в приложении Яндекс Пэй</li>' +
       '</ol>' +
     '</div>';
@@ -1813,7 +1813,7 @@ function buildStepper(active) {
     '</div>' +
     '<div style="margin-top:28px;">' +
       '<div class="uf-label" style="margin-bottom:10px;">Сотрудничество</div>' +
-      '<div class="uf-callout">Если у тебя есть предложение о сотрудничестве с брендом — отправь сообщение на почту <b>unfadedwork@gmail.com</b> или напишите нам в WhatsApp или Telegram.</div>' +
+      '<div class="uf-callout">Если у вас есть предложение о сотрудничестве с брендом — отправьте сообщение на почту <b>unfadedwork@gmail.com</b> или напишите нам в WhatsApp или Telegram.</div>' +
     '</div>';
 
   /* ---------- «Клуб: вопрос — ответ» (/service#club-faq) ----------
@@ -2260,10 +2260,10 @@ function buildStepper(active) {
       card.innerHTML =
         '<div class="uf-svc-howcard-title">Как это работает</div>' +
         '<div class="uf-svc-howsteps">' +
-        '<div class="uf-svc-howstep"><b>1</b>Заполни форму — номер заказа и что случилось</div>' +
-        '<div class="uf-svc-howstep"><b>2</b>Нажми «Отправить заявку» — откроется WhatsApp с готовым сообщением</div>' +
+        '<div class="uf-svc-howstep"><b>1</b>Заполните форму — номер заказа и что случилось</div>' +
+        '<div class="uf-svc-howstep"><b>2</b>Нажмите «Отправить заявку» — откроется WhatsApp с готовым сообщением</div>' +
         '<div class="uf-svc-howstep"><b>3</b>Менеджер обработает заявку и подтвердит детали</div>' +
-        '<div class="uf-svc-howstep"><b>4</b>Отнеси вещь в ПВЗ СДЭК как клиентский возврат — номер для оператора пришлём отдельным сообщением, печатать и вкладывать ничего не нужно</div>' +
+        '<div class="uf-svc-howstep"><b>4</b>Отнесите вещь в ПВЗ СДЭК как клиентский возврат — номер для оператора пришлём отдельным сообщением, печатать и вкладывать ничего не нужно</div>' +
         '</div>';
       claimHead.parentNode.insertBefore(card, claimHead.nextSibling);
     }
@@ -3892,7 +3892,7 @@ function buildStepper(active) {
       body: JSON.stringify(body)
     }).then(function (r) {
       return r.json().catch(function () { return {}; }).then(function (data) {
-        if (!r.ok) throw new Error(data.detail || 'Сервис недоступен, попробуй позже');
+        if (!r.ok) throw new Error(data.detail || 'Сервис недоступен, попробуйте позже');
         return data;
       });
     });
@@ -3938,12 +3938,12 @@ function buildStepper(active) {
     box.innerHTML =
       '<div class="uf-cr__title">CREDITS · клуб UNFADED</div>' +
       '<div class="uf-cr__step uf-cr__step_intro">' +
-        '<p class="uf-cr__text">Спиши баллы в счёт заказа <span>— до&nbsp;30% стоимости товаров.</span></p>' +
+        '<p class="uf-cr__text">Спишите баллы в счёт заказа <span>— до&nbsp;30% стоимости товаров.</span></p>' +
         '<button type="button" class="uf-cr__link uf-cr__open">Списать CREDITS</button>' +
-        '<p class="uf-cr__join">Ещё не в клубе? Вступи в <a href="https://t.me/unfaded_club_bot?start=checkout" target="_blank" rel="noopener">@unfaded_club_bot</a> — 1&nbsp;000&nbsp;CREDITS на следующую покупку.</p>' +
+        '<p class="uf-cr__join">Ещё не в клубе? Вступите в <a href="https://t.me/unfaded_club_bot?start=checkout" target="_blank" rel="noopener">@unfaded_club_bot</a> — 1&nbsp;000&nbsp;CREDITS на следующую покупку.</p>' +
       '</div>' +
       '<div class="uf-cr__step uf-cr__step_phone" hidden>' +
-        '<label class="uf-cr__label" for="uf-cr-phone">Телефон, который ты указала в клубе</label>' +
+        '<label class="uf-cr__label" for="uf-cr-phone">Телефон, который вы указали в клубе</label>' +
         '<div class="uf-cr__line">' +
           '<input id="uf-cr-phone" class="uf-cr__input" type="tel" inputmode="tel" placeholder="+7 999 000-00-00" autocomplete="tel">' +
           '<button type="button" class="uf-cr__btn uf-cr__btn_code">Получить код</button>' +
@@ -4044,7 +4044,7 @@ function buildStepper(active) {
     box.querySelector('.uf-cr__btn_code').addEventListener('click', function () {
       var btn = this;
       var digits = (phone.value || '').replace(/\D/g, '');
-      if (digits.length < 10) { say(box, 'Проверь номер телефона', 'err'); phone.focus(); return; }
+      if (digits.length < 10) { say(box, 'Проверьте номер телефона', 'err'); phone.focus(); return; }
       busy(btn, true);
       say(box, '');
       post('/club/checkout/code', { phone: digits, cart: cartItems() }).then(function (data) {
@@ -4099,7 +4099,7 @@ function buildStepper(active) {
         if (applyPromo(data.promocode)) {
           done.textContent = 'Списано ' + cr(data.discountsum) + ' CR — скидка уже в сумме.';
         } else {
-          done.textContent = 'Списано ' + cr(data.discountsum) + ' CR. Введи код ' + data.promocode + ' в поле «Промокод».';
+          done.textContent = 'Списано ' + cr(data.discountsum) + ' CR. Введите код ' + data.promocode + ' в поле «Промокод».';
         }
         show(box, 'done');
       }).catch(function (e) {
