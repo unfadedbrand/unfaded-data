@@ -5114,80 +5114,71 @@ html.uf-co2 .uf-co2-promo__input { flex: 1 1 0 !important; width: auto !importan
    Стили в одном ключе с блоком промокода выше: те же высоты, рамки и шрифт.
    Откат: удалить этот блок и блок uf-cr в brand-popup-fix.js.
    ============================================================ */
-html.uf-co2 .uf-cr { margin: 0 0 16px; display: flex; flex-direction: column; gap: 10px; }
-
-html.uf-co2 .uf-cr__toggle {
-  align-self: flex-start;
-  padding: 0;
-  border: 0;
-  background: none;
+/* Макет утверждён 29.09: лёгкая плашка с тонкой бордовой кромкой, один блок,
+   содержимое меняется по шагам. Поле и кнопка — в одну строку, как у промокода. */
+html.uf-co2 .uf-cr {
+  margin: 0 0 16px;
+  padding: 12px 14px;
+  background: #F7F2F2;
+  border-left: 2px solid var(--co-burgundy);
+  display: flex; flex-direction: column; gap: 9px;
   font-family: 'Onest', sans-serif;
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  color: var(--co-ink);
-  border-bottom: 1px solid var(--co-line-strong);
-  cursor: pointer;
 }
-html.uf-co2 .uf-cr__toggle:hover { border-bottom-color: var(--co-ink); }
-
-html.uf-co2 .uf-cr__body { display: flex; flex-direction: column; gap: 10px; }
-html.uf-co2 .uf-cr__step { display: flex; flex-direction: column; gap: 6px; }
-/* display: flex выше перебивает встроенное [hidden] — возвращаем скрытие явно,
-   иначе все шаги видны сразу (замечено на живой корзине 27.09). */
-html.uf-co2 .uf-cr__body[hidden],
+html.uf-co2 .uf-cr__title { font-size: 11px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--co-burgundy); }
+html.uf-co2 .uf-cr__step { display: flex; flex-direction: column; gap: 9px; }
+/* display: flex перебивает встроенное [hidden] — возвращаем скрытие явно */
 html.uf-co2 .uf-cr__step[hidden],
 html.uf-co2 .uf-cr__line[hidden] { display: none; }
-html.uf-co2 .uf-cr__label { font-family: 'Onest', sans-serif; font-size: 12px; color: var(--co-ink-2); }
+html.uf-co2 .uf-cr__text { margin: 0; font-size: 13px; line-height: 1.5; color: var(--co-ink); }
+html.uf-co2 .uf-cr__text span { color: var(--co-ink-2); }
+html.uf-co2 .uf-cr__join { margin: 0; font-size: 12px; line-height: 1.5; color: var(--co-ink-2); }
+html.uf-co2 .uf-cr__join a { color: var(--co-burgundy); text-decoration: underline; text-underline-offset: 2px; }
+
+html.uf-co2 .uf-cr__link {
+  align-self: flex-start; padding: 0 0 1px; border: 0; border-bottom: 1px solid var(--co-ink);
+  background: none; font-family: 'Onest', sans-serif; font-size: 13px; font-weight: 600; color: var(--co-ink); cursor: pointer;
+}
+html.uf-co2 .uf-cr__link_small { font-size: 12px; font-weight: 400; color: var(--co-ink-2); border-bottom-color: var(--co-line-strong); }
+html.uf-co2 .uf-cr__link:focus-visible { outline: 2px solid var(--co-burgundy); outline-offset: 2px; }
+
+html.uf-co2 .uf-cr__label { font-size: 12px; color: var(--co-ink-2); }
+html.uf-co2 .uf-cr__note { font-size: 12px; line-height: 1.5; color: var(--co-ink-2); }
 html.uf-co2 .uf-cr__line { display: flex; gap: 8px; }
-/* Тильда не включает border-box глобально: без этого кнопка шириной 100%
-   на телефоне вылезала за край на свои отступы и рамку (замечено 29.09). */
+/* Тильда не включает border-box глобально — без этого кнопка вылезала за край */
 html.uf-co2 .uf-cr__input,
 html.uf-co2 .uf-cr__btn { box-sizing: border-box; }
-
 html.uf-co2 .uf-cr__input {
-  flex: 1 1 auto;
-  min-width: 0;
-  height: 44px;
-  padding: 0 12px;
-  border: 1px solid var(--co-line-strong);
-  border-radius: 2px;
-  background: #fff;
-  font-family: 'Onest', sans-serif;
-  font-size: 14px;
-  color: var(--co-ink);
-  outline: none;
+  flex: 1 1 auto; min-width: 0; height: 44px; padding: 0 12px;
+  border: 1px solid var(--co-line-strong); border-radius: 2px; background: #fff;
+  font-family: 'Onest', sans-serif; font-size: 14px; color: var(--co-ink); outline: none;
 }
 html.uf-co2 .uf-cr__input:focus { border-color: var(--co-ink); box-shadow: 0 0 0 1px var(--co-ink); }
-html.uf-co2 .uf-cr__input_code { letter-spacing: 0.4em; text-align: center; max-width: 140px; }
-
+html.uf-co2 .uf-cr__input_code { letter-spacing: .4em; text-align: center; max-width: 130px; }
 html.uf-co2 .uf-cr__btn {
-  flex: none;
-  height: 44px;
-  padding: 0 14px;
-  border: 1px solid var(--co-ink);
-  border-radius: 2px;
-  background: #fff;
-  color: var(--co-ink);
-  font-family: 'Onest', sans-serif;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  cursor: pointer;
+  flex: none; height: 44px; padding: 0 16px;
+  border: 1px solid var(--co-ink); border-radius: 2px; background: #fff; color: var(--co-ink);
+  font-family: 'Onest', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase;
+  cursor: pointer; white-space: nowrap;
 }
 html.uf-co2 .uf-cr__btn:hover { background: var(--co-ink); color: #fff; }
-html.uf-co2 .uf-cr__btn_busy { opacity: 0.5; cursor: default; }
+html.uf-co2 .uf-cr__btn_busy { opacity: .5; cursor: default; }
 html.uf-co2 .uf-cr__btn_busy:hover { background: #fff; color: var(--co-ink); }
 
-html.uf-co2 .uf-cr__balance { font-family: 'Onest', sans-serif; font-size: 13px; color: var(--co-ink); }
-html.uf-co2 .uf-cr__hint { color: var(--co-ink-2); }
+html.uf-co2 .uf-cr__balance { display: flex; justify-content: space-between; align-items: baseline; font-size: 13px; color: var(--co-ink); }
+html.uf-co2 .uf-cr__balance b { font-size: 15px; font-weight: 600; color: var(--co-burgundy); font-variant-numeric: tabular-nums; }
+html.uf-co2 .uf-cr__done { font-size: 12px; line-height: 1.5; color: var(--co-ok); }
 
-html.uf-co2 .uf-cr__msg { font-family: 'Onest', sans-serif; font-size: 12px; line-height: 1.5; color: var(--co-ink-2); }
-html.uf-co2 .uf-cr__msg_err { color: #7A1F2A; }
-html.uf-co2 .uf-cr__msg_ok { color: #1F6B3A; }
+html.uf-co2 .uf-cr__msg { font-size: 12px; line-height: 1.5; color: var(--co-ink-2); }
+html.uf-co2 .uf-cr__msg:empty { display: none; }
+html.uf-co2 .uf-cr__msg_err { color: var(--co-burgundy); }
 
-@media (max-width: 560px) {
-  html.uf-co2 .uf-cr__line { flex-wrap: wrap; }
-  html.uf-co2 .uf-cr__btn { width: 100%; }
-  html.uf-co2 .uf-cr__input_code { max-width: none; }
+/* Итоги: строка списания — «CREDITS −N» бордовым; «Промокод: CREDITS-…» и
+   «Сумма со скидкой» при списании прячем. */
+html.uf-co2 .t706__cartpage .t706__cartwin-totalamount-row[data-uf-cr="discount"] { color: var(--co-burgundy) !important; }
+html.uf-co2 .t706__cartpage .t706__cartwin-totalamount-row[data-uf-cr="code"],
+html.uf-co2 .t706__cartpage .t706__cartwin-totalamount-row[data-uf-cr="subtotal"] { display: none !important; }
+
+@media (max-width: 380px) {
+  html.uf-co2 .uf-cr__btn { padding: 0 12px; letter-spacing: .03em; }
+}
 }
