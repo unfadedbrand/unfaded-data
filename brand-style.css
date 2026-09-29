@@ -3596,6 +3596,59 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
   opacity: 0.7;
 }
 
+/* Клуб UNFADED ACCESS SYSTEM на «Спасибо» — тёмная панель как шапка страницы,
+   светлая кнопка, чтобы не спорить с бордовой «Отслеживать заказ».
+   Блок вставляет brand-popup-fix.js (ensureThanksClub). Макет утверждён 29.09.2026. */
+#rec3375631701 .uf-thanks-club {
+  width: 100%;
+  max-width: 420px;
+  margin: 6px auto 34px;
+  padding: 26px 26px 28px;
+  background: #17090B;
+  color: #FAFAFA;
+  text-align: center;
+  box-sizing: border-box;
+}
+#rec3375631701 .uf-thanks-club__eb {
+  font-family: 'Onest', sans-serif !important;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1.54px;
+  text-transform: uppercase;
+  color: rgba(250, 250, 250, 0.6);
+  margin: 0;
+}
+#rec3375631701 .uf-thanks-club__eb::after {
+  content: '';
+  display: block;
+  width: 24px;
+  height: 2px;
+  background: #7A1F2A;
+  margin: 10px auto 14px;
+}
+#rec3375631701 .uf-thanks-club__txt {
+  font-family: 'Onest', sans-serif !important;
+  font-size: 15px;
+  line-height: 1.5;
+  color: #FAFAFA;
+  margin: 0 0 20px;
+}
+#rec3375631701 .uf-thanks-club__btn {
+  display: block;
+  font-family: 'NeutralFace', Arial, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 1.04px;
+  text-transform: uppercase;
+  background: #FAFAFA;
+  color: #17090B !important;
+  border: 3px solid #FAFAFA;
+  padding: 16px 20px;
+  text-decoration: none;
+}
+#rec3375631701 .uf-thanks-club__btn:hover,
+#rec3375631701 .uf-thanks-club__btn:focus-visible { opacity: 0.85; }
+
 @media screen and (max-width: 640px) {
   #rec3375631701 .uf-thanks-card { padding: 40px 20px 32px; margin-top: -56px; }
   #rec3375631701 .uf-thanks-card h2 { font-size: 24px !important; }

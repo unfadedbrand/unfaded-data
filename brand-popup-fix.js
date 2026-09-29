@@ -1351,12 +1351,32 @@ function buildStepper(active) {
     card.appendChild(sub);
   }
 
+  // Клуб UNFADED ACCESS SYSTEM — отдельный блок под строкой с почтой
+  // (кнопка бота заказов уже есть выше). Макет утверждён Лерой 29.09.2026, текст на «вы».
+  var clubAdded = false;
+  function ensureThanksClub() {
+    if (clubAdded) return;
+    var root = document.querySelector('#rec3375631701 .unf-thanks');
+    var support = root && root.querySelector('.unf-support');
+    if (!support) return;
+    clubAdded = true;
+    var box = document.createElement('div');
+    box.className = 'uf-thanks-club';
+    box.innerHTML =
+      '<p class="uf-thanks-club__eb">UNFADED ACCESS SYSTEM</p>' +
+      '<p class="uf-thanks-club__txt">Ваш уровень уже посчитан по прошлым покупкам. Войдите в клуб — и с этого заказа начнут копиться CREDITS.</p>' +
+      '<a class="uf-thanks-club__btn" href="https://t.me/unfaded_club_bot?start=thanks" target="_blank" rel="noopener">Получить допуск</a>';
+    support.parentNode.insertBefore(box, support.nextSibling);
+  }
+
   document.addEventListener('DOMContentLoaded', ensureThanksHeaderCard);
+  document.addEventListener('DOMContentLoaded', ensureThanksClub);
   var ufThanksTries = 0;
   var ufThanksInterval = setInterval(function () {
     ufThanksTries++;
     ensureThanksHeaderCard();
-    if (initialized || ufThanksTries > 40) clearInterval(ufThanksInterval);
+    ensureThanksClub();
+    if ((initialized && clubAdded) || ufThanksTries > 40) clearInterval(ufThanksInterval);
   }, 500);
 })();
 
