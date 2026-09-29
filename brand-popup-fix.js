@@ -1796,6 +1796,92 @@ function buildStepper(active) {
       '<div class="uf-callout">Если у тебя есть предложение о сотрудничестве с брендом — отправь сообщение на почту <b>unfadedwork@gmail.com</b> или напишите нам в WhatsApp или Telegram.</div>' +
     '</div>';
 
+  /* ---------- «Клуб: вопрос — ответ» (/service#club-faq) ----------
+     Бриф Коворка 29.09, обращение на «вы» (на «ты» — только бот). Каждый ответ
+     сверен с правилами на сайте (редакция 28.09) и app/loyalty/rules.py;
+     четыре ответа поправлены по сверке и утверждены Лерой 29.09.
+     Меняя ответ — сверять снова: правила на сайте главнее. */
+  var CLUB_BOT_FAQ_URL = 'https://t.me/unfaded_club_bot?start=faq';
+  var CLUB_RULES_URL = '/service#!/tab/533990617-8';
+
+  var CLUB_FAQ = [
+    ['Вступление', [
+      ['Что такое UNFADED ACCESS SYSTEM?',
+        '<p>Система допуска для тех, кто носит UNFADED. Чем больше вы покупаете на сайте, тем выше уровень и тем больше возвращается CREDITS — внутренней валюты клуба: 1 CR = 1 ₽.</p>'],
+      ['Как вступить?',
+        '<p>Откройте <b>@unfaded_club_bot</b> в Telegram, нажмите «Получить допуск» и поделитесь номером — тем, что указываете в заказах. Уровень и карта появятся сразу.</p>' +
+        '<a class="uf-faq-cta" href="' + CLUB_BOT_FAQ_URL + '" target="_blank" rel="noopener">Получить допуск</a>'],
+      ['У меня нет Telegram. Можно без него?',
+        '<p>Пока нет — клуб работает через Telegram-бот.</p>'],
+      ['Я уже покупала на сайте. Это засчитается?',
+        '<p>Да. Уровень считается по сумме всех ваших покупок на сайте и через нашего менеджера — за всё время. CREDITS начисляются за заказы, выполненные после вступления, даже если вы оформили заказ раньше. Поэтому лучше войти до следующей покупки.</p>'],
+      ['Покупки на Lamoda считаются?',
+        '<p>Нет. Клуб работает для заказов на unfadedstore.com и заказов, которые оформил наш менеджер по телефону или в мессенджере. Покупки на Lamoda, Ozon и в других магазинах не считаются.</p>']
+    ]],
+    ['Уровни', [
+      ['Какие есть уровни?',
+        '<table class="uf-faq-table">' +
+          '<tr><th>Уровень</th><th>Сумма покупок</th><th>CREDITS с покупки</th></tr>' +
+          '<tr><td>ENTRY PASS</td><td>до 29 999 ₽</td><td>5 %</td></tr>' +
+          '<tr><td>INSIDER PASS</td><td>от 30 000 ₽</td><td>7 %</td></tr>' +
+          '<tr><td>ARCHIVE PASS</td><td>от 50 000 ₽</td><td>10 %</td></tr>' +
+          '<tr><td>PRIVATE PASS</td><td>от 100 000 ₽</td><td>12 %</td></tr>' +
+        '</table>'],
+      ['Что даёт каждый уровень?',
+        '<ul><li>Бесплатная доставка при оплате на сайте: ENTRY — от 30 000 ₽, INSIDER — от 20 000 ₽, ARCHIVE — от 15 000 ₽, PRIVATE — всегда и при любом способе оплаты.</li>' +
+        '<li>ARCHIVE и PRIVATE видят новые дропы за 24 часа до всех.</li>' +
+        '<li>PRIVATE оплачивает CREDITS до 50 % заказа и получает подарок в посылке ко дню рождения.</li></ul>'],
+      ['Когда я перейду на следующий уровень?',
+        '<p>Когда сумма ваших покупок дойдёт до порога. Сколько осталось, видно на карте в разделе «Мой допуск». Новый процент CREDITS действует сразу, остальные привилегии уровня — через 14 дней после выполнения заказа, который поднял уровень, если его не вернули.</p>']
+    ]],
+    ['CREDITS', [
+      ['За что начисляются CREDITS?',
+        '<ul><li>за покупки на сайте — процент по уровню;</li><li>1 000 при вступлении;</li>' +
+        '<li>2 000 ко дню рождения — укажите дату в боте;</li>' +
+        '<li>500 за отзыв с фото купленной вещи, присланный в бот;</li>' +
+        '<li>по 1 000 вам и подруге, когда её первый заказ выполнен.</li></ul>'],
+      ['Когда приходят CREDITS за покупку?',
+        '<p>Когда заказ выполнен — то есть получен и не возвращён.</p>'],
+      ['Как долго действуют CREDITS?',
+        '<p>CREDITS за покупки — 12 месяцев. Приветственные 1 000 — 90 дней. Бот напомнит заранее.</p>'],
+      ['Как потратить CREDITS?',
+        '<p>В корзине на сайте, в блоке CREDITS: введите телефон, подтвердите кодом из Telegram и выберите, сколько списать. Скидка применится к заказу.</p>'],
+      ['Сколько можно списать?',
+        '<p>От 300 CR и не больше 30 % стоимости товаров в заказе, на PRIVATE PASS — до 50 %.</p>'],
+      ['Почему приветственные CREDITS не списываются?',
+        '<p>Их можно потратить со второй покупки на сайте.</p>'],
+      ['Можно списать CREDITS на товар со скидкой или вместе с промокодом?',
+        '<p>Нет — CREDITS не списываются на товары со скидкой и не суммируются с промокодами.</p>'],
+      ['Что будет с CREDITS, если я верну вещь?',
+        '<p>CREDITS, начисленные за возвращённую вещь, спишутся обратно. Если вы оплачивали заказ CREDITS, они вернутся на баланс в доле возвращённого.</p>']
+    ]],
+    ['Прочее', [
+      ['Как пригласить подругу?',
+        '<p>В боте, в разделе «Мой допуск» — ссылка-приглашение. Когда её первый заказ будет выполнен, вы обе получите по 1 000 CREDITS.</p>'],
+      ['Как оставить отзыв за CREDITS?',
+        '<p>Пришлите в бот фото купленной вещи и пару слов. После проверки начислим 500 CREDITS — один раз за заказ.</p>'],
+      ['Бот не отвечает или что-то не так с балансом',
+        '<p>Напишите нам в <a href="https://wa.me/' + WA_NUMBER + '" target="_blank" rel="noopener">WhatsApp</a> или <a href="' + TG_SUPPORT_URL + '" target="_blank" rel="noopener">Telegram</a> — ежедневно с 9:00 до 21:00 по МСК.</p>'],
+      ['Где полные правила?',
+        '<p>Во вкладке <a href="' + CLUB_RULES_URL + '">«Программа лояльности»</a> на этой странице.</p>']
+    ]]
+  ];
+
+  var CLUB_FAQ_CHEVRON = '<svg width="10" height="6" viewBox="0 0 10 6" fill="none" aria-hidden="true"><path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+  var CLUB_FAQ_HTML =
+    '<div class="uf-svc-head"><div class="uf-svc-title">Клуб: вопрос — ответ</div><div class="uf-svc-pill">UNFADED ACCESS SYSTEM</div></div>' +
+    '<div class="uf-svc-lead">Коротко о том, как работает клуб. Полные условия — в <a class="uf-faq-inline" href="' + CLUB_RULES_URL + '">правилах программы</a>.</div>' +
+    '<div class="uf-faq">' +
+    CLUB_FAQ.map(function (group) {
+      return '<div class="uf-faq-group"><div class="uf-legal-title">' + group[0] + '</div>' +
+        group[1].map(function (qa) {
+          return '<button type="button" class="uf-faq-q" aria-expanded="false"><span>' + qa[0] + '</span>' + CLUB_FAQ_CHEVRON + '</button>' +
+            '<div class="uf-faq-a uf-legal-body">' + qa[1] + '</div>';
+        }).join('') + '</div>';
+    }).join('') +
+    '</div>';
+
   /* ---------- инициализация ---------- */
 
   function build(root, wrapper) {
@@ -1826,7 +1912,8 @@ function buildStepper(active) {
       { key: 'offer', label: 'Оферта', passthrough: 'Оферта' },
       { key: 'privacy', label: 'Политика конфиденциальности', passthrough: 'Политика конфиденциальности' },
       { key: 'loyalty', label: 'Программа лояльности', passthrough: 'Программа лояльности',
-        structured: true, docTitle: 'Правила программы UNFADED ACCESS SYSTEM' }
+        structured: true, docTitle: 'Правила программы UNFADED ACCESS SYSTEM' },
+      { key: 'clubfaq', label: 'Клуб: вопрос — ответ', html: CLUB_FAQ_HTML }
     ];
 
     /* Вкладки Tilda, у которых в навигаторе другое имя */
@@ -1839,6 +1926,8 @@ function buildStepper(active) {
       // /service#consent — отдельный документ «Согласие на обработку
       // персональных данных» (его нет среди вкладок Тильды, он только здесь)
       if (/^#!?\/?consent/.test(window.location.hash)) return 'consent';
+      // /service#club-faq — «Клуб: вопрос — ответ», на этот адрес ссылаются SMM и письма
+      if (/^#!?\/?club-faq/.test(window.location.hash)) return 'clubfaq';
       var m = /#!\/tab\/(\d+)-(\d+)/.exec(window.location.hash);
       if (!m || root.id !== 'rec' + m[1]) return null;
       var label = labelByTabNum[m[2]];
@@ -1983,6 +2072,13 @@ function buildStepper(active) {
         }
       });
     }
+
+    /* «Клуб: вопрос — ответ»: вопрос раскрывает и сворачивает свой ответ */
+    nav.addEventListener('click', function (e) {
+      var q = e.target.closest && e.target.closest('.uf-faq-q');
+      if (!q) return;
+      q.setAttribute('aria-expanded', q.getAttribute('aria-expanded') === 'true' ? 'false' : 'true');
+    });
 
     /* ---------- логика внутри формы заявки ---------- */
     var claimPanel = itemEls.claim && itemEls.claim.panel;
