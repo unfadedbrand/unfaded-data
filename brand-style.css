@@ -5140,6 +5140,10 @@ html.uf-co2 .uf-cr__step[hidden],
 html.uf-co2 .uf-cr__line[hidden] { display: none; }
 html.uf-co2 .uf-cr__label { font-family: 'Onest', sans-serif; font-size: 12px; color: var(--co-ink-2); }
 html.uf-co2 .uf-cr__line { display: flex; gap: 8px; }
+/* Тильда не включает border-box глобально: без этого кнопка шириной 100%
+   на телефоне вылезала за край на свои отступы и рамку (замечено 29.09). */
+html.uf-co2 .uf-cr__input,
+html.uf-co2 .uf-cr__btn { box-sizing: border-box; }
 
 html.uf-co2 .uf-cr__input {
   flex: 1 1 auto;
