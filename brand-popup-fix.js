@@ -2224,30 +2224,49 @@ function buildStepper(active) {
       }
 
       function downloadStatement(btn) {
+        var label = btn.textContent;
+        var busy = function (on) { btn.disabled = on; btn.textContent = on ? 'Готовим PDF…' : label; };
         var run = function () {
           /* Прячем за экраном обёртку, а в html2pdf отдаём обычный вложенный блок: html2pdf копирует
              элемент со всеми стилями, и position:fixed у самого листа давал копию нулевой высоты —
-             пустой PDF (Лера, 30.09). scrollX/scrollY: 0 — иначе html2canvas снимает с учётом
-             прокрутки страницы, а на шаге с заявлением она всегда прокручена, и лист выходит белым. */
+             пустой PDF (Лера, 30.09). html2canvas снимает с учётом прокрутки страницы: в Chrome
+             хватает scrollX/scrollY: 0, а в Safari на iPhone лист всё равно съезжал вниз и терял
+             строку с подписью — поэтому на время снимка прокручиваем страницу к началу и возвращаем.
+             windowWidth: 794 — лист собирается по компьютерной раскладке и на телефоне.
+             Рамка и подсветка полей нужны на экране, в документе их нет. */
           var holder = document.createElement('div');
           holder.style.cssText = 'position:fixed;left:-10000px;top:0;';
           var sheet = document.createElement('div');
           sheet.style.cssText = 'width:794px;padding:56px 64px;box-sizing:border-box;background:#fff';
-          sheet.innerHTML = '<style>' + PAPER_CSS + '.fill{background:none}</style>' + statementHTML(claimData);
+          sheet.innerHTML = '<style>' + PAPER_CSS +
+            '.uf-paper{border:none;box-shadow:none;padding:0;margin:0}.uf-paper .fill{background:none;padding:0}</style>' +
+            statementHTML(claimData);
           holder.appendChild(sheet);
           document.body.appendChild(holder);
-          window.html2pdf().set({
-            margin: 0, filename: 'Заявление_на_возврат_' + claimData.order.replace(/[^\wА-Яа-яЁё-]/g, '') + '.pdf',
-            image: { type: 'jpeg', quality: 0.95 }, html2canvas: { scale: 2, scrollX: 0, scrollY: 0 },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-          }).from(sheet).save().then(function () { holder.remove(); }, function () { holder.remove(); printStatement(); });
+          var sx = window.scrollX, sy = window.scrollY;
+          var done = function (ok) {
+            holder.remove();
+            window.scrollTo(sx, sy);
+            busy(false);
+            if (!ok) printStatement();
+          };
+          busy(true);
+          window.scrollTo(0, 0);
+          setTimeout(function () { /* дать странице перерисоваться после прокрутки */
+            window.html2pdf().set({
+              margin: 0, filename: 'Заявление_на_возврат_' + claimData.order.replace(/[^\wА-Яа-яЁё-]/g, '') + '.pdf',
+              image: { type: 'jpeg', quality: 0.95 },
+              html2canvas: { scale: 2, scrollX: 0, scrollY: 0, windowWidth: 794 },
+              jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            }).from(sheet).save().then(function () { done(true); }, function () { done(false); });
+          }, 60);
         };
         if (window.html2pdf) { run(); return; }
-        btn.disabled = true;
+        busy(true);
         var s = document.createElement('script');
         s.src = CLAIM_PDF_LIB;
-        s.onload = function () { btn.disabled = false; run(); };
-        s.onerror = function () { btn.disabled = false; printStatement(); }; /* нет PDF — сохранит через печать */
+        s.onload = function () { busy(false); run(); };
+        s.onerror = function () { busy(false); printStatement(); }; /* нет PDF — сохранит через печать */
         document.head.appendChild(s);
       }
 
