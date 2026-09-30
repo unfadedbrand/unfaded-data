@@ -5279,3 +5279,48 @@ html.uf-co2 .t706__cartpage .t706__cartwin-totalamount-row[data-uf-cr="subtotal"
   .uf-faq-a { padding: 0 0 16px; }
   .uf-faq-a a.uf-faq-cta { display: block; text-align: center; }
 }
+
+/* ================================================================
+   UNFADED — «Клиентский сервис» → «Оформить заявку»: заявление на
+   возврат (форма → готовое заявление → фото подписи), по утверждённому
+   макету 30.09.2026. Обмен — без заявления, как раньше.
+   ================================================================ */
+.uf-svc-panel .uf-exchange-only { display: none; }
+.uf-claim--exchange .uf-return-only { display: none !important; }
+.uf-claim--exchange div.uf-exchange-only { display: block; }
+.uf-claim--exchange span.uf-exchange-only { display: inline; }
+.uf-steps3 { display: flex; gap: 6px; margin: 4px 0 22px; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #8F9294; }
+.uf-steps3 span { flex: 1; border-top: 2px solid #EDEEEE; padding-top: 8px; }
+.uf-steps3 span.on { border-top-color: #7A1F2A; color: #7A1F2A; }
+.uf-steps3 span.done { border-top-color: #17090B; color: #17090B; }
+.uf-hint { display: block; font-size: 11.5px; color: #8F9294; margin-top: 6px; text-transform: none; letter-spacing: 0; font-weight: 400; }
+.uf-paper { border: 1px solid #D7D8D9; box-shadow: 0 2px 10px rgba(0,0,0,.06); padding: 32px 36px; font-size: 12.5px; line-height: 1.65; color: #17090B; background: #FFFFFF; margin-bottom: 18px; }
+.uf-paper .to { margin-left: auto; max-width: 300px; margin-bottom: 22px; }
+.uf-paper h3 { text-align: center; font-size: 14px; letter-spacing: .08em; text-transform: uppercase; margin: 0 0 16px; font-weight: 700; }
+.uf-paper p { margin: 0 0 10px; }
+.uf-paper table { width: 100%; border-collapse: collapse; margin: 6px 0 12px; font-size: 12px; }
+.uf-paper td, .uf-paper th { border: 1px solid #D7D8D9; padding: 6px 8px; text-align: left; vertical-align: top; }
+.uf-paper th { font-size: 10.5px; text-transform: uppercase; letter-spacing: .05em; color: #55575A; font-weight: 700; }
+.uf-paper .sum { width: 110px; }
+.uf-paper .sig { display: flex; justify-content: space-between; gap: 16px; margin-top: 26px; align-items: flex-end; }
+.uf-paper .sig .line { flex: 1; border-bottom: 1px solid #17090B; height: 22px; position: relative; }
+.uf-paper .sig .line i { position: absolute; left: 0; top: 26px; font-size: 10px; color: #8F9294; font-style: normal; }
+.uf-paper .fill { background: #FBF4F0; padding: 0 3px; }
+.uf-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 26px; }
+a.uf-submit { display: inline-block; text-decoration: none; }
+.uf-submit.uf-submit--ghost { background: #FFFFFF; color: #17090B; border: 1px solid #17090B; padding: 13px 27px; }
+.uf-submit.uf-submit--ghost:hover { background: #17090B; color: #FAFAFA; }
+.uf-submit[disabled] { opacity: .5; cursor: wait; }
+.uf-send { border: 1px solid #EDEEEE; padding: 18px 20px; }
+.uf-send-title { font-size: 14px; font-weight: 700; margin-bottom: 6px; color: #17090B; }
+.uf-send-text { font-size: 12.5px; color: #55575A; line-height: 1.6; margin-bottom: 14px; }
+.uf-send .uf-actions { margin-bottom: 0; }
+.uf-edit { background: none; border: none; padding: 0; cursor: pointer; font-family: inherit; font-size: 12px; color: #7A1F2A; font-weight: 600; text-decoration: underline; display: inline-block; margin-bottom: 14px; }
+@media screen and (max-width: 639px) {
+  .uf-paper { padding: 20px 18px; font-size: 11.5px; }
+  .uf-paper .to { max-width: none; }
+  .uf-paper .sig { flex-wrap: wrap; }
+  .uf-actions { flex-direction: column; }
+  .uf-actions .uf-submit { width: 100%; box-sizing: border-box; text-align: center; }
+  .uf-svc-panel .uf-submit[data-uf-submit] { width: 100%; }
+}
