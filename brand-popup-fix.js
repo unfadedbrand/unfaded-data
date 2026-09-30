@@ -2225,15 +2225,22 @@ function buildStepper(active) {
 
       function downloadStatement(btn) {
         var run = function () {
+          /* Прячем за экраном обёртку, а в html2pdf отдаём обычный вложенный блок: html2pdf копирует
+             элемент со всеми стилями, и position:fixed у самого листа давал копию нулевой высоты —
+             пустой PDF (Лера, 30.09). scrollX/scrollY: 0 — иначе html2canvas снимает с учётом
+             прокрутки страницы, а на шаге с заявлением она всегда прокручена, и лист выходит белым. */
           var holder = document.createElement('div');
-          holder.style.cssText = 'position:fixed;left:-10000px;top:0;width:794px;padding:56px 64px;box-sizing:border-box;background:#fff';
-          holder.innerHTML = '<style>' + PAPER_CSS + '.fill{background:none}</style>' + statementHTML(claimData);
+          holder.style.cssText = 'position:fixed;left:-10000px;top:0;';
+          var sheet = document.createElement('div');
+          sheet.style.cssText = 'width:794px;padding:56px 64px;box-sizing:border-box;background:#fff';
+          sheet.innerHTML = '<style>' + PAPER_CSS + '.fill{background:none}</style>' + statementHTML(claimData);
+          holder.appendChild(sheet);
           document.body.appendChild(holder);
           window.html2pdf().set({
             margin: 0, filename: 'Заявление_на_возврат_' + claimData.order.replace(/[^\wА-Яа-яЁё-]/g, '') + '.pdf',
-            image: { type: 'jpeg', quality: 0.95 }, html2canvas: { scale: 2 },
+            image: { type: 'jpeg', quality: 0.95 }, html2canvas: { scale: 2, scrollX: 0, scrollY: 0 },
             jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-          }).from(holder).save().then(function () { holder.remove(); }, function () { holder.remove(); printStatement(); });
+          }).from(sheet).save().then(function () { holder.remove(); }, function () { holder.remove(); printStatement(); });
         };
         if (window.html2pdf) { run(); return; }
         btn.disabled = true;
