@@ -1671,17 +1671,24 @@ function buildStepper(active) {
     '<div class="uf-svc-contact">Можно и напрямую: WhatsApp <a href="https://wa.me/' + WA_NUMBER + '">+7&nbsp;993&nbsp;895&nbsp;50&nbsp;08</a>, <a href="' + TG_SUPPORT_URL + '" target="_blank" rel="noopener">Telegram</a> или <a href="mailto:unfadedwork@gmail.com">unfadedwork@gmail.com</a>.</div>';
 
   var CLAIM_HTML =
-    '<div class="uf-svc-head"><div class="uf-svc-title">Заявка на возврат или обмен</div><span class="uf-badge">Без бумажного бланка</span></div>' +
-    '<div class="uf-svc-lead">Заполните здесь — не нужно писать менеджеру, скачивать и распечатывать бланк.</div>' +
+    '<div class="uf-svc-head"><div class="uf-svc-title">Заявка на возврат или обмен</div><span class="uf-badge">Заявление за 2 минуты</span></div>' +
+    '<div data-uf-step="form">' +
+    '<div class="uf-svc-lead uf-return-only">Заполните форму — мы соберём из неё готовое заявление. Останется распечатать, подписать и прислать фото.</div>' +
+    '<div class="uf-svc-lead uf-exchange-only">Заполните здесь — не нужно писать менеджеру, скачивать и распечатывать бланк.</div>' +
+    '<div class="uf-steps3 uf-return-only"><span class="on">1. Данные</span><span>2. Заявление</span><span>3. Фото подписи</span></div>' +
     '<div class="uf-toggle" data-uf-field="type">' +
       '<button type="button" class="active" data-value="Возврат">Возврат</button>' +
       '<button type="button" data-value="Обмен">Обмен</button>' +
     '</div>' +
+    '<label class="uf-field-block uf-return-only">ФИО полностью<input type="text" data-uf-field="fio" placeholder="Фамилия Имя Отчество" autocomplete="name"></label>' +
     '<div class="uf-field-row">' +
       '<label>Номер заказа<input type="text" data-uf-field="order" placeholder="Например, 934C"></label>' +
-      '<label>Телефон / WhatsApp<input type="tel" data-uf-field="phone" placeholder="+7 ___ ___ __ __"></label>' +
+      '<label>Телефон / WhatsApp<input type="tel" data-uf-field="phone" placeholder="+7 ___ ___ __ __" autocomplete="tel"></label>' +
     '</div>' +
-    '<label class="uf-field-block">Какой товар<input type="text" data-uf-field="item" placeholder="Название или артикул"></label>' +
+    '<div class="uf-field-row">' +
+      '<label>Какой товар<input type="text" data-uf-field="item" placeholder="Название или артикул"></label>' +
+      '<label class="uf-return-only">Стоимость товара, ₽<input type="text" inputmode="numeric" data-uf-field="price" placeholder="Как в заказе"><span class="uf-hint">Как в заказе. Доставка не возвращается.</span></label>' +
+    '</div>' +
     '<div class="uf-field-block"><div class="uf-label">Причина</div>' +
       '<div class="uf-chips" data-uf-field="reason">' +
         '<button type="button" class="uf-chip" data-value="Не подошёл размер">Не подошёл размер</button>' +
@@ -1691,16 +1698,26 @@ function buildStepper(active) {
       '</div>' +
     '</div>' +
     '<label class="uf-field-block uf-conditional" data-uf-show-if="reason=Брак/дефект" hidden>Опишите, в чём брак<textarea data-uf-field="defect" rows="2" placeholder="Например: разошёлся шов на левом рукаве"></textarea></label>' +
-    '<div class="uf-field-block"><div class="uf-label">Как был оплачен заказ</div>' +
+    '<div class="uf-field-block uf-return-only"><div class="uf-label">Как был оплачен заказ</div>' +
       '<div class="uf-chips" data-uf-field="payment">' +
         '<button type="button" class="uf-chip" data-value="Картой на сайте">Картой на сайте</button>' +
         '<button type="button" class="uf-chip" data-value="Наложенным платежом">Наличными/картой курьеру при получении</button>' +
       '</div>' +
     '</div>' +
-    '<label class="uf-field-block uf-conditional" data-uf-show-if="payment=Наложенным платежом" hidden>Реквизиты для возврата денег<input type="text" data-uf-field="requisites" placeholder="Номер карты и банк"></label>' +
-    '<button type="button" class="uf-submit" data-uf-submit>Отправить заявку</button>' +
-    '<div class="uf-svc-note">После отправки откроется WhatsApp с готовым сообщением — печатать и вкладывать в посылку ничего не нужно.</div>' +
-    '<div class="uf-svc-error" data-uf-error hidden>Заполните номер заказа и телефон, чтобы отправить заявку.</div>';
+    '<div class="uf-field-block uf-conditional uf-return-only" data-uf-show-if="payment=Наложенным платежом" hidden>' +
+      '<div class="uf-label" style="margin-bottom:2px;">Куда вернуть деньги — перевод по СБП</div>' +
+      '<div class="uf-hint" style="margin:0 0 10px;">Переведём со счёта ИП на ваш номер телефона.</div>' +
+      '<div class="uf-field-row" style="margin-bottom:0;">' +
+        '<label>Телефон для СБП<input type="tel" data-uf-field="sbp_phone" placeholder="+7 ___ ___ __ __"></label>' +
+        '<label>Банк<input type="text" data-uf-field="bank" placeholder="Например, Т-Банк"></label>' +
+      '</div>' +
+    '</div>' +
+    '<button type="button" class="uf-submit" data-uf-submit><span class="uf-return-only">Сформировать заявление</span><span class="uf-exchange-only">Отправить заявку</span></button>' +
+    '<div class="uf-svc-note uf-return-only">Возврат — в течение 14 дней после получения. Обратную пересылку оплачиваем мы.</div>' +
+    '<div class="uf-svc-note uf-exchange-only">После отправки откроется WhatsApp с готовым сообщением — печатать и вкладывать в посылку ничего не нужно.</div>' +
+    '<div class="uf-svc-error" data-uf-error hidden></div>' +
+    '</div>' +
+    '<div data-uf-step="doc" hidden></div>';
 
   /* Доставка/Оплата/Контакты — короткий, редко меняющийся справочный
      контент; текст сверен построчно с живым сайтом (вкладки «Доставка»/
@@ -2085,6 +2102,9 @@ function buildStepper(active) {
     }
 
     function updateReasonChipsForType(panel, value) {
+      panel.classList.toggle('uf-claim--exchange', value === 'Обмен');
+      var formStep = qs('[data-uf-step="form"]', panel), docStep = qs('[data-uf-step="doc"]', panel);
+      if (formStep && docStep) { docStep.hidden = true; formStep.hidden = false; }
       qsa('.uf-chip-return-only', panel).forEach(function (chip) {
         chip.hidden = value === 'Обмен';
         if (value === 'Обмен' && chip.classList.contains('active')) {
@@ -2128,6 +2148,146 @@ function buildStepper(active) {
         });
       });
 
+      /* Возврат: из формы собираем заявление на имя ИП (бухгалтер, 30.09: нужна подпись от руки,
+         фото подписанного бланка в мессенджер подходит, паспорт при переводе не нужен).
+         Сайт ничего не отправляет сам: клиентка скачивает/печатает заявление, подписывает и шлёт
+         фото в WhatsApp или Telegram службы заботы. Обмен — как раньше, сразу в WhatsApp. */
+      var CLAIM_PDF_LIB = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+      var claimForm = qs('[data-uf-step="form"]', claimPanel);
+      var claimDoc = qs('[data-uf-step="doc"]', claimPanel);
+      var claimData = null;
+
+      function esc(s) {
+        return String(s).replace(/[&<>"']/g, function (c) {
+          return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+        });
+      }
+      function rub(v) { return String(v).replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ' '); }
+      function initials(fio) {
+        var p = fio.split(/\s+/).filter(Boolean);
+        return p[0] + (p[1] ? ' ' + p[1].charAt(0) + '.' : '') + (p[2] ? ' ' + p[2].charAt(0) + '.' : '');
+      }
+      function today() {
+        var d = new Date(), z = function (n) { return (n < 10 ? '0' : '') + n; };
+        return z(d.getDate()) + '.' + z(d.getMonth() + 1) + '.' + d.getFullYear();
+      }
+      function lower1(s) { return s ? s.charAt(0).toLowerCase() + s.slice(1) : s; }
+
+      function statementHTML(d) {
+        var f = function (s) { return '<span class="fill">' + esc(s) + '</span>'; };
+        var defect = d.reason === 'Брак/дефект';
+        var money = d.payment === 'Наложенным платежом'
+          ? '<p>Способ оплаты заказа: ' + f('при получении (наложенный платёж)') + '. Денежные средства в сумме ' +
+            f(rub(d.price) + ' ₽') + ' прошу перечислить по СБП на номер телефона ' + f(d.sbpPhone) +
+            ', банк получателя — ' + f(d.bank) + '.</p>'
+          : '<p>Способ оплаты заказа: ' + f('картой на сайте') + '. Денежные средства в сумме ' +
+            f(rub(d.price) + ' ₽') + ' прошу вернуть на карту, с которой был оплачен заказ.</p>';
+        return '<div class="uf-paper">' +
+          '<div class="to">Индивидуальному предпринимателю<br>Сухановой Светлане Юрьевне<br>' +
+            'ИНН 143407255768, ОГРНИП 319774600301099<br><br>' +
+            'от: ' + f(d.fio) + '<br>телефон: ' + f(d.phone) + '</div>' +
+          '<h3>Заявление на возврат товара</h3>' +
+          '<p>Прошу принять возврат товара ' + (defect ? 'ненадлежащего' : 'надлежащего') + ' качества по заказу № ' +
+            f(d.order) + ', оформленному в интернет-магазине unfadedstore.com, и вернуть уплаченные за него денежные средства.</p>' +
+          '<table><tr><th>Товар</th><th class="sum">Стоимость, ₽</th></tr>' +
+            '<tr><td>' + f(d.item) + '</td><td class="sum">' + f(rub(d.price)) + '</td></tr></table>' +
+          '<p>Причина возврата: ' + f(defect ? 'брак' + (d.defect ? ' — ' + d.defect : '') : lower1(d.reason || 'другое')) + '.</p>' +
+          money +
+          (defect ? '' : '<p>Товар не был в употреблении, сохранены его товарный вид, потребительские свойства и фабричные ярлыки.</p>') +
+          '<div class="sig"><div>Дата: ' + f(d.date) + '</div><div class="line"><i>подпись</i></div>' +
+            '<div>/ ' + f(initials(d.fio)) + ' /</div></div>' +
+        '</div>';
+      }
+
+      var PAPER_CSS =
+        '.uf-paper{font-family:Arial,sans-serif;font-size:12.5px;line-height:1.65;color:#17090B;background:#fff}' +
+        '.uf-paper .to{margin-left:auto;max-width:300px;margin-bottom:22px}' +
+        '.uf-paper h3{text-align:center;font-size:14px;letter-spacing:.08em;text-transform:uppercase;margin:0 0 16px}' +
+        '.uf-paper p{margin:0 0 10px}' +
+        '.uf-paper table{width:100%;border-collapse:collapse;margin:6px 0 12px;font-size:12px}' +
+        '.uf-paper td,.uf-paper th{border:1px solid #999;padding:6px 8px;text-align:left;vertical-align:top}' +
+        '.uf-paper th{font-size:10.5px;text-transform:uppercase;letter-spacing:.05em}' +
+        '.uf-paper .sum{width:110px}' +
+        '.uf-paper .sig{display:flex;justify-content:space-between;gap:16px;margin-top:34px;align-items:flex-end}' +
+        '.uf-paper .sig .line{flex:1;border-bottom:1px solid #17090B;height:22px;position:relative}' +
+        '.uf-paper .sig .line i{position:absolute;left:0;top:26px;font-size:10px;color:#777;font-style:normal}';
+
+      function printStatement() {
+        var w = window.open('', '_blank');
+        if (!w) { window.print(); return; }
+        w.document.write('<!doctype html><html lang="ru"><head><meta charset="utf-8"><title>Заявление на возврат — заказ ' +
+          esc(claimData.order) + '</title><style>@page{size:A4;margin:20mm}body{margin:0}' + PAPER_CSS +
+          '.fill{background:none}</style></head><body>' + statementHTML(claimData) + '</body></html>');
+        w.document.close();
+        w.focus();
+        setTimeout(function () { w.print(); }, 300);
+      }
+
+      function downloadStatement(btn) {
+        var run = function () {
+          var holder = document.createElement('div');
+          holder.style.cssText = 'position:fixed;left:-10000px;top:0;width:794px;padding:56px 64px;box-sizing:border-box;background:#fff';
+          holder.innerHTML = '<style>' + PAPER_CSS + '.fill{background:none}</style>' + statementHTML(claimData);
+          document.body.appendChild(holder);
+          window.html2pdf().set({
+            margin: 0, filename: 'Заявление_на_возврат_' + claimData.order.replace(/[^\wА-Яа-яЁё-]/g, '') + '.pdf',
+            image: { type: 'jpeg', quality: 0.95 }, html2canvas: { scale: 2 },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+          }).from(holder).save().then(function () { holder.remove(); }, function () { holder.remove(); printStatement(); });
+        };
+        if (window.html2pdf) { run(); return; }
+        btn.disabled = true;
+        var s = document.createElement('script');
+        s.src = CLAIM_PDF_LIB;
+        s.onload = function () { btn.disabled = false; run(); };
+        s.onerror = function () { btn.disabled = false; printStatement(); }; /* нет PDF — сохранит через печать */
+        document.head.appendChild(s);
+      }
+
+      function waLink(d) {
+        var lines = [
+          'Здравствуйте! Заявление на возврат по заказу ' + d.order + ' — отправляю фото подписанного заявления.',
+          'ФИО: ' + d.fio,
+          'Телефон: ' + d.phone,
+          'Товар: ' + d.item + ', ' + rub(d.price) + ' ₽'
+        ];
+        if (d.reason) lines.push('Причина: ' + d.reason + (d.reason === 'Брак/дефект' && d.defect ? ' — ' + d.defect : ''));
+        lines.push(d.payment === 'Наложенным платежом'
+          ? 'Вернуть по СБП: ' + d.sbpPhone + ', ' + d.bank
+          : 'Оплата картой на сайте — вернуть на ту же карту');
+        return 'https://wa.me/' + WA_NUMBER + '?text=' + encodeURIComponent(lines.join('\n'));
+      }
+
+      function showStatement() {
+        claimDoc.innerHTML =
+          '<div class="uf-steps3"><span class="done">1. Данные</span><span class="on">2. Заявление</span><span>3. Фото подписи</span></div>' +
+          '<button type="button" class="uf-edit" data-uf-edit>← Изменить данные</button>' +
+          statementHTML(claimData) +
+          '<div class="uf-actions">' +
+            '<button type="button" class="uf-submit" data-uf-pdf>Скачать PDF</button>' +
+            '<button type="button" class="uf-submit uf-submit--ghost" data-uf-print>Распечатать</button>' +
+          '</div>' +
+          '<div class="uf-send">' +
+            '<div class="uf-send-title">3. Подпишите и пришлите фото</div>' +
+            '<div class="uf-send-text">Распишитесь от руки и сфотографируйте заявление целиком. Отправьте фото в WhatsApp или Telegram — ' +
+              'в WhatsApp сообщение с номером заказа уже будет готово. В посылку вкладывать ничего не нужно.</div>' +
+            '<div class="uf-actions">' +
+              '<a class="uf-submit" href="' + esc(waLink(claimData)) + '" target="_blank" rel="noopener">Отправить в WhatsApp</a>' +
+              '<a class="uf-submit uf-submit--ghost" href="' + TG_SUPPORT_URL + '" target="_blank" rel="noopener">Отправить в Telegram</a>' +
+            '</div>' +
+          '</div>';
+        claimForm.hidden = true;
+        claimDoc.hidden = false;
+        qs('[data-uf-edit]', claimDoc).addEventListener('click', function () {
+          claimDoc.hidden = true;
+          claimForm.hidden = false;
+          claimPanel.scrollIntoView({ block: 'start', behavior: 'smooth' });
+        });
+        qs('[data-uf-pdf]', claimDoc).addEventListener('click', function () { downloadStatement(this); });
+        qs('[data-uf-print]', claimDoc).addEventListener('click', printStatement);
+        claimPanel.scrollIntoView({ block: 'start', behavior: 'smooth' });
+      }
+
       qs('[data-uf-submit]', claimPanel).addEventListener('click', function () {
         var val = function (sel) { var el = qs(sel, claimPanel); return el ? el.value.trim() : ''; };
         var activeChip = function (field) {
@@ -2136,34 +2296,55 @@ function buildStepper(active) {
         };
         var type = qs('[data-uf-field="type"] .active', claimPanel);
         type = type ? type.getAttribute('data-value') : 'Возврат';
-        var order = val('[data-uf-field="order"]');
-        var phone = val('[data-uf-field="phone"]');
-        var itemv = val('[data-uf-field="item"]');
-        var reason = activeChip('reason');
-        var defect = val('[data-uf-field="defect"]');
-        var payment = activeChip('payment');
-        var requisites = val('[data-uf-field="requisites"]');
+        var d = {
+          fio: val('[data-uf-field="fio"]').replace(/\s+/g, ' '),
+          order: val('[data-uf-field="order"]'),
+          phone: val('[data-uf-field="phone"]'),
+          item: val('[data-uf-field="item"]'),
+          price: val('[data-uf-field="price"]'),
+          reason: activeChip('reason'),
+          defect: val('[data-uf-field="defect"]'),
+          payment: activeChip('payment'),
+          sbpPhone: val('[data-uf-field="sbp_phone"]'),
+          bank: val('[data-uf-field="bank"]'),
+          date: today()
+        };
 
+        var missing = [];
+        if (type === 'Возврат' && !d.fio) missing.push('ФИО');
+        if (!d.order) missing.push('номер заказа');
+        if (!d.phone) missing.push('телефон');
+        if (type === 'Возврат') {
+          if (!d.item) missing.push('товар');
+          if (!rub(d.price)) missing.push('стоимость товара');
+          if (!d.payment) missing.push('как был оплачен заказ');
+          if (d.payment === 'Наложенным платежом') {
+            if (!d.sbpPhone) missing.push('телефон для СБП');
+            if (!d.bank) missing.push('банк');
+          }
+        }
         var errEl = qs('[data-uf-error]', claimPanel);
-        if (!order || !phone) {
-          if (errEl) errEl.hidden = false;
+        if (missing.length) {
+          if (errEl) { errEl.textContent = 'Заполните: ' + missing.join(', ') + '.'; errEl.hidden = false; }
           return;
         }
         if (errEl) errEl.hidden = true;
 
-        var lines = [
-          'Здравствуйте! Заявка на ' + type.toLowerCase() + ' с сайта UNFADED.',
-          'Номер заказа: ' + order,
-          'Телефон: ' + phone
-        ];
-        if (itemv) lines.push('Товар: ' + itemv);
-        if (reason) lines.push('Причина: ' + reason);
-        if (reason === 'Брак/дефект' && defect) lines.push('В чём брак: ' + defect);
-        if (payment) lines.push('Оплата заказа: ' + payment);
-        if (payment === 'Наложенным платежом' && requisites) lines.push('Реквизиты для возврата: ' + requisites);
+        if (type === 'Возврат') {
+          claimData = d;
+          showStatement();
+          return;
+        }
 
-        var text = encodeURIComponent(lines.join('\n'));
-        window.open('https://wa.me/' + WA_NUMBER + '?text=' + text, '_blank');
+        var lines = [
+          'Здравствуйте! Заявка на обмен с сайта UNFADED.',
+          'Номер заказа: ' + d.order,
+          'Телефон: ' + d.phone
+        ];
+        if (d.item) lines.push('Товар: ' + d.item);
+        if (d.reason) lines.push('Причина: ' + d.reason);
+        if (d.reason === 'Брак/дефект' && d.defect) lines.push('В чём брак: ' + d.defect);
+        window.open('https://wa.me/' + WA_NUMBER + '?text=' + encodeURIComponent(lines.join('\n')), '_blank');
       });
     }
 
