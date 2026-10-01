@@ -4109,7 +4109,9 @@ function buildStepper(active) {
     var c = window.tcart;
     if (!c || !c.products) return [];
     return c.products.map(function (p) {
-      return { sku: String(p.sku || p.externalid || ''), quantity: parseInt(p.quantity, 10) || 1 };
+      // Цена нужна сервису клуба: у вещи из архива тот же артикул, что у основной карточки
+      return { sku: String(p.sku || p.externalid || ''), quantity: parseInt(p.quantity, 10) || 1,
+               price: parseFloat(p.price) || null };
     });
   }
 
