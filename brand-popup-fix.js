@@ -4379,11 +4379,65 @@ function buildStepper(active) {
  * кнопку «Узнать о поступлении» — на «Оформить предзаказ», а в RetailCRM уходит
  * «Предзаказ: АРТИКУЛ, размер …» через ту же форму. Оплаты нет — ссылку на оплату
  * отправляем, когда партия поступит.
+ *
+ * Дроп (03.10.2026, бэкенд клуба — unfaded-app-api, GET /drops/public): когда партия пришла и Лера
+ * запустила ранний доступ, на сутки товар остаётся «скоро» для всех, а купить можно только по закрытой
+ * ссылке ?early=код (её получают предзаказы и ARCHIVE/PRIVATE PASS). Код сверяем по хэшу и запоминаем
+ * в браузере. Состояние «open» — карточка обычная. Бэкенд недоступен — работает как раньше (по остатку).
  */
 (function () {
   var DATA_URL = 'https://raw.githubusercontent.com/unfadedbrand/unfaded-data/main/data.json';
+  var DROPS_URL = 'https://unfaded-app-api.onrender.com/drops/public';
+  var CLUB_URL = 'https://t.me/unfaded_club_bot?start=drop';
   var DEFAULT_TITLE = 'Мы оповестим вас, когда данный товар появится в наличии';
   var soon = null;
+  var drops = {};
+  var earlyOk = {};
+
+  function loadDrops() {
+    if (window.UF_DROPS_OVERRIDE) { drops = window.UF_DROPS_OVERRIDE; checkEarly(); return; }
+    fetch(DROPS_URL, { cache: 'no-store' })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (d) { drops = (d && d.items) || {}; checkEarly(); })
+      .catch(function () { drops = {}; });
+  }
+
+  function sha256(text) {
+    var bytes = new TextEncoder().encode(text);
+    return crypto.subtle.digest('SHA-256', bytes).then(function (buf) {
+      return Array.prototype.map.call(new Uint8Array(buf), function (b) { return ('0' + b.toString(16)).slice(-2); }).join('');
+    });
+  }
+
+  // Закрытая ссылка ?early=код: сверяем с хэшем дропа и запоминаем, чтобы доступ не терялся при переходах.
+  function checkEarly() {
+    var code = null;
+    try { code = new URLSearchParams(location.search).get('early'); } catch (e) {}
+    Object.keys(drops).forEach(function (sku) {
+      var d = drops[sku];
+      if (!d || d.state !== 'early' || !d.early || !window.crypto || !crypto.subtle) return;
+      var saved = null;
+      try { saved = localStorage.getItem('uf_early_' + sku); } catch (e) {}
+      [code, saved].filter(Boolean).forEach(function (c) {
+        sha256(c).then(function (h) {
+          if (h !== d.early) return;
+          earlyOk[sku] = true;
+          try { localStorage.setItem('uf_early_' + sku, c); } catch (e) {}
+        });
+      });
+    });
+  }
+
+  function fmtOpen(iso) {
+    try {
+      var d = new Date(iso);
+      var dd = ('0' + d.getDate()).slice(-2), mm = ('0' + (d.getMonth() + 1)).slice(-2);
+      var hh = ('0' + d.getHours()).slice(-2), mi = ('0' + d.getMinutes()).slice(-2);
+      return dd + '.' + mm + ' в ' + hh + ':' + mi;
+    } catch (e) { return 'скоро'; }
+  }
+
+  function dropState(sku) { return (drops[sku] && drops[sku].state) || null; }
 
   function loadSoon() {
     if (window.UF_SOON_OVERRIDE) { soon = window.UF_SOON_OVERRIDE; return; }
@@ -4421,12 +4475,60 @@ function buildStepper(active) {
     if (out) { out.className = 'uf-badge uf-badge_soon'; out.textContent = 'Скоро'; }
   }
 
+  function ensureSoonBadge(stack) {
+    if (!stack || stack.querySelector('.uf-badge_soon')) return;
+    swapOutBadge(stack);
+    if (stack.querySelector('.uf-badge_soon')) return;
+    var low = stack.querySelector('.uf-badge_low');
+    if (low) low.remove();
+    var b = document.createElement('div');
+    b.className = 'uf-badge uf-badge_soon';
+    b.textContent = 'Скоро';
+    stack.appendChild(b);
+  }
+
+  // Ранний доступ без закрытой ссылки: вместо «В корзину» — когда откроется для всех
+  function applyEarlyLock(on, sku) {
+    var wrap = document.querySelector('.t-store__prod-popup__btn-wrapper');
+    var nativeBtn = wrap && wrap.querySelector('.t-store__prod-popup__btn');
+    var lock = document.getElementById('uf-early-lock');
+    if (!on) {
+      if (lock) {
+        lock.remove();
+        if (nativeBtn) nativeBtn.style.display = '';
+      }
+      return;
+    }
+    ensureSoonBadge(document.getElementById('uf-badge-stack-prod'));
+    var notify = document.getElementById('uf-notify');
+    if (notify) notify.style.display = 'none';
+    var oldNote = document.getElementById('uf-soon-note');
+    if (oldNote) oldNote.remove();
+    if (nativeBtn) nativeBtn.style.display = 'none';
+    if (!wrap) return;
+    var when = fmtOpen(drops[sku].open_at);
+    if (!lock) {
+      lock = document.createElement('div');
+      lock.id = 'uf-early-lock';
+      lock.className = 'uf-early-lock';
+      wrap.appendChild(lock);
+    }
+    var html = '<div class="uf-early-lock__btn">Для всех — ' + when + '</div>' +
+      '<div class="uf-soon-note">Сейчас ранний доступ: купить могут те, кто оформил предзаказ, и участницы ' +
+      'ARCHIVE и PRIVATE PASS. <a href="' + CLUB_URL + '" target="_blank" rel="noopener">Клуб UNFADED</a></div>';
+    if (lock.getAttribute('data-when') !== when) { lock.innerHTML = html; lock.setAttribute('data-when', when); }
+  }
+
   // Карточка товара
   function applyPdp() {
     var product = getProduct();
     var sku = product && product.externalid;
     var entry = sku && soon[sku];
-    var on = !!(entry && allZero(product));
+    var state = sku && dropState(sku);
+    var locked = state === 'early' && !earlyOk[sku];
+    applyEarlyLock(locked, sku);
+    if (locked) { document.body.classList.add('uf-soon'); return; }
+    var on = !!(entry && state !== 'open' && state !== 'early' && allZero(product));
     document.body.classList.toggle('uf-soon', on);
     var btn = document.getElementById('uf-notify');
     var note = document.getElementById('uf-soon-note');
@@ -4449,17 +4551,21 @@ function buildStepper(active) {
     if (note.previousElementSibling !== btn) btn.insertAdjacentElement('afterend', note);
   }
 
-  // Каталог: «Нет в наличии» → «Скоро» у артикулов из списка с нулевым остатком
+  // Каталог: «Нет в наличии» → «Скоро» у артикулов из списка с нулевым остатком; в раннем доступе — «Скоро» всегда
   function applyCatalog() {
     var cards = document.querySelectorAll('.t-store__card');
     Array.prototype.forEach.call(cards, function (card) {
-      var inv = parseInt(card.getAttribute('data-product-inv'), 10);
-      if (inv !== 0) return;
       var skuEl = card.querySelector('.t-store__card__sku');
       if (!skuEl) return;
       var text = skuEl.textContent.replace(/^\s*Артикул:\s*/i, '').trim();
+      var inv = parseInt(card.getAttribute('data-product-inv'), 10);
       for (var sku in soon) {
-        if (text.indexOf(sku) === 0) { swapOutBadge(card.querySelector('.uf-badge-stack_cat')); return; }
+        if (text.indexOf(sku) !== 0) continue;
+        var state = dropState(sku);
+        var stack = card.querySelector('.uf-badge-stack_cat');
+        if (state === 'early' && !earlyOk[sku]) ensureSoonBadge(stack);
+        else if (state !== 'open' && inv === 0) swapOutBadge(stack);
+        return;
       }
     });
   }
@@ -4505,7 +4611,9 @@ function buildStepper(active) {
   }
 
   loadSoon();
+  loadDrops();
   setInterval(tick, 700);
+  setInterval(loadDrops, 5 * 60 * 1000);
 })();
 
 /*

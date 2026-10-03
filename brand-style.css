@@ -5341,3 +5341,29 @@ a.uf-submit { display: inline-block; text-decoration: none; }
   flex-basis: 100%;
   width: 100%;
 }
+
+/* Ранний доступ дропа: вместо «В корзину» — когда откроется для всех (brand-popup-fix.js, 03.10.2026) */
+.uf-early-lock {
+  flex-basis: 100%;
+  width: 100%;
+}
+/* Текст под кнопками предзаказа и раннего доступа — фирменным шрифтом, как остальной виджет */
+.uf-soon-note, .uf-early-lock__btn {
+  font-family: 'NeutralFace', 'Helvetica Neue', Arial, sans-serif;
+}
+.uf-early-lock__btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 50px;
+  padding: 0 20px;
+  background: #EDEAE4;
+  color: #17090B;
+  font-size: 12px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+.uf-early-lock .uf-soon-note a {
+  color: #7A1F2A;
+  text-decoration: underline;
+}
