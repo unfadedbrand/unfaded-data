@@ -4507,3 +4507,25 @@ function buildStepper(active) {
   loadSoon();
   setInterval(tick, 700);
 })();
+
+/*
+ * «Дополните образ» на карточках без табов (03.10.2026). Виджет из настроек сайта ставит блок
+ * под табы; если табов у товара нет — сразу под ценой, и он растягивается тёмной полосой
+ * посередине карточки (так было на топе «Heartbreaker»). Переносим блок туда же, где он стоит
+ * у товаров с табами: последним в контейнере карточки.
+ */
+(function () {
+  function placeOutfit() {
+    var block = document.getElementById('uf-outfit-standalone');
+    if (!block) return;
+    var hasTabs = Array.prototype.some.call(document.querySelectorAll('.t-store__tabs'),
+      function (t) { return t.offsetParent !== null; });
+    if (hasTabs) return;
+    var info = document.querySelector('.t-store__prod-popup__info');
+    var container = info && info.closest('.t-container');
+    if (!container || container.lastElementChild === block) return;
+    block.classList.add('t-col', 't-col_12');
+    container.appendChild(block);
+  }
+  setInterval(function () { try { placeOutfit(); } catch (e) {} }, 700);
+})();
