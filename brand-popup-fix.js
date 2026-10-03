@@ -4369,3 +4369,141 @@ function buildStepper(active) {
   document.addEventListener('DOMContentLoaded', mount);
   setInterval(mount, 1000);
 })();
+
+/*
+ * «Скоро» + «Оформить предзаказ» (03.10.2026).
+ * Список артикулов — ключ coming_soon в data.json: { "TC01FW26": { "date": "до 20 октября" } }.
+ * Режим включается, только пока у товара НОЛЬ по всем размерам. Как только остаток из МойСклада
+ * дошёл до Тильды — карточка сама становится обычной (плашка «Скоро» и предзаказ пропадают).
+ * Работает поверх виджета из настроек сайта: меняет плашку «Нет в наличии» на «Скоро»,
+ * кнопку «Узнать о поступлении» — на «Оформить предзаказ», а в RetailCRM уходит
+ * «Предзаказ: АРТИКУЛ, размер …» через ту же форму. Оплаты нет — ссылку на оплату
+ * отправляем, когда партия поступит.
+ */
+(function () {
+  var DATA_URL = 'https://raw.githubusercontent.com/unfadedbrand/unfaded-data/main/data.json';
+  var DEFAULT_TITLE = 'Мы оповестим вас, когда данный товар появится в наличии';
+  var soon = null;
+
+  function loadSoon() {
+    if (window.UF_SOON_OVERRIDE) { soon = window.UF_SOON_OVERRIDE; return; }
+    fetch(DATA_URL, { cache: 'no-store' })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (d) { soon = (d && d.coming_soon) || {}; })
+      .catch(function () { soon = {}; });
+  }
+
+  function getProduct() {
+    var scripts = document.querySelectorAll('script:not([src])');
+    for (var i = 0; i < scripts.length; i++) {
+      var txt = scripts[i].textContent;
+      if (txt.indexOf('t_store_productInit') === -1) continue;
+      var m = txt.match(/var product\s*=\s*(\{[\s\S]*?\});/);
+      if (m) { try { return JSON.parse(m[1]); } catch (e) {} }
+    }
+    return null;
+  }
+
+  function allZero(product) {
+    var eds = product.editions || [];
+    if (!eds.length) return false;
+    return eds.every(function (e) { var q = parseInt(e.quantity, 10); return !(q > 0); });
+  }
+
+  function selectedSize() {
+    var r = document.querySelector('.js-product-edition-option input[type="radio"]:checked');
+    return r ? r.value : '';
+  }
+
+  function swapOutBadge(stack) {
+    if (!stack) return;
+    var out = stack.querySelector('.uf-badge_out');
+    if (out) { out.className = 'uf-badge uf-badge_soon'; out.textContent = 'Скоро'; }
+  }
+
+  // Карточка товара
+  function applyPdp() {
+    var product = getProduct();
+    var sku = product && product.externalid;
+    var entry = sku && soon[sku];
+    var on = !!(entry && allZero(product));
+    document.body.classList.toggle('uf-soon', on);
+    var btn = document.getElementById('uf-notify');
+    var note = document.getElementById('uf-soon-note');
+    if (!on) {
+      if (btn && btn.getAttribute('data-uf-soon')) { btn.textContent = 'Узнать о поступлении'; btn.removeAttribute('data-uf-soon'); }
+      if (note) note.remove();
+      return;
+    }
+    swapOutBadge(document.getElementById('uf-badge-stack-prod'));
+    if (!btn) return;
+    if (btn.textContent !== 'Оформить предзаказ') btn.textContent = 'Оформить предзаказ';
+    btn.setAttribute('data-uf-soon', sku);
+    var text = 'Старт продаж ' + (entry.date || 'скоро') + '. Напишем вам первой и отложим ваш размер на 24 часа — без предоплаты.';
+    if (!note) {
+      note = document.createElement('div');
+      note.id = 'uf-soon-note';
+      note.className = 'uf-soon-note';
+    }
+    if (note.textContent !== text) note.textContent = text;
+    if (note.previousElementSibling !== btn) btn.insertAdjacentElement('afterend', note);
+  }
+
+  // Каталог: «Нет в наличии» → «Скоро» у артикулов из списка с нулевым остатком
+  function applyCatalog() {
+    var cards = document.querySelectorAll('.t-store__card');
+    Array.prototype.forEach.call(cards, function (card) {
+      var inv = parseInt(card.getAttribute('data-product-inv'), 10);
+      if (inv !== 0) return;
+      var skuEl = card.querySelector('.t-store__card__sku');
+      if (!skuEl) return;
+      var text = skuEl.textContent.replace(/^\s*Артикул:\s*/i, '').trim();
+      for (var sku in soon) {
+        if (text.indexOf(sku) === 0) { swapOutBadge(card.querySelector('.uf-badge-stack_cat')); return; }
+      }
+    });
+  }
+
+  // Окно формы: заголовок, комментарий для RetailCRM и текст «спасибо»
+  document.addEventListener('click', function (e) {
+    var btn = e.target.closest && e.target.closest('#uf-notify');
+    if (!btn) return;
+    setTimeout(function () {
+      var modal = document.getElementById('uf-notify-modal');
+      if (!modal) return;
+      var title = modal.querySelector('.uf-notify-modal__title');
+      var sku = btn.getAttribute('data-uf-soon');
+      if (sku) {
+        var size = selectedSize();
+        var product = getProduct();
+        if (title) title.textContent = 'Предзаказ: оставьте контакты — напишем, как только партия поступит, и отложим ваш размер';
+        modal.setAttribute('data-product', 'Предзаказ: ' + sku + (size ? ', размер ' + size : '') +
+          (product && product.title ? ' — ' + product.title : ''));
+        modal.setAttribute('data-uf-soon', '1');
+      } else {
+        if (title) title.textContent = DEFAULT_TITLE;
+        modal.removeAttribute('data-uf-soon');
+      }
+    }, 0);
+  }, true);
+
+  document.addEventListener('click', function (e) {
+    if (!(e.target.closest && e.target.closest('.uf-notify-modal__submit'))) return;
+    setTimeout(function () {
+      var modal = document.getElementById('uf-notify-modal');
+      var msg = modal && modal.querySelector('.uf-notify-modal__msg');
+      if (modal && modal.getAttribute('data-uf-soon') && msg && /^Спасибо/.test(msg.textContent)) {
+        msg.textContent = 'Спасибо! Предзаказ оформлен — напишем, как только партия поступит.';
+      }
+    }, 0);
+  });
+
+  function tick() {
+    if (soon === null) return;
+    try { applyPdp(); } catch (e) {}
+    try { applyCatalog(); } catch (e) {}
+  }
+
+  loadSoon();
+  setInterval(tick, 700);
+})();

@@ -5324,3 +5324,15 @@ a.uf-submit { display: inline-block; text-decoration: none; }
   .uf-actions .uf-submit { width: 100%; box-sizing: border-box; text-align: center; }
   .uf-svc-panel .uf-submit[data-uf-submit] { width: 100%; }
 }
+
+/* «Скоро» — новинка до поступления партии (режим предзаказа, brand-popup-fix.js, 03.10.2026) */
+.uf-badge_soon {
+  background: #7A1F2A !important;
+  color: #FAFAFA !important;
+}
+.uf-soon-note {
+  margin-top: 10px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: #6B6B6B;
+}
