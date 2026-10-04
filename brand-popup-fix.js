@@ -4676,3 +4676,105 @@ function buildStepper(active) {
   }
   setInterval(function () { try { placeOutfit(); } catch (e) {} }, 700);
 })();
+
+// --- Закрытый архив клуба: проверка наличия перед оформлением заказа ---
+// Карточки архива — копии основных в Тильде; их остатки синхронизация с МоимСкладом не
+// обновляет. Поэтому, если в корзине вещь из архива, перед «Оформить заказ» спрашиваем
+// сервис клуба: он смотрит живой остаток в МоёмСкладе и не даёт продать то, чего нет.
+// Обычные заказы (без вещей архива) не задерживаем: сервис даже не вызываем.
+(function () {
+  var API = 'https://unfaded-app-api.onrender.com';
+  var ARCHIVE_PART = '491983923473';
+  var LIST_URL = 'https://store.tildaapi.com/api/getproductslist/?storepartuid=' + ARCHIVE_PART +
+    '&recid=504309825&c=1&slice=1&getparts=false&size=500';
+  var cache = { at: 0, map: null };
+  var approved = null;
+
+  function num(v) { return parseFloat(String(v == null ? '' : v).replace(/\s/g, '').replace(',', '.')) || 0; }
+
+  // артикул размера → цена в архиве (публичные данные раздела «Архив»)
+  function archiveMap() {
+    if (cache.map && Date.now() - cache.at < 10 * 60 * 1000) return Promise.resolve(cache.map);
+    return fetch(LIST_URL).then(function (r) { return r.json(); }).then(function (d) {
+      var map = {};
+      (d.products || []).forEach(function (p) {
+        var eds = p.editions;
+        if (typeof eds === 'string') { try { eds = JSON.parse(eds); } catch (e) { eds = []; } }
+        (eds && eds.length ? eds : [p]).forEach(function (e) {
+          if (e.sku || e.externalid) map[e.sku || e.externalid] = num(e.price);
+        });
+      });
+      cache = { at: Date.now(), map: map };
+      return map;
+    });
+  }
+
+  function cartItems() {
+    var c = window.tcart;
+    if (!c || !c.products) return [];
+    return c.products.map(function (p) {
+      return { sku: String(p.sku || p.externalid || ''), quantity: parseInt(p.quantity, 10) || 1,
+               price: num(p.price), name: p.name || '' };
+    });
+  }
+
+  function hasArchive(items, map) {
+    return items.some(function (i) { return map[i.sku] && Math.abs(map[i.sku] - i.price) <= 1; });
+  }
+
+  function signature(items) {
+    return items.map(function (i) { return i.sku + 'x' + i.quantity + '@' + i.price; }).join('|');
+  }
+
+  function showMessage(btn, text) {
+    var holder = btn.closest('.t-form__submit') || btn.parentElement;
+    var box = holder.parentElement.querySelector('.uf-archive-msg');
+    if (!box) {
+      box = document.createElement('div');
+      box.className = 'uf-archive-msg';
+      box.style.cssText = 'margin:10px 0;padding:10px 12px;background:#FBEAEA;color:#7A1F2A;font-size:14px;line-height:1.4';
+      holder.parentElement.insertBefore(box, holder);
+    }
+    box.textContent = text;
+    box.hidden = !text;
+  }
+
+  function soldOutText(items, skus, message) {
+    var names = items.filter(function (i) { return skus.indexOf(i.sku) !== -1; })
+      .map(function (i) { return i.name; });
+    return names.length
+      ? message + ' ' + names.join(', ') + ' — уберите из корзины, чтобы оформить остальное.'
+      : message;
+  }
+
+  document.addEventListener('click', function (e) {
+    var btn = e.target.closest && e.target.closest('.t706 .t-form__submit .t-submit, .t706 .t-submit');
+    if (!btn) return;
+    var items = cartItems();
+    if (!items.length) return;
+    var sig = signature(items);
+    if (approved === sig) { approved = null; return; }  // повторный клик после проверки — пропускаем
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    showMessage(btn, '');
+    archiveMap().catch(function () { return null; }).then(function (map) {
+      if (map && !hasArchive(items, map)) return { ok: true };  // обычный заказ
+      btn.classList.add('t-btn_sending');
+      return fetch(API + '/club/archive/check', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cart: items.map(function (i) { return { sku: i.sku, quantity: i.quantity, price: i.price }; }) })
+      }).then(function (r) { return r.json(); }).catch(function () {
+        // сервис не ответил: вещи архива не продаём вслепую, обычные заказы — пропускаем
+        return map ? { ok: false, sold_out: [], message: 'Не удалось проверить наличие. Попробуйте через минуту.' } : { ok: true };
+      });
+    }).then(function (res) {
+      btn.classList.remove('t-btn_sending');
+      if (res && res.ok) {
+        approved = sig;
+        btn.click();
+        return;
+      }
+      showMessage(btn, soldOutText(items, (res && res.sold_out) || [], (res && res.message) || 'Не удалось проверить наличие.'));
+    });
+  }, true);
+})();
