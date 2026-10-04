@@ -4358,12 +4358,68 @@ function buildStepper(active) {
     });
   }
 
+  // --- вещи из закрытого архива клуба: CREDITS на них не списываются ---
+  // Сервис и так не даст списать на архив, но говорить об этом надо сразу, а не после кода.
+  // Вещь из архива = артикул есть в разделе «Архив» и цена в корзине — цена архива
+  // (у основной карточки тот же артикул, но другая цена).
+  var ARCHIVE_URL = 'https://store.tildaapi.com/api/getproductslist/?storepartuid=491983923473' +
+    '&recid=504309825&c=1&slice=1&getparts=false&size=500';
+  var archivePrices = null, archiveLoading = false;
+
+  function loadArchive() {
+    if (archivePrices || archiveLoading) return;
+    archiveLoading = true;
+    fetch(ARCHIVE_URL).then(function (r) { return r.json(); }).then(function (d) {
+      var map = {};
+      (d.products || []).forEach(function (p) {
+        var eds = p.editions;
+        if (typeof eds === 'string') { try { eds = JSON.parse(eds); } catch (e) { eds = []; } }
+        (eds && eds.length ? eds : [p]).forEach(function (e) {
+          if (e.sku) map[e.sku] = parseFloat(String(e.price).replace(/\s/g, '')) || 0;
+        });
+      });
+      archivePrices = map;
+    }).catch(function () { archivePrices = {}; });
+  }
+
+  function archiveShare() {
+    var items = cartItems();
+    if (!items.length) return 'none';
+    loadArchive();
+    if (!archivePrices) return 'none';
+    var n = items.filter(function (i) {
+      return i.sku in archivePrices && Math.abs(archivePrices[i.sku] - (i.price || 0)) <= 1;
+    }).length;
+    return !n ? 'none' : n === items.length ? 'all' : 'some';
+  }
+
+  function markArchive(box) {
+    var share = archiveShare();
+    if (box.getAttribute('data-archive') === share) return;
+    box.setAttribute('data-archive', share);
+    var intro = box.querySelector('.uf-cr__step_intro');
+    var note = intro.querySelector('.uf-cr__archive');
+    if (!note) {
+      note = document.createElement('p');
+      note.className = 'uf-cr__text uf-cr__archive';
+      intro.insertBefore(note, intro.firstChild);
+    }
+    var all = share === 'all';
+    note.textContent = all ? 'CREDITS на вещи из архива не списываются.'
+      : 'На вещи из архива CREDITS не списываются — лимит считается по остальным товарам.';
+    note.hidden = share === 'none';
+    Array.prototype.forEach.call(intro.querySelectorAll('.uf-cr__text:not(.uf-cr__archive), .uf-cr__open, .uf-cr__join'),
+      function (el) { el.hidden = all; });
+  }
+
   function mount() {
     var info = document.querySelector('.t706__cartpage-info-wrapper');
     var totals = info && info.querySelector('.t706__cartpage-totals');
     markCreditsRows();
-    if (!info || !totals || info.querySelector('.uf-cr')) return;
-    wire(build(info, totals));
+    if (!info || !totals) return;
+    var box = info.querySelector('.uf-cr');
+    if (!box) { box = build(info, totals); wire(box); }
+    markArchive(box);
   }
 
   document.addEventListener('DOMContentLoaded', mount);
