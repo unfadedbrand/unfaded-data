@@ -4601,6 +4601,17 @@ function buildStepper(active) {
     if (!(e.target.closest && e.target.closest('.uf-notify-modal__submit'))) return;
     var modal = document.getElementById('uf-notify-modal');
     if (!modal) return;
+    // Телефон: поле в окне — копия маски Тильды, и маска в копии не заполняет скрытое поле-результат
+    // (data-uf="phone"), откуда его берёт виджет, — телефон терялся и в RetailCRM, и здесь (04.10.2026).
+    // Перед отправкой переносим набранный номер в поле-результат с кодом страны.
+    var phoneWrap = modal.querySelector('.uf-notify-modal__phone-wrap');
+    var phoneVisible = phoneWrap && phoneWrap.querySelector('.t-input-phonemask');
+    var phoneResult = modal.querySelector('[data-uf="phone"]');
+    if (phoneVisible && phoneResult && phoneResult !== phoneVisible && !phoneResult.value &&
+        String(phoneVisible.value || '').replace(/\D/g, '').length >= 10) {
+      var codeEl = phoneWrap.querySelector('.t-input-phonemask__select-code');
+      phoneResult.value = ((codeEl && codeEl.textContent.trim()) || '+7') + ' ' + phoneVisible.value.trim();
+    }
     var val = function (sel) { var el = modal.querySelector(sel); return el ? String(el.value || '').trim() : ''; };
     var email = val('[data-uf="email"]');
     var consent = modal.querySelector('[data-uf="consent"]');
