@@ -5394,3 +5394,22 @@ body.uf-soon .uf-soon-note {
 .t-product__option-item_buttons.t-product__option-item_simple.t-product__option-item_disabled:has(.t-product__option-input_buttons:checked) {
   box-shadow: inset 0 0 0 1px #17090B;
 }
+
+/* === Попап подписки (rec1542845921): «Обязательное поле» — строкой под полем, а не всплывающей
+   белой плашкой Тильды: плашка (position:absolute) наезжала на чекбокс согласия (04.10.2026). === */
+#rec1542845921 .t-input-error {
+  position: static !important;
+  display: block;
+  width: auto !important;
+  margin: 6px 0 0 !important;
+  padding: 0 !important;
+  background: none !important;
+  box-shadow: none !important;
+  color: #E8A0A6 !important;
+  font-size: 11px !important;
+  line-height: 1.3 !important;
+  letter-spacing: 0.02em;
+  text-align: left;
+}
+#rec1542845921 .t-input-error::before,
+#rec1542845921 .t-input-error::after { display: none !important; }
