@@ -4593,6 +4593,34 @@ function buildStepper(active) {
     }, 0);
   }, true);
 
+  // Заявка дублируется в бэкенд клуба (04.10.2026): форма Тильды доносит до RetailCRM только имя —
+  // без товара, размера и телефона. Работает для «Оформить предзаказ» и «Узнать о поступлении».
+  // Проверки — те же, что у виджета (почта и согласие), иначе заявка в Тильду тоже не уйдёт.
+  var REQUESTS_URL = 'https://unfaded-app-api.onrender.com/drops/preorder';
+  document.addEventListener('click', function (e) {
+    if (!(e.target.closest && e.target.closest('.uf-notify-modal__submit'))) return;
+    var modal = document.getElementById('uf-notify-modal');
+    if (!modal) return;
+    var val = function (sel) { var el = modal.querySelector(sel); return el ? String(el.value || '').trim() : ''; };
+    var email = val('[data-uf="email"]');
+    var consent = modal.querySelector('[data-uf="consent"]');
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || !(consent && consent.checked)) return;
+    var product = getProduct();
+    if (!product || !product.externalid) return;
+    var body = {
+      kind: modal.getAttribute('data-uf-soon') ? 'preorder' : 'notify',
+      sku: product.externalid,
+      size: selectedSize() || null,
+      name: val('[data-uf="name"]') || null,
+      email: email,
+      phone: val('[data-uf="phone"]') || null
+    };
+    try {
+      fetch(REQUESTS_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body), keepalive: true }).catch(function () {});
+    } catch (err) {}
+  }, true);
+
   document.addEventListener('click', function (e) {
     if (!(e.target.closest && e.target.closest('.uf-notify-modal__submit'))) return;
     setTimeout(function () {
