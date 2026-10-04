@@ -4778,3 +4778,58 @@ function buildStepper(active) {
     });
   }, true);
 })();
+
+// --- Закрытый архив клуба: раскупленные размеры на странице товара ---
+// Остатки карточек архива в Тильде статичны. На странице товара архива спрашиваем сервис клуба
+// (живой остаток МоегоСклада минус брони) и размер, которого больше нет, делаем серым —
+// так же, как Тильда показывает размер с нулевым остатком. Заказ всё равно защищён проверкой
+// в корзине (блок выше). Сервис не ответил — страницу не трогаем.
+(function () {
+  var m = location.pathname.match(/\/tproduct\/\d+-(\d+)-/);
+  if (!m) return;
+  var uid = m[1];
+  var API = 'https://unfaded-app-api.onrender.com';
+  var LIST_URL = 'https://store.tildaapi.com/api/getproductslist/?storepartuid=491983923473' +
+    '&recid=504309825&c=1&slice=1&getparts=false&size=500';
+
+  function sizeSkus() {
+    return fetch(LIST_URL).then(function (r) { return r.json(); }).then(function (d) {
+      var p = (d.products || []).filter(function (x) { return String(x.uid) === uid; })[0];
+      if (!p) return null;  // не архив
+      var eds = p.editions;
+      if (typeof eds === 'string') { try { eds = JSON.parse(eds); } catch (e) { eds = []; } }
+      var bySize = {};
+      (eds || []).forEach(function (e) {
+        if (e['Размер'] && (e.sku || e.externalid)) {
+          (bySize[e['Размер']] = bySize[e['Размер']] || []).push(e.sku || e.externalid);
+        }
+      });
+      return bySize;
+    });
+  }
+
+  function apply(bySize, stock) {
+    document.querySelectorAll('.t-product__option-item').forEach(function (label) {
+      var skus = bySize[(label.textContent || '').trim()];
+      if (!skus) return;
+      var gone = skus.every(function (s) { return s in stock && stock[s] <= 0; });
+      if (gone) label.classList.add('t-product__option-item_disabled');
+    });
+  }
+
+  sizeSkus().then(function (bySize) {
+    if (!bySize) return;
+    return fetch(API + '/club/archive/stock', { cache: 'no-store' })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (stock) {
+        if (!stock) return;
+        apply(bySize, stock);
+        // Тильда перерисовывает варианты при выборе цвета/размера — повторяем
+        document.addEventListener('click', function (e) {
+          if (e.target.closest && e.target.closest('.t-product__option')) {
+            setTimeout(function () { apply(bySize, stock); }, 0);
+          }
+        });
+      });
+  }).catch(function () {});
+})();
