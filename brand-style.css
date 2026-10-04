@@ -5367,3 +5367,30 @@ a.uf-submit { display: inline-block; text-decoration: none; }
   color: #7A1F2A;
   text-decoration: underline;
 }
+
+/* Карточка «скоро» (04.10.2026): кнопка «Оформить предзаказ» и текст под ней — в две строки.
+   Обёртка кнопки у Тильды flex без переноса, поэтому flex-basis:100% у текста не срабатывал
+   (на телефоне текст стоял узкой колонкой справа от кнопки). */
+body.uf-soon .t-store__prod-popup__btn-wrapper {
+  flex-wrap: wrap;
+}
+body.uf-soon .uf-soon-note {
+  flex: 1 1 100%;
+  margin-top: 12px;
+}
+
+/* Выбранный, но распроданный размер (04.10.2026). На телефоне выбранный размер — белая подпись
+   на тёмной плашке, а у распроданного (_disabled) плашка не рисуется: белое на белом, окошко пустое.
+   Показываем его рамкой с тёмной подписью. */
+.t-product__option-item_buttons.t-product__option-item_simple.t-product__option-item_disabled
+  .t-product__option-input_buttons:checked ~ .t-product__option-title_buttons {
+  color: #17090B !important;
+}
+.t-product__option-item_buttons.t-product__option-item_simple.t-product__option-item_disabled
+  .t-product__option-input_buttons:checked ~ .t-product__option-checkmark_buttons {
+  background-color: transparent !important;
+  border-color: #17090B !important;
+}
+.t-product__option-item_buttons.t-product__option-item_simple.t-product__option-item_disabled:has(.t-product__option-input_buttons:checked) {
+  box-shadow: inset 0 0 0 1px #17090B;
+}
