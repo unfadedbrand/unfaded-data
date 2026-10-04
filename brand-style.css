@@ -5413,3 +5413,8 @@ body.uf-soon .uf-soon-note {
 }
 #rec1542845921 .t-input-error::before,
 #rec1542845921 .t-input-error::after { display: none !important; }
+
+/* Архив клуба: в корзине только вещи архива — прячем «Списать CREDITS» (04.10.2026) */
+html.uf-co2 .uf-cr__text[hidden],
+html.uf-co2 .uf-cr__link[hidden],
+html.uf-co2 .uf-cr__join[hidden] { display: none; }
