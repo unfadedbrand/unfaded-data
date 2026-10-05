@@ -3816,7 +3816,17 @@ function buildStepper(active) {
   var INDEX_URL = 'https://unfadedbrand.github.io/unfaded-data/search-index.json';
   var API = 'https://store.tildaapi.com/api/getproductslist/';
   var MAX = 3;                  // больше в узкой колонке превращается в список
-  var FREE_SHIPPING = 30000;    // порог бесплатной доставки, ₽
+  var FREE_SHIPPING_DEFAULT = 30000;  // порог бесплатной доставки без клуба, ₽
+
+  // У участницы клуба порог свой: после подтверждения телефона на чекауте он
+  // лежит в window.UF_ACCESS.freeFrom (0 — бесплатно всегда), как в полоске
+  // корзины. С примеркой бесплатной доставки нет — подсказку не показываем.
+  function freeShipping() {
+    var fit = document.querySelector('input[name="primerka"]');
+    if (fit && fit.checked) return 0;
+    var a = window.UF_ACCESS;
+    return a && typeof a.freeFrom === 'number' ? a.freeFrom : FREE_SHIPPING_DEFAULT;
+  }
 
   var data = null, urlToArticle = null, editionsCache = {}, inFlight = {}, busy = false, lastKey = '';
 
@@ -3971,7 +3981,8 @@ function buildStepper(active) {
     var products = c.products || [];
     if (!products.length || payStep) { if (existing) existing.remove(); lastKey = ''; return; }
 
-    var key = products.map(function (p) { return p.sku + 'x' + p.quantity; }).join('|');
+    // порог в ключе: после входа в клуб или галочки «примерка» блок перерисуется
+    var key = products.map(function (p) { return p.sku + 'x' + p.quantity; }).join('|') + '#' + freeShipping();
     if (key === lastKey && existing) return;
 
     busy = true;
@@ -4004,7 +4015,8 @@ function buildStepper(active) {
       if (!picked.length) { if (existing) existing.remove(); lastKey = key; busy = false; return; }
 
       var total = num(c.prodamount || c.amount || 0);
-      var gap = FREE_SHIPPING - total;
+      var limit = freeShipping();
+      var gap = limit > 0 ? limit - total : 0;
 
       // если до бесплатной доставки немного — вперёд идут те, кто её закрывает
       if (gap > 0) {
