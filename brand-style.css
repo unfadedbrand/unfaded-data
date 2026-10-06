@@ -939,10 +939,10 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
   }
 }
 
-/* Валюта в карточке товара — «RUB» вместо «р.» (как у Namelazz), на всех сетках карточек
+/* Валюта в карточке товара — «₽» вместо «р.» Тильды (формат «16 000 ₽»), на всех сетках карточек
    сайта (общий класс .t-store__card__price-currency — главная/каталог/кросс-селл).
    Сам текст узла управляется настройкой валюты Тильды, поэтому исходный текст визуально
-   прячем (font-size:0), а «RUB» подставляем через ::after; размер ::after держим в
+   прячем (font-size:0), а «₽» подставляем через ::after; размер ::after держим в
    переменной, чтобы не зависеть от обнулённого font-size родителя. */
 .t-store__card__price-currency {
   --uf-currency-fs: 12px;
@@ -950,7 +950,7 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
   margin-left: 4px !important;
 }
 .t-store__card__price-currency::after {
-  content: "RUB" !important;
+  content: "\20BD" !important; /* ₽ */
   font-size: var(--uf-currency-fs) !important;
 }
 @media screen and (max-width: 639px) {
@@ -973,7 +973,7 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
 }
 
 /* НАЙДЕНО 28.08 (ночь #3): даже с currency-fs правильно резолвящимся в 10px (правило
-   выше), обозначение "RUB" визуально всё равно было заметно крупнее и стояло не на
+   выше), обозначение валюты (тогда «RUB») визуально всё равно было заметно крупнее и стояло не на
    одной линии с ценой — но ТОЛЬКО на мобильном. Причина — не font-size, а высота
    самого бокса .t-store__card__price-currency: на ≤639px его auto-высота резолвилась
    в 17px против 14px у .t-store__card__price-value (тот же родитель, тот же
@@ -984,7 +984,7 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
    через JS/cssRules). На десктопе этого бага нет — там currency и value уже совпадают
    по высоте (~16.2px) без вмешательства, поэтому фикс СТРОГО ограничен мобильным
    медиа-запросом, чтобы не трогать десктоп. Из-за более высокого бокса currency на
-   мобильном "RUB" визуально съезжало относительно baseline числа — это и читалось
+   мобильном знак валюты визуально съезжал относительно baseline числа — это и читалось
    как "цена и рубль не на одной строке/скачут", хотя font-size уже совпадал.
    Подтверждено: .t-store__card__price-currency:not(#uf-spec-boost3) с явным
    height/line-height 14px даёт currency и value идентичную высоту (14px) и
@@ -1009,7 +1009,7 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
   column-gap: 3px !important;
 }
 
-/* Фикс: цена и RUB были жирными (font-weight:700 из дефолтных стилей Tilda) — делаем
+/* Фикс: цена и знак валюты были жирными (font-weight:700 из дефолтных стилей Tilda) — делаем
    обычное начертание, одного размера, на одной линии, на всех разделах сайта. */
 .t-store__card__price-value:not(#uf-spec-boost),
 .t-store__card__price-currency:not(#uf-spec-boost) {
@@ -2165,7 +2165,7 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
      даёт центрирование контейнера), карточки чуть уже, чтобы по-прежнему
      помещалось по 2 в ряд;
    - размер шрифта имени/цены как в .t-store__card__title/.t-store__card__price-value;
-   - подпись валюты «RUB» как в карточках каталога (см. .t-store__card__price-currency
+   - подпись валюты «₽» как в карточках каталога (см. .t-store__card__price-currency
      выше) — тут делаем через отдельные span'ы .uf-outfit-price-value/-currency,
      которые проставляет brand-popup-fix.js (ensureOutfitPriceFormat), т.к. само
      число и «₽» изначально приходят одним текстовым узлом без разметки. */
@@ -2275,7 +2275,7 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
 }
 
 /* Цена — общие классы для строки товара И итоговой суммы, поэтому один раз:
-   прячем «р.» Тильды и подставляем приглушённое «RUB», как в карточках каталога
+   прячем «р.» Тильды и подставляем приглушённое «₽», как в карточках каталога
    (см. .t-store__card__price-currency выше в этом файле). */
 .t706__cartwin-prodamount-price {
   font-family: 'Onest', sans-serif !important;
@@ -2286,7 +2286,7 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
   font-size: 0 !important;
 }
 .t706__cartwin-prodamount-currency::after {
-  content: "RUB" !important;
+  content: "\20BD" !important; /* ₽ */
   font-size: 11px !important;
   color: #9A9D9F !important;
   margin-left: 3px;
@@ -2783,9 +2783,9 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
 }
 
 
-/* Страница товара («карточка товара»): цена и старая цена — «RUB» вместо «р.»
+/* Страница товара («карточка товара»): цена и старая цена — «₽» вместо «р.»
    (аналогично каталожным карточкам). Узел управляется настройкой валюты Тильды,
-   поэтому исходный текст визуально прячем (font-size:0), а «RUB» подставляем
+   поэтому исходный текст визуально прячем (font-size:0), а «₽» подставляем
    через ::after; размер держим в переменной, чтобы не зависеть от обнулённого
    font-size родителя. Один класс покрывает и текущую, и старую (зачёркнутую) цену. */
 .t-store__prod-popup__price-currency {
@@ -2794,7 +2794,7 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
   margin-left: 4px !important;
 }
 .t-store__prod-popup__price-currency::after {
-  content: "RUB" !important;
+  content: "\20BD" !important; /* ₽ */
   font-size: var(--uf-currency-fs-pdp) !important;
   font-family: var(--uf-font-mono) !important;
 }
@@ -4883,7 +4883,7 @@ html.uf-co2 .uf-co2-promo__input { flex: 1 1 0 !important; width: auto !importan
 /* Поиск: карточки товаров — как в каталоге/на главной (.t-store__card):
    фото 3:4 без отступа, тёмная плашка #17090B с линией сверху, название
    Onest 14px обычным регистром #FAFAFA, цена 12px с прозрачностью .55,
-   «RUB», зачёркнутая старая цена .4; на телефоне 10px/14px с разрядкой
+   «₽», зачёркнутая старая цена .4; на телефоне 10px/14px с разрядкой
    0.064em (те же значения, что у .t-store__card__title/__price выше).
    Сетка — зазор 3px, как у .t-store__card-list. */
 #ufs-overlay .ufs-grid { gap: 3px !important; }
@@ -4935,7 +4935,7 @@ html.uf-co2 .uf-co2-promo__input { flex: 1 1 0 !important; width: auto !importan
   #ufs-overlay .ufs-card__price { text-transform: uppercase !important; }
   #ufs-overlay .ufs-card__old { margin-left: 6px !important; }
 }
-/* старая цена целиком («50 900 RUB» не рвётся посередине) */
+/* старая цена целиком («50 900 ₽» не рвётся посередине) */
 #ufs-overlay .ufs-card__old { display: inline-block; white-space: nowrap; }
 
 /* Вкладка «Доставка и оплата» в карточке товара — единый текст из

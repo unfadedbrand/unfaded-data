@@ -660,7 +660,7 @@
  * UNFADED — цена в блоке «Дополните образ» (uf-outfit, кросс-селл на странице
  * товара). Виджет отдаёт цену одним текстовым узлом «18 000 ₽» без разметки,
  * поэтому не может унаследовать стиль карточек каталога (там число и подпись
- * «RUB» — раздельные элементы, см. .t-store__card__price-currency в
+ * «₽» — раздельные элементы, см. .t-store__card__price-currency в
  * brand-style.css). Разбиваем текст на два span'а те же по смыслу
  * (.uf-outfit-price-value/.uf-outfit-price-currency), чтобы CSS мог
  * оформить их так же, как в остальных карточках сайта.
@@ -681,7 +681,7 @@
       valueSpan.textContent = value;
       var curSpan = document.createElement('span');
       curSpan.className = 'uf-outfit-price-currency';
-      curSpan.textContent = 'RUB';
+      curSpan.textContent = '₽';
       el.appendChild(valueSpan);
       el.appendChild(curSpan);
       el.setAttribute('data-uf-formatted', '1');
@@ -3467,17 +3467,18 @@ function buildStepper(active) {
       return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
     });
   }
-  // same currency label as the catalog cards («RUB», see .t-store__card__price-currency)
-  function price(n) { return String(Math.round(n || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' RUB'; }
+  // same currency label as the catalog cards («16 000 ₽», see .t-store__card__price-currency)
+  function price(n) { return String(Math.round(n || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + '\u00A0₽'; }
 
-  // Results rendered by the HEAD search code print «₽»; switch them to «RUB»
-  // so search cards read like the catalog ones.
+  // Results rendered by the HEAD search code print «₽» — keep the sign, only
+  // glue it to the number with a no-break space so «16 000 ₽» never wraps.
   function fixCurrency(root) {
     var w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
     var n;
     while ((n = w.nextNode())) {
       if (n.nodeValue.indexOf('₽') !== -1 && n.parentNode.closest('.ufs-card__price')) {
-        n.nodeValue = n.nodeValue.replace(/\s*₽/g, ' RUB');
+        var v = n.nodeValue.replace(/\s*₽/g, '\u00A0₽');
+        if (v !== n.nodeValue) n.nodeValue = v;
       }
     }
   }
@@ -3666,12 +3667,12 @@ function buildStepper(active) {
   var oldPriceByUrl = null;
 
   // Цена в data.json лежит строкой «27 000 ₽». Карточки каталога пишут число
-  // и подпись «RUB» раздельно (см. .t-store__card__price-currency в
+  // и подпись «₽» раздельно (см. .t-store__card__price-currency в
   // brand-style.css) — разбираем так же, чтобы блок не отличался от сайта.
   function priceParts(raw) {
     var text = String(raw == null ? '' : raw);
     var m = text.match(/^\s*([\d\s ]+?)\s*₽\s*$/);
-    return m ? { value: m[1], currency: 'RUB' } : { value: text, currency: '' };
+    return m ? { value: m[1], currency: '₽' } : { value: text, currency: '' };
   }
 
   function loadOldPrices() {
@@ -3831,7 +3832,7 @@ function buildStepper(active) {
   var data = null, urlToArticle = null, editionsCache = {}, inFlight = {}, busy = false, lastKey = '';
 
   function money(n) {
-    return String(Math.round(n || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' RUB';
+    return String(Math.round(n || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + '\u00A0₽';
   }
   function num(raw) {
     var m = String(raw == null ? '' : raw).match(/[\d\s ]+/);
