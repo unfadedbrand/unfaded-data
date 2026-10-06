@@ -4914,3 +4914,274 @@ function buildStepper(active) {
       });
   }).catch(function () {});
 })();
+
+// ============================================================
+// UNFADED — промокоды с условиями (UNFD1000, 06.10.2026)
+//
+// У промокодов Тильды нет ни минимальной суммы, ни ограничения «только первый
+// заказ». UNFD1000 (−1000 ₽) действует от 7 000 ₽ товаров и только на первый
+// заказ, поэтому:
+// а) «Применить» с UNFD1000 при сумме товаров меньше порога — не применяем,
+//    пишем условие под полем промокода;
+// б) «Оформить заказ» с применённым UNFD1000 — сначала спрашиваем сервер
+//    заказов (POST delivery.unfadedstore.com/promo/check: есть ли у клиентки
+//    с этим телефоном/e-mail заказы в RetailCRM, кроме отменённых). Ответ
+//    ok:false — снимаем промокод, пересчитываем итог, показываем причину и
+//    заказ не отправляем. Ответ ok:true, сервер не ответил или ошибка сети —
+//    оформляем как обычно (заказ важнее);
+// в) состав корзины изменился и сумма товаров упала ниже порога — снимаем
+//    промокод с сообщением.
+//
+// Список кодов и порог дублируют PromoRules::RULES на сервере
+// (unfaded-delivery-calc, src/Service/PromoRules.php) — менять в обоих местах.
+//
+// Перехват — на window в фазе захвата: срабатывает раньше обработчиков Тильды
+// и раньше проверки архива клуба (она висит на document).
+// Откат: удалить этот блок — промокод снова будет работать без условий.
+// ============================================================
+(function () {
+  'use strict';
+  if (window.__ufPromoRulesInit) return;  // файл подключён дважды — второй раз не запускаем
+  window.__ufPromoRulesInit = true;
+
+  var API = 'https://delivery.unfadedstore.com/promo/check';
+  var PROMO_RULES = {
+    UNFD1000: { minAmount: 7000, firstOrderOnly: true }
+  };
+  var CHECK_TIMEOUT_MS = 7000;           // дольше покупательницу на кнопке не держим
+  var APPROVAL_TTL_MS = 2 * 60 * 1000;   // проверенный заказ повторно не проверяем
+  var SUBMIT_SEL = '.t706 .t-form__submit .t-submit, .t706 .t-submit, .t706 .t-form [type="submit"]';
+
+  var pending = false;
+  var approved = null;  // { sig, at }
+
+  function norm(code) { return String(code == null ? '' : code).trim().toUpperCase(); }
+  function rule(code) {
+    code = norm(code);
+    return Object.prototype.hasOwnProperty.call(PROMO_RULES, code) ? PROMO_RULES[code] : null;
+  }
+  function rub(n) { return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ' '); }
+  function minText(code, min) { return 'Промокод ' + code + ' действует на заказ от ' + rub(min) + ' ₽'; }
+  function qa(sel) { return Array.prototype.slice.call(document.querySelectorAll(sel)); }
+  function call(name) {
+    try { if (typeof window[name] === 'function') window[name](); } catch (e) { /* не ломаем корзину */ }
+  }
+
+  function cart() { return window.tcart && typeof window.tcart === 'object' ? window.tcart : null; }
+  function goodsAmount() { var c = cart(); return c ? (parseFloat(c.prodamount) || 0) : 0; }
+
+  // Применённый код. Обычно он в tcart.promocode; если скидки корзины выгоднее
+  // промокода, Тильда прячет его в cartCalculator.appliedPromocode.
+  function appliedCode() {
+    var c = cart();
+    var p = c && c.promocode;
+    if (p && typeof p === 'object' && p.promocode) return norm(p.promocode);
+    var calc = window.cartCalculator;
+    var a = calc && calc.appliedPromocode;
+    if (a && typeof a === 'object' && a.promocode) return norm(a.promocode);
+    return '';
+  }
+
+  // --- поле промокода ---
+  // После применения Тильда заменяет содержимое .t-inputpromocode__wrapper
+  // текстом «Промокод … активирован», поле и кнопка пропадают. Своей функции
+  // «снять промокод» у неё нет, поэтому заранее запоминаем сами узлы поля
+  // (с обработчиками Тильды и ссылками Checkout v2 на них) и при снятии
+  // возвращаем их на место.
+  function wrappers() { return qa('.t706 .t-inputpromocode__wrapper'); }
+  function snapshot(w) {
+    if (w && w.querySelector('.t-inputpromocode')) w.__ufPromoNodes = Array.prototype.slice.call(w.childNodes);
+  }
+  function restoreField(w) {
+    var nodes = w.__ufPromoNodes;
+    if (nodes && nodes.length && !w.querySelector('.t-inputpromocode')) {
+      while (w.firstChild) w.removeChild(w.firstChild);
+      nodes.forEach(function (n) { w.appendChild(n); });
+    }
+    var input = w.querySelector('.t-inputpromocode');
+    if (input) input.value = '';  // иначе Тильда не даст оформить: «Активируйте промокод или очистите поле»
+    var group = w.closest ? w.closest('.t-input-group') : null;
+    var title = group && group.querySelector('.t-input-title');
+    if (title) title.style.visibility = '';
+  }
+
+  // Сообщение под полем промокода: и у поля Тильды, и у поля Checkout v2
+  // (поле Тильды в Checkout v2 скрыто, показываем в обоих).
+  function showPromoMessage(text) {
+    wrappers().forEach(function (w) {
+      var group = (w.closest && w.closest('.t-input-group')) || w.parentElement;
+      var err = group && group.querySelector('.t-input-error');
+      if (err) {
+        err.textContent = text;
+        err.style.display = text ? 'block' : '';
+      }
+    });
+    qa('.uf-co2-promo__msg').forEach(function (m) { m.textContent = text; });
+  }
+
+  // Сообщение над кнопкой «Оформить заказ» — оформлено как у проверки архива клуба.
+  function showSubmitMessage(btn, text) {
+    var holder = (btn && (btn.closest('.t-form__submit') || btn.parentElement)) || null;
+    if (!holder || !holder.parentElement) return;
+    var box = holder.parentElement.querySelector('.uf-promo-msg');
+    if (!box) {
+      if (!text) return;
+      box = document.createElement('div');
+      box.className = 'uf-promo-msg';
+      box.setAttribute('aria-live', 'polite');
+      box.style.cssText = 'margin:10px 0;padding:10px 12px;background:#FBEAEA;color:#7A1F2A;font-size:14px;line-height:1.4';
+      holder.parentElement.insertBefore(box, holder);
+    }
+    box.textContent = text;
+    box.hidden = !text;
+  }
+
+  function removePromo(text) {
+    var c = cart();
+    if (c && c.promocode) delete c.promocode;
+    var calc = window.cartCalculator;
+    if (calc && calc.appliedPromocode) calc.appliedPromocode = undefined;
+    wrappers().forEach(restoreField);
+    qa('.uf-co2-promo__input').forEach(function (i) { i.value = ''; });
+    // пересчёт итога — тот же набор, что Тильда вызывает после применения кода
+    call('tcart__updateTotalProductsinCartObj');
+    call('tcart__reDrawTotal');
+    call('tcart__saveLocalObj');
+    approved = null;
+    showPromoMessage(text);
+  }
+
+  // --- а) «Применить» ---
+  window.addEventListener('click', function (e) {
+    var btn = e.target && e.target.closest && e.target.closest('.t-inputpromocode__btn');
+    if (!btn) return;
+    var w = btn.closest('.t-inputpromocode__wrapper');
+    snapshot(w);
+    var input = w && w.querySelector('.t-inputpromocode');
+    var code = norm(input && input.value);
+    var r = rule(code);
+    if (!r) return;
+    showPromoMessage('');
+    if (r.minAmount && goodsAmount() < r.minAmount) {
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      showPromoMessage(minText(code, r.minAmount));
+    }
+  }, true);
+
+  // --- б) «Оформить заказ» ---
+  function fieldValue(form, selectors) {
+    if (!form) return '';
+    for (var i = 0; i < selectors.length; i++) {
+      var els = form.querySelectorAll(selectors[i]);
+      for (var j = 0; j < els.length; j++) {
+        var v = String(els[j].value || '').trim();
+        if (v) return v;
+      }
+    }
+    return '';
+  }
+  var PHONE_SEL = ['.js-phonemask-result', 'input[name="Phone"]', 'input[name="phone"]', 'input[type="tel"]'];
+  var EMAIL_SEL = ['input[name="Email"]', 'input[name="email"]', 'input[data-tilda-rule="email"]', 'input[type="email"]'];
+
+  function check(data) {
+    var body = Object.keys(data).map(function (k) {
+      return encodeURIComponent(k) + '=' + encodeURIComponent(data[k]);
+    }).join('&');
+    var ctrl = typeof AbortController === 'function' ? new AbortController() : null;
+    var timer;
+    var timeout = new Promise(function (resolve) {
+      timer = setTimeout(function () {
+        if (ctrl) ctrl.abort();
+        resolve({ ok: true, degraded: true });
+      }, CHECK_TIMEOUT_MS);
+    });
+    // form-urlencoded — «простой» запрос, без предварительного OPTIONS
+    var req = fetch(API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
+      body: body,
+      signal: ctrl ? ctrl.signal : undefined
+    }).then(function (r) {
+      return r.json();
+    }).catch(function () {
+      return { ok: true, degraded: true };  // сеть/сервер упали — не мешаем заказу
+    });
+    return Promise.race([req, timeout]).then(function (res) {
+      clearTimeout(timer);
+      return res && typeof res === 'object' ? res : { ok: true, degraded: true };
+    });
+  }
+
+  window.addEventListener('click', function (e) {
+    var btn = e.target && e.target.closest && e.target.closest(SUBMIT_SEL);
+    if (!btn) return;
+    var code = appliedCode();
+    var r = rule(code);
+    if (!r) { showSubmitMessage(btn, ''); return; }  // промокод уже снят — старое сообщение убираем
+    if (pending) {  // проверка уже идёт — второй клик гасим
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      return;
+    }
+    if (btn.classList.contains('t706__submit_disable')) return;  // Тильда сама не отправит
+
+    var amount = goodsAmount();
+    if (r.minAmount && amount < r.minAmount) {
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      var t = minText(code, r.minAmount) + '. Промокод снят, итог пересчитан.';
+      removePromo(t);
+      showSubmitMessage(btn, t);
+      return;
+    }
+    if (!r.firstOrderOnly) return;
+
+    var form = btn.closest('form') || document.querySelector('.t706 .t-form');
+    var phone = fieldValue(form, PHONE_SEL);
+    var email = fieldValue(form, EMAIL_SEL);
+    if (!phone && !email) return;  // контактов нет — Тильда сама попросит их заполнить
+
+    var sig = [code, amount, phone.replace(/\D+/g, ''), email.toLowerCase()].join('|');
+    if (approved && approved.sig === sig && Date.now() - approved.at < APPROVAL_TTL_MS) return;
+
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    pending = true;
+    btn.classList.add('t-btn_sending');
+    showSubmitMessage(btn, '');
+
+    check({ code: code, amount: amount, phone: phone, email: email }).then(function (res) {
+      pending = false;
+      btn.classList.remove('t-btn_sending');
+      if (res.ok === false) {
+        var t = (res.message || 'Промокод ' + code + ' не подходит к этому заказу') + '. Промокод снят, итог пересчитан.';
+        removePromo(t);
+        showSubmitMessage(btn, t);
+        return;
+      }
+      approved = { sig: sig, at: Date.now() };
+      btn.click();  // исходная отправка — один раз, с уже одобренной подписью
+    });
+  }, true);
+
+  // --- в) состав корзины изменился ---
+  // Тильда пересчитывает корзину без событий, на которые можно надёжно
+  // подписаться, поэтому лёгкий опрос (как и в Checkout v2 выше).
+  setInterval(function () {
+    try {
+      wrappers().forEach(snapshot);
+      var code = appliedCode();
+      var r = rule(code);
+      if (!r || !r.minAmount) return;
+      var c = cart();
+      if (!c || !c.products) return;
+      if (goodsAmount() < r.minAmount) {
+        var t = minText(code, r.minAmount) + '. Промокод снят, итог пересчитан.';
+        removePromo(t);
+        var btn = document.querySelector(SUBMIT_SEL);
+        if (btn) showSubmitMessage(btn, t);
+      }
+    } catch (e) { /* не ломаем корзину */ }
+  }, 800);
+})();
