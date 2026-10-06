@@ -1,0 +1,65 @@
+/* Баннер клуба UNFADED ACCESS SYSTEM (вариант B) — блок T123 на главной.
+   Мобильная версия — одна колонка; от 960px — две колонки (текст слева, карта справа). */
+@import url("https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&family=PT+Mono&display=swap");
+
+.ufcb { --ufcb-cream: #F7F4EF; --ufcb-ink: #17090B; --ufcb-burgundy: #7A1F2A; --ufcb-edge: #E6E2DB; --ufcb-muted: #6B6460;
+  background: var(--ufcb-cream); color: var(--ufcb-ink); font-family: "PT Sans", "Helvetica Neue", Arial, sans-serif;
+  padding: 28px 18px 26px; box-sizing: border-box; overflow: hidden; }
+.ufcb *, .ufcb *::before, .ufcb *::after { box-sizing: border-box; }
+.ufcb__in { max-width: 1160px; margin: 0 auto; display: grid; gap: 18px; }
+.ufcb__txt { display: grid; gap: 14px; justify-items: center; text-align: center; }
+.ufcb__eb { font-family: "PT Mono", ui-monospace, Menlo, monospace; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--ufcb-burgundy); }
+.ufcb__h { margin: 0; font-size: 32px; line-height: 1.05; font-weight: 700; letter-spacing: -.01em; text-wrap: balance; color: var(--ufcb-ink); }
+.ufcb__h em { font-style: normal; color: var(--ufcb-burgundy); }
+.ufcb__lead { display: none; margin: 0; font-size: 18px; line-height: 1.45; color: #3c3532; max-width: 34ch; }
+.ufcb__levels { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; width: 100%; }
+.ufcb__lv { border: 1px solid #e0d9d0; border-radius: 10px; padding: 8px 4px 7px; text-align: center; display: grid; gap: 1px; transition: background .35s, color .35s, border-color .35s; }
+.ufcb__lv b { font-family: "PT Mono", ui-monospace, Menlo, monospace; font-weight: 400; font-size: 10px; letter-spacing: .04em; }
+.ufcb__lv strong { font-size: 17px; font-variant-numeric: tabular-nums; }
+.ufcb__lv span { font-size: 10.5px; color: #7a716b; }
+.ufcb__lv.is-on { background: var(--ufcb-burgundy); border-color: var(--ufcb-burgundy); color: var(--ufcb-cream); }
+.ufcb__lv.is-on span { color: #e9c9cd; }
+.ufcb__act { display: grid; gap: 10px; width: 100%; }
+.ufcb__btn { display: block; width: 100%; text-align: center; text-decoration: none !important; font-weight: 700; font-size: 16px;
+  padding: 16px 18px; border-radius: 12px; background: var(--ufcb-ink); color: var(--ufcb-cream) !important; }
+.ufcb__btn:focus-visible { outline: 2px solid var(--ufcb-burgundy); outline-offset: 3px; }
+.ufcb__sub { font-family: "PT Mono", ui-monospace, Menlo, monospace; font-size: 11.5px; color: var(--ufcb-muted); }
+.ufcb__stage { perspective: 1100px; display: grid; place-items: center; padding: 6px 0 2px; order: -1; }
+.ufcb__txt .ufcb__stage { order: 0; width: 100%; }
+.ufcb__levels, .ufcb__act { min-width: 0; }
+
+/* 3D-карта */
+.ufcb__card { position: relative; width: min(84%, 320px); aspect-ratio: 1360 / 1000; transform-style: preserve-3d; will-change: transform;
+  transform: rotateX(-4deg) rotateY(-14deg); container-type: inline-size; }
+.ufcb__card > * { position: absolute; inset: 0; border-radius: 4.2% / 5.7%; }
+.ufcb__face { overflow: hidden; backface-visibility: hidden; -webkit-backface-visibility: hidden; box-shadow: 0 18px 30px -12px rgba(0,0,0,.35); }
+.ufcb__front { transform: translateZ(0); background: var(--ufcb-cream); }
+.ufcb__front img { width: 100%; height: 100%; display: block; object-fit: cover; margin: 0; }
+.ufcb__back { transform: translateZ(-3px) rotateY(180deg); background: var(--ufcb-burgundy); color: var(--ufcb-cream); display: grid; place-content: center; gap: 6%; }
+.ufcb__back svg { width: 56%; margin: 0 auto; display: block; }
+.ufcb__back div { font-weight: 700; font-size: clamp(14px, 6.2cqw, 30px); text-align: center; letter-spacing: .01em; }
+.ufcb__edge { background: var(--ufcb-edge); }
+.ufcb__edge--1 { transform: translateZ(-1px); } .ufcb__edge--2 { transform: translateZ(-2px); }
+.ufcb__gloss { position: absolute; inset: 0; pointer-events: none; mix-blend-mode: screen;
+  background:
+    linear-gradient(100deg, transparent calc(var(--g, 50%) - 16%), rgba(255,255,255,.55) var(--g, 50%), transparent calc(var(--g, 50%) + 14%)),
+    linear-gradient(100deg, transparent calc(var(--g, 50%) + 12%), rgba(255,255,255,.3) calc(var(--g, 50%) + 20%), transparent calc(var(--g, 50%) + 26%)),
+    rgba(255,255,255, var(--veil, 0)); }
+
+/* компьютер */
+@media (min-width: 960px) {
+  .ufcb { padding: 72px 48px; }
+  .ufcb__in { grid-template-columns: 1fr 1fr; align-items: center; gap: 40px; }
+  .ufcb__txt { justify-items: start; text-align: left; gap: 22px; }
+  .ufcb__h { font-size: 64px; }
+  .ufcb__lead { display: block; }
+  .ufcb__txt .ufcb__stage { display: none; }
+  .ufcb__stage--desk { display: grid !important; order: 0; perspective: 1600px; }
+  .ufcb__stage--desk .ufcb__card { width: min(100%, 470px); }
+  .ufcb__levels { gap: 10px; }
+  .ufcb__lv { padding: 12px 6px 11px; } .ufcb__lv b { font-size: 11px; } .ufcb__lv strong { font-size: 22px; } .ufcb__lv span { font-size: 12px; }
+  .ufcb__act { display: flex; align-items: center; gap: 18px; width: auto; }
+  .ufcb__btn { width: auto; padding: 17px 34px; }
+}
+@media (max-width: 959px) { .ufcb__stage--desk { display: none; } }
+@media (prefers-reduced-motion: reduce) { .ufcb__card { transform: none !important; } .ufcb__lv { transition: none; } }
