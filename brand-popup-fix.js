@@ -5268,6 +5268,7 @@ function buildStepper(active) {
     'title:asc': ['По названию: А—Я', 'А—Я'],
     'title:desc': ['По названию: Я—А', 'Я—А']
   };
+  var SORT_ORDER = ['', 'created:desc', 'price:asc', 'price:desc', 'title:asc', 'title:desc', 'created:asc'];
 
   function norm(s) {
     return String(s == null ? '' : s).toLowerCase().replace(/ё/g, 'е').replace(/\s+/g, ' ').trim();
@@ -5550,7 +5551,12 @@ function buildStepper(active) {
   }
   function sortListHtml(model) {
     var cur = model.sort ? model.sort.value : '';
-    return '<div class="' + PFX + '-sortlist" role="listbox">' + Array.prototype.map.call(model.sort ? model.sort.options : [], function (o) {
+    var opts = Array.prototype.slice.call(model.sort ? model.sort.options : []);
+    opts.sort(function (a, b) {
+      var ia = SORT_ORDER.indexOf(a.value), ib = SORT_ORDER.indexOf(b.value);
+      return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib);
+    });
+    return '<div class="' + PFX + '-sortlist" role="listbox">' + opts.map(function (o) {
       var lab = SORT_LABELS[o.value] ? SORT_LABELS[o.value][0] : o.textContent.trim();
       var on = o.value === cur;
       return '<button type="button" role="option" aria-selected="' + on + '" class="' + PFX + '-sortopt' + (on ? ' is-on' : '') + '" data-act="sort" data-v="' + esc(o.value) + '">' + esc(lab) + '</button>';
