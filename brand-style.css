@@ -5836,3 +5836,19 @@ html.uf-cf-lock, html.uf-cf-lock body { overflow: hidden !important; }
 @media (prefers-reduced-motion: reduce) {
   .uf-cf-sheet__panel, .uf-cf-sheet__dim { animation: none; }
 }
+
+/* Разделы каталога (страницы с H1 .uf-cat-h1): лишний отступ над крошками
+   «Главная / Раздел». Складывался из 40px пустого блока T123 с H1 (сам H1
+   скрипт переносит под крошки) и 135px верхнего отступа блока каталога ST320N
+   (на компьютере). Блок T123, стоящий прямо перед каталогом, — без отступов;
+   каталог на компьютере — 16px сверху (на телефоне у Тильды и так 0).
+   Главная и /archive не затрагиваются (на них нет .uf-cat-h1). */
+body:has(.uf-cat-h1) .t-rec[data-record-type="131"]:has(+ .t-rec[data-record-type="951"]) {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+@media screen and (min-width: 640px) {
+  body:has(.uf-cat-h1) .t-rec[data-record-type="951"] {
+    padding-top: 16px !important;
+  }
+}
