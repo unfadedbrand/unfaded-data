@@ -6229,6 +6229,12 @@ function buildStepper(active) {
   function refresh() {
     if (!bar || !main) return;
     var sn = main.closest('.t-store__product-snippet');
+    var thumb = bar.querySelector('.uf-sticky-buy__thumb');
+    if (!thumb.style.backgroundImage) {
+      // фото галереи Тильда дорисовывает позже карточки — ставим, как только появилось
+      var img = sn && sn.querySelector('[data-original]');
+      if (img) thumb.style.backgroundImage = 'url("' + img.getAttribute('data-original') + '")';
+    }
     var price = sn && sn.querySelector('.js-store-prod-price-val');
     var priceText = price && txt(price) ? txt(price) + ' RUB' : '';
     var priceEl = bar.querySelector('.uf-sticky-buy__price');
