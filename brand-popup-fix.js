@@ -5185,3 +5185,829 @@ function buildStepper(active) {
     } catch (e) { /* не ломаем корзину */ }
   }, 800);
 })();
+
+/*
+ * UNFADED — фильтры каталога по утверждённому макету (2026-10-07):
+ * компьютер — «вариант А» (фильтры строкой над сеткой, сетка 4 в ряд),
+ * телефон — «список» (чипы разделов, липкая строка «Фильтры | Сортировка»,
+ * панель фильтров снизу).
+ *
+ * Область действия — ТОЛЬКО страницы каталога, где есть наш <h1 class="uf-cat-h1">
+ * (17 страниц разделов). Главная, /archive, страница товара, «Дополните образ» —
+ * не затрагиваются: без .uf-cat-h1 код ничего не делает.
+ *
+ * Логику фильтрации Тильды НЕ переписываем. Родная панель Тильды (ST320N, .t951)
+ * остаётся в DOM, только спрятана CSS-ом; наши кнопки ставят/снимают её чекбоксы,
+ * меняют её поля цены и её <select> сортировки и шлют штатное событие change —
+ * дальше Тильда сама делает запрос, перерисовывает сетку, обновляет URL.
+ * Каждый change Тильды прерывает предыдущий запрос (tStoreXHR[rec].abort()),
+ * поэтому пачка чекбоксов (группа цветов/размеров) даёт один итоговый результат.
+ *
+ * Количество товаров берём из ответа Тильды: t_store_process(products, recid,
+ * opts, append, relevants, response) получает response.total — оборачиваем её
+ * прозрачно (вызываем оригинал без изменений, только запоминаем total).
+ *
+ * Повторные запуски безопасны: всё строится один раз, дальше только обновляется.
+ */
+(function () {
+  'use strict';
+  if (window.__ufCatFilters) return;
+  window.__ufCatFilters = true;
+
+  var BP = 980; // < 980 — телефонный вид
+  var PFX = 'uf-cf';
+
+  // --- Разделы для чипов (как в меню сайта) ---
+  var SEC_TOP = [
+    ['Верхняя одежда', '/catalog/outerwear'],
+    ['Жакеты', '/catalog/jackets'],
+    ['Блузки и рубашки', '/catalog/blouses-and-shirts'],
+    ['Лонгсливы', '/catalog/long-sleeve'],
+    ['Топы и корсеты', '/catalog/top'],
+    ['Боди', '/catalog/body'],
+    ['Худи', '/hoodie']
+  ];
+  var SEC_BOTTOM = [
+    ['Брюки', '/catalog/trousers'],
+    ['Деним', '/catalog/denim'],
+    ['Юбки', '/catalog/skirts'],
+    ['Шорты', '/catalog/shorts']
+  ];
+  // Общие разделы — для /catalog, /new, /bestseller, /catalog/sale, /last, /catalog/dresses
+  var SEC_MAIN = [
+    ['Все товары', '/catalog'],
+    ['Новинки', '/new'],
+    ['Bestseller', '/bestseller'],
+    ['Hot sale — до 50%', '/catalog/sale'],
+    ['Платья', '/catalog/dresses'],
+    ['Last chance', '/last']
+  ];
+  var PATH_ALIASES = { '/page87274436.html': '/bestseller' };
+
+  // --- Группы цветов (решение Леры). Сравнение без регистра и ё/е. ---
+  var COLOR_GROUPS = [
+    { label: 'Белый / молочный', sw: '#F4EFE4', vals: ['Белый', 'Молочный', 'Айвори', 'Сливочный', 'Ваниль', 'Ванильный', 'Перламутровый'] },
+    { label: 'Бежевый / нюд', sw: '#D9C3A6', vals: ['Бежевый', 'Песочный', 'Телесный', 'Пудровый', 'Персиковый'] },
+    { label: 'Серый', sw: '#8E8C8C', vals: ['Серый', 'Светло-серый', 'Графит', 'Графитовый', 'Серебряный'] },
+    { label: 'Коричневый', sw: '#6B4630', vals: ['Коричневый', 'Кофейный', 'Шоколад', 'Шоколадный'] },
+    { label: 'Синий / голубой', sw: '#24336B', vals: ['Синий', 'Темно-синий', 'Голубой', 'Индиго'] },
+    { label: 'Красный', sw: '#8E1F2C', vals: ['Красный', 'Винный'] },
+    { label: 'Розовый', sw: '#E6B3BB', vals: ['Розовый', 'Чайная роза'] },
+    { label: 'Жёлтый', sw: '#D8B04A', vals: ['Желтый', 'Золотой', 'Оранжевый'] },
+    { label: 'Зелёный', sw: '#6A6F45', vals: ['Хаки'], re: /зелен|хаки|олив|изумруд|мят|салат|фисташ|болотн/ },
+    { label: 'Чёрный', sw: '#111111', vals: ['Черный', 'Черно-белый'] }
+  ];
+  var SIZE_ORDER = ['XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL', 'One size'];
+
+  var SORT_LABELS = {
+    '': ['По умолчанию', ''],
+    'created:desc': ['Сначала новые', 'новые'],
+    'created:asc': ['Сначала старые', 'старые'],
+    'price:asc': ['Сначала дешевле', 'дешевле'],
+    'price:desc': ['Сначала дороже', 'дороже'],
+    'title:asc': ['По названию: А—Я', 'А—Я'],
+    'title:desc': ['По названию: Я—А', 'Я—А']
+  };
+
+  function norm(s) {
+    return String(s == null ? '' : s).toLowerCase().replace(/ё/g, 'е').replace(/\s+/g, ' ').trim();
+  }
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+  function fmtNum(n) {
+    return String(Math.round(+n)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+  }
+  function cleanNum(s) {
+    var v = String(s == null ? '' : s).replace(/[^\d]/g, '');
+    return v === '' ? null : parseInt(v, 10);
+  }
+  function plural(n) {
+    var a = n % 10, b = n % 100;
+    if (a === 1 && b !== 11) return 'товар';
+    if (a >= 2 && a <= 4 && (b < 12 || b > 14)) return 'товара';
+    return 'товаров';
+  }
+  function isMobile() { return window.innerWidth < BP; }
+  function curPath() {
+    var p = location.pathname.replace(/\/+$/, '') || '/';
+    return PATH_ALIASES[p] || p;
+  }
+
+  // Нормализованные значения цветов -> индекс группы
+  var COLOR_MAP = {};
+  COLOR_GROUPS.forEach(function (g, i) {
+    g.vals.forEach(function (v) { COLOR_MAP[norm(v)] = i; });
+  });
+  function colorKey(v) {
+    var n = norm(v);
+    if (COLOR_MAP.hasOwnProperty(n)) return 'g' + COLOR_MAP[n];
+    for (var i = 0; i < COLOR_GROUPS.length; i++) {
+      if (COLOR_GROUPS[i].re && COLOR_GROUPS[i].re.test(n)) return 'g' + i;
+    }
+    return 'v:' + String(v).trim();
+  }
+  var SIZE_RE = /^(XXS|XS|S|M|L|XL|XXL)(?:\s*[-–\/]\s*(XXS|XS|S|M|L|XL|XXL|\d{2,3}))?$/;
+  function sizeKeys(v) {
+    var s = String(v).trim().toUpperCase();
+    if (/^(ONE\s*SIZE|ONESIZE|OS)$/.test(s)) return ['One size'];
+    var m = s.match(SIZE_RE);
+    if (m) return m[2] && !/^\d+$/.test(m[2]) ? [m[1], m[2]] : [m[1]];
+    return ['v:' + String(v).trim()];
+  }
+
+  // --- Область действия ---
+  function getH1() { return document.querySelector('.uf-cat-h1'); }
+  function inScope() {
+    if (/^\/archive/i.test(location.pathname)) return false; // закрытый архив клуба — никогда
+    return !!getH1();
+  }
+  function getT951() {
+    var h1 = getH1();
+    return (h1 && h1.closest('.t951')) || document.querySelector('.t951');
+  }
+  function getRec() {
+    var t = getT951();
+    return t ? t.closest('.r[id^="rec"]') || t.closest('[id^="rec"]') : null;
+  }
+
+  // --- Состояние ---
+  var ui = null;          // наши элементы
+  var sel = {};           // filterId -> { key: true } — выбранные пункты (наши группы)
+  var totals = {};        // recid -> total из ответа Тильды
+  var loading = false;
+  var openPop = null;     // 'f:<id>' | 'price' | 'sort' — открытая панель (компьютер)
+  var sheetOpen = null;   // 'filters' | 'sort' — открытая панель (телефон)
+  var cache = {};         // кэш HTML, чтобы не трогать DOM без изменений
+
+  // Прозрачная обёртка t_store_process — только чтобы знать total
+  function hookProcess() {
+    var f = window.t_store_process;
+    if (typeof f !== 'function' || f.__ufcf) return;
+    var w = function (products, recid, opts, append, relevants, resp) {
+      var r = f.apply(this, arguments);
+      try {
+        if (!relevants && resp && resp.total != null && !isNaN(+resp.total)) {
+          totals[String(recid)] = +resp.total;
+        }
+        if (!relevants) { loading = false; schedule(); }
+      } catch (e) { /* не мешаем Тильде */ }
+      return r;
+    };
+    w.__ufcf = true;
+    window.t_store_process = w;
+  }
+
+  // --- Модель фильтров из DOM Тильды ---
+  function readModel(rec) {
+    var filters = [];
+    var items = rec.querySelectorAll('.js-store-filter .js-store-filter-item');
+    Array.prototype.forEach.call(items, function (item) {
+      var title = item.querySelector('.js-store-filter-item-title');
+      if (!title) return;
+      var fid = title.getAttribute('data-filter-name') || '';
+      if (fid === 'sort' || fid === 'storepartuid') return;
+      var cbs = item.querySelectorAll('input.js-store-filter-opt-chb');
+      if (!cbs.length) return;
+      var tn = norm(title.textContent);
+      var kind = tn.indexOf('цвет') === 0 ? 'color' : (tn.indexOf('размер') === 0 ? 'size' : 'plain');
+      var keys = {}, order = [];
+      Array.prototype.forEach.call(cbs, function (cb, idx) {
+        var v = cb.getAttribute('data-filter-value') || cb.getAttribute('name') || '';
+        if (!v) return;
+        var ks = kind === 'size' ? sizeKeys(v) : (kind === 'color' ? [colorKey(v)] : ['v:' + v]);
+        ks.forEach(function (k) {
+          if (!keys[k]) {
+            var label, sw = '', ord;
+            if (k.charAt(0) === 'g' && kind === 'color') {
+              var g = COLOR_GROUPS[+k.slice(1)];
+              label = g.label; sw = g.sw; ord = +k.slice(1);
+            } else if (k.indexOf('v:') === 0) {
+              label = k.slice(2);
+              if (kind === 'color') {
+                var ind = cb.parentNode && cb.parentNode.querySelector('.t-checkbox__indicator');
+                sw = ind ? ind.style.backgroundColor : '';
+              }
+              ord = 100 + idx;
+            } else {
+              label = k; ord = SIZE_ORDER.indexOf(k);
+            }
+            keys[k] = { key: k, label: label, sw: sw, ord: ord, cbs: [] };
+            order.push(k);
+          }
+          if (keys[k].cbs.indexOf(cb) === -1) keys[k].cbs.push(cb);
+        });
+      });
+      order.sort(function (a, b) { return keys[a].ord - keys[b].ord; });
+      var name = kind === 'color' ? 'Цвет' : (kind === 'size' ? 'Размер' : title.textContent.trim());
+      filters.push({ id: fid, kind: kind, name: name, keys: keys, order: order, cbs: cbs });
+    });
+    var pmin = rec.querySelector('.js-store-filter-pricemin');
+    var pmax = rec.querySelector('.js-store-filter-pricemax');
+    var price = null;
+    if (pmin && pmax) {
+      var lo = cleanNum(pmin.getAttribute('data-min-val'));
+      var hi = cleanNum(pmax.getAttribute('data-max-val'));
+      if (lo != null && hi != null && hi > lo) {
+        var cmin = cleanNum(pmin.value), cmax = cleanNum(pmax.value);
+        price = {
+          pmin: pmin, pmax: pmax, lo: lo, hi: hi,
+          min: cmin == null ? lo : cmin, max: cmax == null ? hi : cmax
+        };
+        price.active = price.min > lo || price.max < hi;
+      }
+    }
+    var sortSel = rec.querySelector('select.js-store-filter-sort');
+    var avail = rec.querySelector('input.js-store-filter-onlyavail');
+    return { filters: filters, price: price, sort: sortSel, avail: avail };
+  }
+
+  // Синхронизация нашей «памяти выбора» с реальными чекбоксами Тильды
+  // (восстановление из URL, сброс самой Тильдой и т.п.)
+  function syncSel(model) {
+    model.filters.forEach(function (f) {
+      var s = sel[f.id] || (sel[f.id] = {});
+      f.order.forEach(function (k) {
+        var cbs = f.keys[k].cbs;
+        var any = cbs.some(function (cb) { return cb.checked; });
+        var all = cbs.every(function (cb) { return cb.checked; });
+        if (s[k] && !any) delete s[k];
+        else if (!s[k] && all) s[k] = true;
+      });
+      Object.keys(s).forEach(function (k) { if (!f.keys[k]) delete s[k]; });
+    });
+  }
+
+  function setChecked(cb, val) {
+    if (cb.checked === val) return false;
+    cb.checked = val;
+    cb.dispatchEvent(new Event('change', { bubbles: true }));
+    return true;
+  }
+
+  // Привести чекбоксы фильтра к выбранным ключам: сначала снимаем, потом ставим —
+  // последний change даст итоговый запрос (предыдущие Тильда прерывает сама)
+  function applyFilter(f) {
+    var s = sel[f.id] || {};
+    var want = [];
+    Object.keys(s).forEach(function (k) {
+      if (f.keys[k]) f.keys[k].cbs.forEach(function (cb) { if (want.indexOf(cb) === -1) want.push(cb); });
+    });
+    var changed = false;
+    Array.prototype.forEach.call(f.cbs, function (cb) {
+      if (want.indexOf(cb) === -1 && setChecked(cb, false)) changed = true;
+    });
+    want.forEach(function (cb) { if (setChecked(cb, true)) changed = true; });
+    if (changed) loading = true;
+  }
+
+  function applyPrice(price, min, max) {
+    if (!price) return;
+    var lo = price.lo, hi = price.hi;
+    if (min == null || isNaN(min)) min = lo;
+    if (max == null || isNaN(max)) max = hi;
+    min = Math.max(lo, Math.min(hi, min));
+    max = Math.max(lo, Math.min(hi, max));
+    if (min > max) { var t = min; min = max; max = t; }
+    if (min === price.min && max === price.max) return;
+    price.pmin.value = fmtNum(min).replace(/ /g, ' ');
+    price.pmax.value = fmtNum(max).replace(/ /g, ' ');
+    price.pmin.dispatchEvent(new Event('change', { bubbles: true }));
+    price.pmax.dispatchEvent(new Event('change', { bubbles: true }));
+    loading = true;
+  }
+
+  function applySort(model, val) {
+    if (!model.sort) return;
+    if (model.sort.value === val) return;
+    model.sort.value = val;
+    model.sort.dispatchEvent(new Event('change', { bubbles: true }));
+    loading = true;
+  }
+
+  function resetAll(model) {
+    var keepSort = model.sort ? model.sort.value : '';
+    var btn = getRec() && getRec().querySelector('.js-store-filter-reset');
+    sel = {};
+    if (btn) {
+      btn.click(); // штатный «Очистить все» Тильды
+      if (keepSort && model.sort) { // Тильда сбрасывает и сортировку — вернём её
+        model.sort.value = keepSort;
+        model.sort.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+      loading = true;
+    } else {
+      model.filters.forEach(applyFilter);
+      if (model.price) applyPrice(model.price, model.price.lo, model.price.hi);
+      if (model.avail && model.avail.checked) setChecked(model.avail, false);
+    }
+  }
+
+  function selCount(model) {
+    var n = 0;
+    model.filters.forEach(function (f) { n += Object.keys(sel[f.id] || {}).length; });
+    if (model.price && model.price.active) n++;
+    if (model.avail && model.avail.checked) n++;
+    return n;
+  }
+
+  function getCount() {
+    if (loading) return null;
+    var rec = getRec();
+    if (!rec) return null;
+    var id = rec.id.replace(/^rec/, '');
+    if (totals[id] != null) return totals[id];
+    var more = rec.querySelector('.js-store-load-more-btn');
+    if (more && more.style.display !== 'none') return null;
+    return rec.querySelectorAll('.t-store__card-list .t-store__card').length;
+  }
+
+  // --- HTML-кусочки ---
+  function optsHtml(f) {
+    var s = sel[f.id] || {};
+    if (f.kind === 'color') {
+      return '<div class="' + PFX + '-colors">' + f.order.map(function (k) {
+        var o = f.keys[k];
+        return '<button type="button" class="' + PFX + '-color' + (s[k] ? ' is-on' : '') + '" data-act="opt" data-f="' + esc(f.id) + '" data-k="' + esc(k) + '" aria-pressed="' + (s[k] ? 'true' : 'false') + '">' +
+          '<i style="background:' + esc(o.sw || '#ccc') + '"></i><span>' + esc(o.label) + '</span></button>';
+      }).join('') + '</div>';
+    }
+    return '<div class="' + PFX + '-sizes">' + f.order.map(function (k) {
+      var o = f.keys[k];
+      return '<button type="button" class="' + PFX + '-size' + (s[k] ? ' is-on' : '') + '" data-act="opt" data-f="' + esc(f.id) + '" data-k="' + esc(k) + '" aria-pressed="' + (s[k] ? 'true' : 'false') + '">' + esc(o.label) + '</button>';
+    }).join('') + '</div>';
+  }
+  function priceHtml(p) {
+    return '<div class="' + PFX + '-price">' +
+      '<label><span>от</span><input type="text" inputmode="numeric" autocomplete="off" data-price="min" value="' + (p.min > p.lo ? fmtNum(p.min) : '') + '" placeholder="' + fmtNum(p.lo) + '" aria-label="Цена от, RUB"></label>' +
+      '<b>—</b>' +
+      '<label><span>до</span><input type="text" inputmode="numeric" autocomplete="off" data-price="max" value="' + (p.max < p.hi ? fmtNum(p.max) : '') + '" placeholder="' + fmtNum(p.hi) + '" aria-label="Цена до, RUB"></label>' +
+      '</div>';
+  }
+  function sortListHtml(model) {
+    var cur = model.sort ? model.sort.value : '';
+    return '<div class="' + PFX + '-sortlist" role="listbox">' + Array.prototype.map.call(model.sort ? model.sort.options : [], function (o) {
+      var lab = SORT_LABELS[o.value] ? SORT_LABELS[o.value][0] : o.textContent.trim();
+      var on = o.value === cur;
+      return '<button type="button" role="option" aria-selected="' + on + '" class="' + PFX + '-sortopt' + (on ? ' is-on' : '') + '" data-act="sort" data-v="' + esc(o.value) + '">' + esc(lab) + '</button>';
+    }).join('') + '</div>';
+  }
+  function showLabel(n) {
+    return n == null ? 'Показать' : 'Показать ' + fmtNum(n) + ' ' + plural(n);
+  }
+  function filterBtnLabel(f) {
+    var s = sel[f.id] || {};
+    var ks = f.order.filter(function (k) { return s[k]; });
+    if (!ks.length) return esc(f.name);
+    if (f.kind === 'size' && ks.length <= 3) return esc(f.name) + ' · ' + esc(ks.map(function (k) { return f.keys[k].label; }).join(', '));
+    return esc(f.name) + ' · ' + ks.length;
+  }
+  function priceLabel(p) {
+    if (!p.active) return 'Цена';
+    if (p.min > p.lo && p.max < p.hi) return 'Цена · ' + fmtNum(p.min) + '–' + fmtNum(p.max);
+    if (p.min > p.lo) return 'Цена · от ' + fmtNum(p.min);
+    return 'Цена · до ' + fmtNum(p.max);
+  }
+  function sortShort(model) {
+    var v = model.sort ? model.sort.value : '';
+    var l = SORT_LABELS[v];
+    return v && l ? 'Сортировка: ' + l[1] : 'Сортировка';
+  }
+
+  function setHtml(el, key, html) {
+    if (!el) return;
+    if (cache[key] === html && el.innerHTML !== '') return;
+    cache[key] = html;
+    el.innerHTML = html;
+  }
+
+  // --- Построение ---
+  function sectionsHtml() {
+    var p = curPath();
+    var list = null;
+    [SEC_TOP, SEC_BOTTOM].forEach(function (g) {
+      g.forEach(function (it) { if (it[1] === p) list = g; });
+    });
+    if (!list) list = SEC_MAIN;
+    return list.map(function (it) {
+      var on = it[1] === p;
+      return '<a class="' + PFX + '-chip' + (on ? ' is-on' : '') + '" href="' + it[1] + '"' + (on ? ' aria-current="page"' : '') + '>' + esc(it[0]) + '</a>';
+    }).join('');
+  }
+
+  function build() {
+    var t951 = getT951();
+    if (!t951) return false;
+    var store = t951.querySelector(':scope > .t-store') || t951.querySelector('.t-store');
+    if (!store) return false;
+    var anchor = store.parentNode === t951 ? store : null;
+
+    ui = {};
+    ui.secs = document.createElement('nav');
+    ui.secs.className = PFX + ' ' + PFX + '-secs';
+    ui.secs.setAttribute('aria-label', 'Разделы');
+    ui.secs.innerHTML = sectionsHtml();
+
+    ui.bar = document.createElement('div');
+    ui.bar.className = PFX + ' ' + PFX + '-bar';
+    ui.bar.innerHTML = '<div class="' + PFX + '-bar__filters"></div><span class="' + PFX + '-bar__sp"></span><span class="' + PFX + '-count" aria-live="polite"></span><span class="' + PFX + '-bar__sort"></span><div class="' + PFX + '-pop" hidden></div>';
+
+    ui.mbar = document.createElement('div');
+    ui.mbar.className = PFX + ' ' + PFX + '-mbar';
+    ui.mbar.innerHTML = '<button type="button" data-act="sheet" data-v="filters" aria-haspopup="dialog">Фильтры<em hidden></em></button><button type="button" data-act="sheet" data-v="sort" aria-haspopup="dialog">Сортировка</button>';
+
+    ui.active = document.createElement('div');
+    ui.active.className = PFX + ' ' + PFX + '-active';
+
+    ui.sheet = document.createElement('div');
+    ui.sheet.className = PFX + ' ' + PFX + '-sheet';
+    ui.sheet.hidden = true;
+    ui.sheet.innerHTML = '<div class="' + PFX + '-sheet__dim" data-act="close"></div>' +
+      '<div class="' + PFX + '-sheet__panel" role="dialog" aria-modal="true" aria-labelledby="' + PFX + '-sheet-title">' +
+      '<div class="' + PFX + '-sheet__grab"></div>' +
+      '<div class="' + PFX + '-sheet__top"><b id="' + PFX + '-sheet-title"></b><button type="button" class="' + PFX + '-sheet__x" data-act="close" aria-label="Закрыть">✕</button></div>' +
+      '<div class="' + PFX + '-sheet__body"></div>' +
+      '<div class="' + PFX + '-sheet__foot"><button type="button" class="' + PFX + '-ghost" data-act="reset-all">Сбросить</button><button type="button" class="' + PFX + '-btn ' + PFX + '-btn_wine" data-act="close" data-apply="1"></button></div>' +
+      '</div>';
+
+    if (anchor) {
+      t951.insertBefore(ui.secs, anchor);
+      t951.insertBefore(ui.bar, anchor);
+      t951.insertBefore(ui.mbar, anchor);
+      t951.insertBefore(ui.active, anchor);
+    } else {
+      store.parentNode.insertBefore(ui.secs, store);
+      store.parentNode.insertBefore(ui.bar, store);
+      store.parentNode.insertBefore(ui.mbar, store);
+      store.parentNode.insertBefore(ui.active, store);
+    }
+    document.body.appendChild(ui.sheet);
+    document.documentElement.classList.add(PFX + '-on');
+    cache = {};
+    scrollActiveChip();
+    return true;
+  }
+
+  function scrollActiveChip() {
+    if (!ui || !isMobile()) return;
+    var on = ui.secs.querySelector('.is-on');
+    if (on && ui.secs.scrollWidth > ui.secs.clientWidth) {
+      ui.secs.scrollLeft = Math.max(0, on.offsetLeft - 16);
+    }
+  }
+
+  function alive() {
+    return ui && ui.bar.isConnected && ui.secs.isConnected && ui.sheet.isConnected;
+  }
+
+  // --- Обновление ---
+  function refresh() {
+    var rec = getRec();
+    if (!rec || !ui) return;
+    var model = readModel(rec);
+    syncSel(model);
+    var count = getCount();
+    var hasFilters = model.filters.length || model.price || model.avail;
+    var h1 = getH1();
+    if (h1) {
+      var pad = getComputedStyle(h1).paddingLeft;
+      if (pad && ui.__pad !== pad) {
+        ui.__pad = pad;
+        [ui.secs, ui.bar, ui.mbar, ui.active].forEach(function (el) { el.style.setProperty('--uf-cf-pad', pad); });
+      }
+    }
+
+    // Компьютер: полоса фильтров
+    var fb = model.filters.map(function (f) {
+      var s = Object.keys(sel[f.id] || {}).length;
+      var id = 'f:' + f.id;
+      return '<button type="button" class="' + PFX + '-dd' + (s ? ' is-sel' : '') + (openPop === id ? ' is-open' : '') + '" data-act="pop" data-v="' + esc(id) + '" aria-expanded="' + (openPop === id) + '">' + filterBtnLabel(f) + '</button>';
+    });
+    if (model.price) {
+      fb.push('<button type="button" class="' + PFX + '-dd' + (model.price.active ? ' is-sel' : '') + (openPop === 'price' ? ' is-open' : '') + '" data-act="pop" data-v="price" aria-expanded="' + (openPop === 'price') + '">' + priceLabel(model.price) + '</button>');
+    }
+    if (model.avail) {
+      fb.push('<button type="button" class="' + PFX + '-tg' + (model.avail.checked ? ' is-sel' : '') + '" data-act="avail" aria-pressed="' + model.avail.checked + '">В наличии</button>');
+    }
+    setHtml(ui.bar.querySelector('.' + PFX + '-bar__filters'), 'bar', fb.join(''));
+    setHtml(ui.bar.querySelector('.' + PFX + '-count'), 'count', count == null ? '' : fmtNum(count) + ' ' + plural(count));
+    setHtml(ui.bar.querySelector('.' + PFX + '-bar__sort'), 'sortbtn', model.sort ?
+      '<button type="button" class="' + PFX + '-dd' + (model.sort.value ? ' is-sel' : '') + (openPop === 'sort' ? ' is-open' : '') + '" data-act="pop" data-v="sort" aria-expanded="' + (openPop === 'sort') + '">' + esc(sortShort(model)) + '</button>' : '');
+    ui.bar.classList.toggle('is-empty', !hasFilters && !model.sort);
+
+    // Компьютер: открытая панель
+    var pop = ui.bar.querySelector('.' + PFX + '-pop');
+    var popKey = '';
+    if (openPop) {
+      var inner = '';
+      var btn = ui.bar.querySelector('[data-act="pop"][data-v="' + openPop + '"]');
+      if (openPop === 'sort' && model.sort) {
+        inner = '<div class="' + PFX + '-pop__hd">Сортировка</div>' + sortListHtml(model);
+      } else if (openPop === 'price' && model.price) {
+        popKey = 'price';
+        inner = '<div class="' + PFX + '-pop__hd">Цена, RUB</div>' + priceHtml(model.price) +
+          '<div class="' + PFX + '-pop__acts"><button type="button" class="' + PFX + '-ghost" data-act="reset-one" data-v="price">Сбросить</button><button type="button" class="' + PFX + '-btn" data-act="pop-close" data-apply="1">' + esc(showLabel(count)) + '</button></div>';
+      } else {
+        var f = null;
+        model.filters.forEach(function (x) { if ('f:' + x.id === openPop) f = x; });
+        if (f) {
+          inner = '<div class="' + PFX + '-pop__hd">' + esc(f.name) + '</div>' + optsHtml(f) +
+            '<div class="' + PFX + '-pop__acts"><button type="button" class="' + PFX + '-ghost" data-act="reset-one" data-v="' + esc(f.id) + '">Сбросить</button><button type="button" class="' + PFX + '-btn" data-act="pop-close">' + esc(showLabel(count)) + '</button></div>';
+        }
+      }
+      if (!inner || !btn) { openPop = null; pop.hidden = true; cache.pop = ''; }
+      else {
+        // Поля цены не перерисовываем, пока покупатель в них печатает
+        var focusedInside = pop.contains(document.activeElement) && document.activeElement.tagName === 'INPUT';
+        if (popKey === 'price' && focusedInside && cache.popId === 'price') {
+          var sb = pop.querySelector('[data-apply]');
+          if (sb) sb.textContent = showLabel(count);
+        } else {
+          setHtml(pop, 'pop', inner);
+        }
+        cache.popId = openPop;
+        pop.hidden = false;
+        var left = btn.offsetLeft;
+        var w = Math.min(340, ui.bar.clientWidth - 16);
+        if (left + w > ui.bar.clientWidth - 8) left = Math.max(8, btn.offsetLeft + btn.offsetWidth - w);
+        pop.style.left = left + 'px';
+        pop.style.width = w + 'px';
+      }
+    } else if (!pop.hidden) { pop.hidden = true; cache.pop = ''; cache.popId = ''; }
+
+    // Телефон: строка кнопок
+    var n = selCount(model);
+    var em = ui.mbar.querySelector('em');
+    var emTxt = n ? String(n) : '';
+    if (em.textContent !== emTxt) em.textContent = emTxt;
+    em.hidden = !n;
+    var fbtn = ui.mbar.querySelector('[data-v="filters"]');
+    var sbtn = ui.mbar.querySelector('[data-v="sort"]');
+    fbtn.hidden = !hasFilters;
+    sbtn.hidden = !model.sort;
+    ui.mbar.classList.toggle('is-single', !hasFilters || !model.sort);
+    ui.mbar.classList.toggle('is-empty', !hasFilters && !model.sort);
+    var sTxt = model.sort && model.sort.value ? sortShort(model) : 'Сортировка';
+    if (sbtn.textContent !== sTxt) sbtn.textContent = sTxt;
+
+    // Выбранные фильтры чипами
+    var chips = [];
+    model.filters.forEach(function (f) {
+      f.order.forEach(function (k) {
+        if ((sel[f.id] || {})[k]) {
+          var lab = f.kind === 'size' ? 'Размер ' + f.keys[k].label : f.keys[k].label;
+          chips.push('<button type="button" class="' + PFX + '-chip ' + PFX + '-chip_sel" data-act="opt" data-f="' + esc(f.id) + '" data-k="' + esc(k) + '" aria-label="Убрать: ' + esc(lab) + '">' + esc(lab) + '<span class="' + PFX + '-x" aria-hidden="true">✕</span></button>');
+        }
+      });
+    });
+    if (model.price && model.price.active) {
+      chips.push('<button type="button" class="' + PFX + '-chip ' + PFX + '-chip_sel" data-act="reset-one" data-v="price" aria-label="Убрать фильтр по цене">' + esc(priceLabel(model.price).replace('Цена · ', 'Цена ')) + '<span class="' + PFX + '-x" aria-hidden="true">✕</span></button>');
+    }
+    if (model.avail && model.avail.checked) {
+      chips.push('<button type="button" class="' + PFX + '-chip ' + PFX + '-chip_sel" data-act="avail" aria-label="Убрать: в наличии">В наличии<span class="' + PFX + '-x" aria-hidden="true">✕</span></button>');
+    }
+    setHtml(ui.active, 'active', chips.length ?
+      '<span class="' + PFX + '-active__lbl">Выбрано:</span>' + chips.join('') + '<button type="button" class="' + PFX + '-ghost" data-act="reset-all">Сбросить всё</button>' : '');
+    ui.active.hidden = !chips.length;
+
+    // Телефон: панель снизу
+    if (sheetOpen) {
+      var title = sheetOpen === 'sort' ? 'Сортировка' : 'Фильтры';
+      var tEl = ui.sheet.querySelector('#' + PFX + '-sheet-title');
+      if (tEl.textContent !== title) tEl.textContent = title;
+      var body = ui.sheet.querySelector('.' + PFX + '-sheet__body');
+      var foot = ui.sheet.querySelector('.' + PFX + '-sheet__foot');
+      if (sheetOpen === 'sort') {
+        setHtml(body, 'sheet', sortListHtml(model));
+        foot.hidden = true;
+      } else {
+        foot.hidden = false;
+        var secs = model.filters.map(function (f) {
+          return '<section class="' + PFX + '-sec" data-sec="' + esc(f.id) + '"><div class="' + PFX + '-sec__hd">' + esc(f.name) + '</div>' + optsHtml(f) + '</section>';
+        }).join('');
+        if (model.avail) {
+          secs += '<section class="' + PFX + '-sec ' + PFX + '-sec_row"><span>Только в наличии</span><button type="button" class="' + PFX + '-switch' + (model.avail.checked ? ' is-on' : '') + '" role="switch" aria-checked="' + model.avail.checked + '" data-act="avail" aria-label="Только в наличии"><i></i></button></section>';
+        }
+        // Секцию цены ставим отдельно и не перерисовываем во время ввода
+        var priceSec = body.querySelector('[data-sec="__price"]');
+        var priceFocused = priceSec && priceSec.contains(document.activeElement);
+        var key = secs + '|' + (model.price ? 'p' : '');
+        if (cache.sheet !== key || !body.firstChild) {
+          var keepPrice = priceFocused ? priceSec : null;
+          cache.sheet = key;
+          body.innerHTML = secs;
+          if (model.price) {
+            if (keepPrice) body.insertBefore(keepPrice, body.querySelector('.' + PFX + '-sec_row'));
+            else {
+              var ps = document.createElement('section');
+              ps.className = PFX + '-sec';
+              ps.setAttribute('data-sec', '__price');
+              ps.innerHTML = '<div class="' + PFX + '-sec__hd">Цена, RUB</div>' + priceHtml(model.price);
+              body.insertBefore(ps, body.querySelector('.' + PFX + '-sec_row'));
+            }
+          }
+        }
+        var ab = foot.querySelector('[data-apply]');
+        var at = showLabel(count);
+        if (ab.textContent !== at) ab.textContent = at;
+        var rb = foot.querySelector('[data-act="reset-all"]');
+        rb.disabled = !n;
+      }
+      ui.sheet.hidden = false;
+    } else if (!ui.sheet.hidden) {
+      ui.sheet.hidden = true;
+      cache.sheet = '';
+    }
+  }
+
+  // --- Открытие/закрытие ---
+  function readPriceInputs(scope) {
+    var a = scope && scope.querySelector('input[data-price="min"]');
+    var b = scope && scope.querySelector('input[data-price="max"]');
+    if (!a || !b) return null;
+    return [cleanNum(a.value), cleanNum(b.value)];
+  }
+  function commitPrice(scope) {
+    var rec = getRec();
+    if (!rec) return;
+    var model = readModel(rec);
+    var v = readPriceInputs(scope);
+    if (model.price && v) applyPrice(model.price, v[0], v[1]);
+  }
+  function closePop(apply) {
+    if (!openPop) return;
+    if (apply && openPop === 'price') commitPrice(ui.bar.querySelector('.' + PFX + '-pop'));
+    openPop = null;
+    refresh();
+  }
+  function openSheet(kind) {
+    sheetOpen = kind;
+    cache.sheet = '';
+    document.documentElement.classList.add(PFX + '-lock');
+    refresh();
+    var x = ui.sheet.querySelector('.' + PFX + '-sheet__x');
+    if (x) { try { x.focus({ preventScroll: true }); } catch (e) { x.focus(); } }
+  }
+  function closeSheet(apply) {
+    if (!sheetOpen) return;
+    if (apply || sheetOpen === 'filters') commitPrice(ui.sheet.querySelector('[data-sec="__price"]'));
+    var was = sheetOpen;
+    sheetOpen = null;
+    document.documentElement.classList.remove(PFX + '-lock');
+    refresh();
+    var back = ui.mbar.querySelector('[data-v="' + was + '"]');
+    if (back) { try { back.focus({ preventScroll: true }); } catch (e) { /* */ } }
+  }
+
+  // --- События (делегирование, ставится один раз) ---
+  document.addEventListener('click', function (e) {
+    if (!ui || !inScope()) return;
+    var t = e.target.closest ? e.target.closest('[data-act]') : null;
+    var inUi = t && t.closest('.' + PFX);
+    if (!inUi) {
+      // клик мимо — закрыть выпадающую панель на компьютере
+      if (openPop && !(e.target.closest && e.target.closest('.' + PFX + '-pop'))) closePop(true);
+      return;
+    }
+    var act = t.getAttribute('data-act');
+    var rec = getRec();
+    if (!rec) return;
+    var model = readModel(rec);
+    syncSel(model);
+    if (act === 'opt') {
+      var fid = t.getAttribute('data-f'), k = t.getAttribute('data-k');
+      var f = null;
+      model.filters.forEach(function (x) { if (x.id === fid) f = x; });
+      if (!f || !f.keys[k]) return;
+      var s = sel[fid] || (sel[fid] = {});
+      if (s[k]) delete s[k]; else s[k] = true;
+      applyFilter(f);
+      refresh();
+    } else if (act === 'pop') {
+      var v = t.getAttribute('data-v');
+      if (openPop === 'price' && v !== 'price') commitPrice(ui.bar.querySelector('.' + PFX + '-pop'));
+      openPop = openPop === v ? null : v;
+      cache.pop = '';
+      refresh();
+      if (openPop === 'price') {
+        var inp = ui.bar.querySelector('.' + PFX + '-pop input');
+        if (inp) inp.focus();
+      }
+    } else if (act === 'pop-close') {
+      closePop(!!t.getAttribute('data-apply'));
+    } else if (act === 'sort') {
+      applySort(model, t.getAttribute('data-v') || '');
+      if (sheetOpen) closeSheet(false);
+      openPop = null;
+      refresh();
+    } else if (act === 'reset-one') {
+      var rv = t.getAttribute('data-v');
+      if (rv === 'price') {
+        if (model.price) applyPrice(model.price, model.price.lo, model.price.hi);
+        cache.pop = ''; cache.sheet = '';
+      } else {
+        model.filters.forEach(function (x) { if (x.id === rv) { sel[x.id] = {}; applyFilter(x); } });
+      }
+      refresh();
+    } else if (act === 'reset-all') {
+      resetAll(model);
+      cache.pop = ''; cache.sheet = '';
+      refresh();
+    } else if (act === 'avail') {
+      if (model.avail) { setChecked(model.avail, !model.avail.checked); loading = true; }
+      refresh();
+    } else if (act === 'sheet') {
+      openSheet(t.getAttribute('data-v'));
+    } else if (act === 'close') {
+      closeSheet(!!t.getAttribute('data-apply'));
+    }
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (!ui) return;
+    if (e.key === 'Escape') {
+      if (sheetOpen) closeSheet(false);
+      else if (openPop) closePop(false);
+    } else if (e.key === 'Enter' && e.target && e.target.getAttribute && e.target.getAttribute('data-price')) {
+      e.preventDefault();
+      if (sheetOpen) commitPrice(ui.sheet.querySelector('[data-sec="__price"]'));
+      else closePop(true);
+      refresh();
+    }
+  });
+
+  document.addEventListener('change', function (e) {
+    if (!ui || !e.target || !e.target.getAttribute || !e.target.getAttribute('data-price')) return;
+    // на телефоне цену применяем сразу по выходу из поля, чтобы «Показать N» было честным
+    if (sheetOpen) { commitPrice(ui.sheet.querySelector('[data-sec="__price"]')); refresh(); }
+  });
+
+  // --- Липкая строка на телефоне: отступ под фиксированную шапку сайта ---
+  var stickyTick = 0;
+  function updateStickyTop() {
+    stickyTick = 0;
+    if (!ui || !isMobile()) return;
+    var bottom = 0;
+    var stack = document.elementsFromPoint ? document.elementsFromPoint(window.innerWidth / 2, 2) : [];
+    for (var i = 0; i < stack.length; i++) {
+      var el = stack[i];
+      if (el.closest && el.closest('.' + PFX)) continue;
+      while (el && el !== document.body && el !== document.documentElement) {
+        var cs = getComputedStyle(el);
+        if (cs.position === 'fixed' || cs.position === 'sticky') {
+          var r = el.getBoundingClientRect();
+          if (r.top <= 2 && r.height < 160 && r.bottom > bottom) bottom = r.bottom;
+          break;
+        }
+        el = el.parentElement;
+      }
+    }
+    var v = Math.max(0, Math.round(bottom)) + 'px';
+    if (ui.mbar.style.top !== v) ui.mbar.style.top = v;
+  }
+  window.addEventListener('scroll', function () {
+    if (!ui || stickyTick) return;
+    stickyTick = setTimeout(updateStickyTop, 120);
+  }, { passive: true });
+  window.addEventListener('resize', function () {
+    if (!ui) return;
+    if (!isMobile() && sheetOpen) closeSheet(false);
+    if (isMobile() && openPop) { openPop = null; }
+    schedule();
+    updateStickyTop();
+  });
+
+  // --- Запуск / перезапуск ---
+  var timer = 0;
+  function schedule() {
+    if (timer) return;
+    timer = setTimeout(run, 80);
+  }
+  function run() {
+    timer = 0;
+    try {
+      if (!inScope()) return;
+      hookProcess();
+      if (!alive()) {
+        if (ui) { [ui.secs, ui.bar, ui.mbar, ui.active, ui.sheet].forEach(function (el) { if (el && el.parentNode) el.parentNode.removeChild(el); }); ui = null; }
+        if (!build()) return;
+        updateStickyTop();
+      }
+      refresh();
+    } catch (err) {
+      if (window.console && console.warn) console.warn('[uf-cf]', err);
+    }
+  }
+
+  if (window.MutationObserver) {
+    new MutationObserver(function (records) {
+      for (var i = 0; i < records.length; i++) {
+        var tg = records[i].target;
+        if (!(tg.closest && tg.closest('.' + PFX))) { schedule(); return; }
+      }
+    }).observe(document.documentElement, { childList: true, subtree: true });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', schedule);
+  else schedule();
+  window.addEventListener('load', schedule);
+})();
