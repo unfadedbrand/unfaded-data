@@ -5865,3 +5865,56 @@ body:has(.uf-cat-h1) .t-rec[data-record-type="131"]:has(+ .t-rec[data-record-typ
     margin: 2px 0 0 14px !important;
   }
 }
+
+/* ==========================================================================
+   UNFADED — закреплённая кнопка «В корзину» и кнопка чата на телефоне (07.10.2026).
+   Логика — в brand-popup-fix.js (тот же заголовок). Только ≤639px.
+   Откат: удалить этот блок.
+   ========================================================================== */
+.uf-sticky-buy { display: none; }
+@media screen and (max-width: 639px) {
+  .uf-sticky-buy {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 995;
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 14px calc(10px + env(safe-area-inset-bottom, 0px));
+    background: #FFFFFF; border-top: 1px solid #E6E6E6;
+    box-shadow: 0 -4px 14px rgba(0, 0, 0, .06);
+    font-family: var(--uf-font-ui, 'Onest', sans-serif);
+    transform: translateY(110%); transition: transform .25s ease;
+  }
+  .uf-sticky-buy.uf-sticky-buy_on { transform: none; }
+  .uf-sticky-buy__thumb {
+    flex: none; width: 38px; height: 48px;
+    background: #EEE center / cover no-repeat;
+  }
+  .uf-sticky-buy__info { display: flex; flex-direction: column; min-width: 0; line-height: 1.2; }
+  .uf-sticky-buy__name {
+    font-size: 11px; color: #6E6A6B; max-width: 130px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .uf-sticky-buy__price { font-size: 15px; font-weight: 600; color: #17090B; white-space: nowrap; }
+  .uf-sticky-buy__btn {
+    flex: 1; height: 46px; border: 0; border-radius: 4px; cursor: pointer;
+    background: #7A1F2A; color: #FAFAFA;
+    font: 600 12px/1 var(--uf-font-ui, 'Onest', sans-serif);
+    letter-spacing: .06em; text-transform: uppercase;
+  }
+  /* пока полоса видна: место под ней, чат и уведомление — над ней */
+  html.uf-sticky-on body { padding-bottom: 72px; }
+  html.uf-sticky-on .t898__btn { bottom: 82px !important; }
+
+  /* подсветка размеров, если нажали «В корзину» в полосе, не выбрав размер */
+  .uf-size-nudge { animation: uf-size-nudge 1.6s ease; border-radius: 4px; }
+  @keyframes uf-size-nudge {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(122, 31, 42, 0); }
+    20%, 60% { box-shadow: 0 0 0 3px rgba(122, 31, 42, .55); }
+  }
+
+  /* кнопка чата: уезжает при прокрутке вниз */
+  .t898__btn { transition: transform .25s ease, bottom .25s ease !important; }
+  html.uf-chat-away .t898__btn { transform: translateX(90px); }
+
+  /* уведомление «добавлено в корзину» — над кнопкой чата (60px + 10px отступ) */
+  .t706__bubble-container { bottom: 84px !important; }
+  html.uf-sticky-on .t706__bubble-container { bottom: 154px !important; }
+}
