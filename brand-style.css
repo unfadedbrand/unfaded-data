@@ -5454,6 +5454,20 @@ html.uf-cf-ready body:has(.uf-cat-h1) .t951 .js-store-grid-cont-preloader {
     width: calc(25% - 2.25px) !important;   /* 4 в ряд, зазор 3px как и был */
   }
 }
+/* Неполный последний ряд (например, после фильтра остался 1 товар) раньше
+   добивался тёмным фоном самого списка — большой тёмный прямоугольник справа.
+   Теперь фон списка прозрачный (белая страница), тёмные — сами карточки,
+   а тонкий тёмный «разрез» 3px между карточками рисует тень справа от каждой
+   карточки (лежит ровно в зазоре column-gap). Полный ряд выглядит как раньше,
+   неполный заканчивается белым. Только страницы каталога и только при
+   готовой полосе фильтров (html.uf-cf-ready). */
+html.uf-cf-ready body:has(.uf-cat-h1) .t951 .t951__grid-cont .t-store__card-list {
+  background: transparent !important;
+}
+html.uf-cf-ready body:has(.uf-cat-h1) .t951 .t951__grid-cont .t-store__card-list .t-store__card {
+  background: #17090B !important;
+  box-shadow: 3px 0 0 #17090B;
+}
 
 /* --- наши элементы --- */
 .uf-cf {
