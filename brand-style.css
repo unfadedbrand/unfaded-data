@@ -5698,6 +5698,17 @@ a.uf-cf-chip:hover { border-color: var(--uf-cf-ink) !important; }
 
 /* строка «Фильтры | Сортировка» (телефон) */
 .uf-cf-mbar { display: none; }
+/* Липкая строка не прилипала: правило выше «html, body { overflow-x: hidden }»
+   (≤639px, защита от горизонтального скролла) делает body отдельной
+   «прокручиваемой» областью, и position:sticky внутри неё не срабатывает.
+   overflow-x: clip так же режет горизонтальный вылет, но прокручиваемой
+   области не создаёт. Только на страницах каталога с .uf-cat-h1. */
+@media screen and (max-width: 639px) {
+  html:has(.uf-cat-h1),
+  html:has(.uf-cat-h1) body {
+    overflow-x: clip;
+  }
+}
 
 /* панель снизу (телефон) */
 .uf-cf-sheet {
