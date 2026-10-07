@@ -1708,7 +1708,7 @@ function buildStepper(active) {
         '<div class="uf-step-text">Обмен завершён, доплачивать за услугу не нужно.</div></div></div>' +
     '</div>' +
     '<div class="uf-callout"><b>Кто оплачивает пересылку.</b> Обмен для вас бесплатный: и отправку обратно, и новую посылку оплачиваем мы — в пункте выдачи платить не нужно.</div>' +
-    '<div class="uf-svc-contact">Можно и напрямую: WhatsApp <a href="https://wa.me/' + WA_NUMBER + '">+7&nbsp;993&nbsp;895&nbsp;50&nbsp;08</a>, <a href="' + TG_SUPPORT_URL + '" target="_blank" rel="noopener">Telegram</a> или <a href="mailto:unfadedwork@gmail.com">unfadedwork@gmail.com</a>.</div>';
+    '<div class="uf-svc-contact">Можно и напрямую: WhatsApp <a href="https://wa.me/' + WA_NUMBER + '">+7&nbsp;993&nbsp;895&nbsp;50&nbsp;08</a>, <a href="' + TG_SUPPORT_URL + '" target="_blank" rel="noopener">Telegram</a> или <a href="mailto:info@unfadedstore.com">info@unfadedstore.com</a>.</div>';
 
   var CLAIM_HTML =
     '<div class="uf-svc-head"><div class="uf-svc-title">Заявка на возврат или обмен</div><span class="uf-badge">Заявление за 2 минуты</span></div>' +
@@ -1844,9 +1844,9 @@ function buildStepper(active) {
     '<div class="uf-legal-title">4. Кому могут передаваться данные</div>' +
     '<div class="uf-legal-body"><p>В объёме, необходимом для целей из раздела 2: платформе сайта «Тильда»; CRM-системе RetailCRM и сервису интеграции заказов; службе доставки СДЭК; банку и платёжным сервисам (оплата картой и СБП, «Долями», Яндекс Пэй и «Яндекс Сплит»); сервису онлайн-касс и оператору фискальных данных; сервисам рассылок и уведомлений; сервису Яндекс Метрика. Я согласна(-ен) также на трансграничную передачу данных: хостинг серверных сервисов сайта (Render Services, Inc., США), Google Tag Manager и Google Analytics (Google, США), мессенджеры Telegram и WhatsApp — при обращении через них.</p></div>' +
     '<div class="uf-legal-title">5. Срок и отзыв согласия</div>' +
-    '<div class="uf-legal-body"><p>Согласие действует до достижения целей обработки, но не более 5 лет с даты последнего заказа или обращения, либо до его отзыва. Отозвать согласие можно, написав на unfadedwork@gmail.com. После отзыва Оператор прекращает обработку и уничтожает данные в течение 30 дней, кроме данных, которые обязан хранить по закону (например, сведения о расчётах для налогового учёта). Подробнее — в Политике конфиденциальности.</p></div>' +
+    '<div class="uf-legal-body"><p>Согласие действует до достижения целей обработки, но не более 5 лет с даты последнего заказа или обращения, либо до его отзыва. Отозвать согласие можно, написав на info@unfadedstore.com. После отзыва Оператор прекращает обработку и уничтожает данные в течение 30 дней, кроме данных, которые обязан хранить по закону (например, сведения о расчётах для налогового учёта). Подробнее — в Политике конфиденциальности.</p></div>' +
     '<div class="uf-legal-title">6. Согласие на рекламные рассылки</div>' +
-    '<div class="uf-legal-body" style="margin-bottom:0;"><p>Подписываясь на рассылку (форма подписки, галочка «Получать новости» при заказе, согласие в боте программы лояльности), я отдельно соглашаюсь получать от UNFADED сообщения о новинках, акциях и закрытых продажах по e-mail, SMS, в Telegram и WhatsApp (ст. 18 Федерального закона «О рекламе»). Отказаться можно в любой момент: по ссылке «Отписаться» в письме, в боте или написав на unfadedwork@gmail.com. Отказ от рассылки не влияет на оформление и доставку заказов.</p></div>';
+    '<div class="uf-legal-body" style="margin-bottom:0;"><p>Подписываясь на рассылку (форма подписки, галочка «Получать новости» при заказе, согласие в боте программы лояльности), я отдельно соглашаюсь получать от UNFADED сообщения о новинках, акциях и закрытых продажах по e-mail, SMS, в Telegram и WhatsApp (ст. 18 Федерального закона «О рекламе»). Отказаться можно в любой момент: по ссылке «Отписаться» в письме, в боте или написав на info@unfadedstore.com. Отказ от рассылки не влияет на оформление и доставку заказов.</p></div>';
 
   var CONTACTS_HTML =
     '<div class="uf-svc-title" style="margin-bottom:24px;">Контакты</div>' +
@@ -1862,7 +1862,7 @@ function buildStepper(active) {
       '</div>' +
       '<div class="uf-svc-contact-row">' +
         '<div class="uf-label" style="margin-bottom:6px;">Email</div>' +
-        '<div class="uf-svc-contact-value"><a href="mailto:unfadedwork@gmail.com" style="color:inherit; text-decoration:none;">unfadedwork@gmail.com</a></div>' +
+        '<div class="uf-svc-contact-value"><a href="mailto:info@unfadedstore.com" style="color:inherit; text-decoration:none;">info@unfadedstore.com</a></div>' +
       '</div>' +
       '<div class="uf-svc-contact-row">' +
         '<div class="uf-label" style="margin-bottom:6px;">Время работы</div>' +
@@ -1871,7 +1871,7 @@ function buildStepper(active) {
     '</div>' +
     '<div style="margin-top:28px;">' +
       '<div class="uf-label" style="margin-bottom:10px;">Сотрудничество</div>' +
-      '<div class="uf-callout">Если у вас есть предложение о сотрудничестве с брендом — отправьте сообщение на почту <b>unfadedwork@gmail.com</b> или напишите нам в WhatsApp или Telegram.</div>' +
+      '<div class="uf-callout">Если у вас есть предложение о сотрудничестве с брендом — отправьте сообщение на почту <b>info@unfadedstore.com</b> или напишите нам в WhatsApp или Telegram.</div>' +
     '</div>';
 
   /* ---------- «Клуб: вопрос — ответ» (/service#club-faq) ----------
@@ -2487,7 +2487,7 @@ function buildStepper(active) {
       card.className = 'uf-svc-faqcard';
       card.innerHTML =
         '<div><div class="uf-svc-faqcard-title">Не нашли ответ?</div>' +
-        '<div class="uf-svc-faqcard-sub">Служба поддержки: WhatsApp и Telegram с 09:00 до 21:00 по МСК · unfadedwork@gmail.com</div></div>' +
+        '<div class="uf-svc-faqcard-sub">Служба поддержки: WhatsApp и Telegram с 09:00 до 21:00 по МСК · info@unfadedstore.com</div></div>' +
         '<a class="uf-svc-faqcard-btn" href="https://wa.me/' + WA_NUMBER + '" target="_blank" rel="noopener">Написать в WhatsApp</a>' +
         '<a class="uf-svc-faqcard-btn" href="' + TG_SUPPORT_URL + '" target="_blank" rel="noopener">Написать в Telegram</a>';
       nav.parentNode.insertBefore(card, nav.nextSibling);
