@@ -5418,3 +5418,435 @@ body.uf-soon .uf-soon-note {
 html.uf-co2 .uf-cr__text[hidden],
 html.uf-co2 .uf-cr__link[hidden],
 html.uf-co2 .uf-cr__join[hidden] { display: none; }
+
+/* ==========================================================================
+   Фильтры каталога — утверждённый макет, 2026-10-07
+   Компьютер (≥980px) — «вариант А»: колонки слева нет, сетка на всю ширину
+   4 в ряд, над сеткой — чипы соседних разделов и полоса фильтров с
+   выпадающими панелями. Телефон (<980px) — «список»: чипы разделов листаются,
+   липкая строка «Фильтры | Сортировка», фильтры — панелью снизу.
+   Область действия — ТОЛЬКО страницы с нашим <h1 class="uf-cat-h1">
+   (body:has(.uf-cat-h1)); главная, /archive, товар — не затрагиваются.
+   Родная панель Тильды остаётся в DOM (её чекбоксами управляет наш JS
+   из brand-popup-fix.js, блок «uf-cf»), здесь она только спрятана.
+   Страховка: всё, что прячет фильтры Тильды и меняет сетку, — только под
+   html.uf-cf-ready. Этот класс JS ставит, лишь когда наша полоса фильтров
+   построена и нашла поля Тильды (и снимает, если не вышло). Не запустился
+   JS / старый JS из кеша / Тильда сменила разметку — класса нет, и страница
+   выглядит как раньше: родная колонка фильтров Тильды на месте и работает.
+   ========================================================================== */
+html.uf-cf-ready body:has(.uf-cat-h1) .t951 .t951__sidebar,
+html.uf-cf-ready body:has(.uf-cat-h1) .t951 .t-store__filter__search-and-sort,
+html.uf-cf-ready body:has(.uf-cat-h1) .t951 .js-store-filter-mob-btn {
+  display: none !important;
+}
+html.uf-cf-ready body:has(.uf-cat-h1) .t951 .t951__grid-cont,
+html.uf-cf-ready body:has(.uf-cat-h1) .t951 .js-store-grid-cont-preloader {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  flex: 1 1 100% !important;
+}
+@media screen and (min-width: 980px) {
+  /* только основная сетка раздела (.t951__grid-cont), не «Дополните образ» в попапе */
+  html.uf-cf-ready body:has(.uf-cat-h1) .t951 .t951__grid-cont .t-store__card-list .t-store__card {
+    width: calc(25% - 2.25px) !important;   /* 4 в ряд, зазор 3px как и был */
+  }
+}
+/* Неполный последний ряд (например, после фильтра остался 1 товар) раньше
+   добивался тёмным фоном самого списка — большой тёмный прямоугольник справа.
+   Теперь фон списка прозрачный (белая страница), тёмные — сами карточки,
+   а тонкий тёмный «разрез» 3px между карточками рисует тень справа от каждой
+   карточки (лежит ровно в зазоре column-gap). Полный ряд выглядит как раньше,
+   неполный заканчивается белым. Только страницы каталога и только при
+   готовой полосе фильтров (html.uf-cf-ready). */
+html.uf-cf-ready body:has(.uf-cat-h1) .t951 .t951__grid-cont .t-store__card-list {
+  background: transparent !important;
+}
+html.uf-cf-ready body:has(.uf-cat-h1) .t951 .t951__grid-cont .t-store__card-list .t-store__card {
+  background: #17090B !important;
+  box-shadow: 3px 0 0 #17090B;
+}
+
+/* --- наши элементы --- */
+.uf-cf {
+  --uf-cf-pad: 48px;
+  --uf-cf-ink: #17090B;
+  --uf-cf-wine: #7A1F2A;
+  --uf-cf-line: #ECECEC;
+  --uf-cf-bd: #DCDCDC;
+  --uf-cf-muted: #6E6A6B;
+  font-family: 'Onest', Arial, sans-serif;
+  color: var(--uf-cf-ink);
+  box-sizing: border-box;
+}
+.uf-cf *, .uf-cf *::before, .uf-cf *::after { box-sizing: border-box; }
+.uf-cf [hidden], .uf-cf[hidden] { display: none !important; }
+.uf-cf button {
+  font-family: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  margin: 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.uf-cf button:focus-visible,
+.uf-cf a:focus-visible,
+.uf-cf input:focus-visible {
+  outline: 2px solid var(--uf-cf-wine);
+  outline-offset: 2px;
+}
+
+/* чипы разделов и выбранных фильтров */
+.uf-cf-secs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 14px var(--uf-cf-pad) 0;
+}
+.uf-cf-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  white-space: nowrap;
+  border: 1px solid var(--uf-cf-bd) !important;
+  border-radius: 999px;
+  padding: 7px 14px !important;
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 500;
+  background: #fff !important;
+  color: var(--uf-cf-ink) !important;
+  text-decoration: none !important;
+  transition: border-color .15s ease, color .15s ease;
+}
+a.uf-cf-chip:hover { border-color: var(--uf-cf-ink) !important; }
+.uf-cf-chip.is-on {
+  background: var(--uf-cf-ink) !important;
+  border-color: var(--uf-cf-ink) !important;
+  color: #FAFAFA !important;
+}
+.uf-cf-chip_sel {
+  border-color: var(--uf-cf-wine) !important;
+  color: var(--uf-cf-wine) !important;
+}
+.uf-cf-chip_sel:hover { background: #FBF6F6 !important; }
+.uf-cf-x { opacity: .7; font-size: 11px; }
+
+/* полоса фильтров (компьютер) */
+.uf-cf-bar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  padding: 12px var(--uf-cf-pad);
+  border-top: 1px solid var(--uf-cf-line);
+  border-bottom: 1px solid var(--uf-cf-line);
+  background: #fff;
+  z-index: 20;
+  min-height: 62px; /* место под строку, пока Тильда грузит фильтры */
+}
+.uf-cf-bar.is-empty { display: none; }
+.uf-cf-bar__filters { display: flex; flex-wrap: wrap; gap: 8px; }
+.uf-cf-bar__sp { flex: 1; }
+.uf-cf-count { font-size: 13px; color: var(--uf-cf-muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.uf-cf-dd,
+.uf-cf-tg {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--uf-cf-bd) !important;
+  background: #fff !important;
+  padding: 8px 13px !important;
+  font-size: 13px !important;
+  line-height: 18px;
+  white-space: nowrap;
+}
+.uf-cf-dd::after {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-right: 1.4px solid currentColor;
+  border-bottom: 1.4px solid currentColor;
+  transform: rotate(45deg) translateY(-2px);
+  transition: transform .15s ease;
+}
+.uf-cf-dd.is-open { border-color: var(--uf-cf-ink) !important; }
+.uf-cf-dd.is-open::after { transform: rotate(-135deg) translate(-1px, -1px); }
+.uf-cf-dd:hover, .uf-cf-tg:hover { border-color: var(--uf-cf-ink) !important; }
+.uf-cf-dd.is-sel, .uf-cf-tg.is-sel { border-color: var(--uf-cf-wine) !important; color: var(--uf-cf-wine) !important; }
+.uf-cf-tg.is-sel { background: var(--uf-cf-wine) !important; color: #FAFAFA !important; }
+
+.uf-cf-pop {
+  position: absolute;
+  top: calc(100% - 4px);
+  left: var(--uf-cf-pad);
+  width: 340px;
+  background: #fff;
+  border: 1px solid var(--uf-cf-ink);
+  box-shadow: 0 12px 30px rgba(23, 9, 11, .14);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  z-index: 30;
+}
+.uf-cf-pop__hd,
+.uf-cf-sec__hd {
+  font-size: 11px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+.uf-cf-pop__acts {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+.uf-cf-btn {
+  background: var(--uf-cf-ink) !important;
+  color: #FAFAFA !important;
+  padding: 11px 16px !important;
+  font-size: 12px !important;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  font-weight: 600 !important;
+  text-align: center;
+}
+.uf-cf-btn_wine { background: var(--uf-cf-wine) !important; }
+.uf-cf-btn:hover { opacity: .88; }
+.uf-cf-ghost {
+  text-decoration: underline !important;
+  text-underline-offset: 3px;
+  color: var(--uf-cf-muted) !important;
+  font-size: 13px !important;
+  padding: 4px 0 !important;
+}
+.uf-cf-ghost:disabled { opacity: .45; cursor: default; }
+
+.uf-cf-sizes { display: flex; flex-wrap: wrap; gap: 6px; }
+.uf-cf-size {
+  min-width: 48px;
+  text-align: center;
+  border: 1px solid var(--uf-cf-bd) !important;
+  background: #fff !important;
+  padding: 9px 11px !important;
+  font-size: 13px !important;
+  line-height: 18px;
+}
+.uf-cf-size:hover { border-color: var(--uf-cf-ink) !important; }
+.uf-cf-size.is-on { background: var(--uf-cf-ink) !important; color: #FAFAFA !important; border-color: var(--uf-cf-ink) !important; }
+
+.uf-cf-colors { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 10px; }
+.uf-cf-color {
+  display: flex !important;
+  align-items: center;
+  gap: 9px;
+  padding: 6px 2px !important;
+  font-size: 13px !important;
+  line-height: 18px;
+  text-align: left;
+}
+.uf-cf-color i {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 0, 0, .15);
+  flex: none;
+}
+.uf-cf-color.is-on { font-weight: 600; }
+.uf-cf-color.is-on i { box-shadow: 0 0 0 2px #fff, 0 0 0 3px var(--uf-cf-ink); }
+
+.uf-cf-price { display: flex; align-items: center; gap: 8px; }
+.uf-cf-price label {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--uf-cf-bd);
+  padding: 0 10px;
+  font-size: 13px;
+  color: var(--uf-cf-muted);
+  min-width: 0;
+}
+.uf-cf-price label:focus-within { border-color: var(--uf-cf-ink); }
+.uf-cf-price input {
+  border: 0 !important;
+  outline: 0 !important;
+  width: 100%;
+  min-width: 0;
+  padding: 9px 0 !important;
+  font: inherit;
+  font-size: 14px !important;  /* ≥14px — чтобы iOS не увеличивал страницу */
+  color: var(--uf-cf-ink);
+  background: transparent;
+  font-variant-numeric: tabular-nums;
+  box-shadow: none !important;
+}
+.uf-cf-price b { font-weight: 400; color: var(--uf-cf-muted); }
+
+.uf-cf-sortlist { display: flex; flex-direction: column; }
+.uf-cf-sortopt {
+  text-align: left;
+  padding: 10px 2px !important;
+  font-size: 14px !important;
+  border-bottom: 1px solid var(--uf-cf-line) !important;
+  display: flex !important;
+  justify-content: space-between;
+  align-items: center;
+}
+.uf-cf-sortopt:last-child { border-bottom: 0 !important; }
+.uf-cf-sortopt.is-on { font-weight: 600; }
+.uf-cf-sortopt.is-on::after { content: "✓"; color: var(--uf-cf-wine); }
+
+/* выбранные фильтры */
+.uf-cf-active {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  padding: 10px var(--uf-cf-pad) 0;
+  font-size: 13px;
+}
+.uf-cf-active__lbl { color: #9A9D9F; margin-right: 2px; }
+.uf-cf-active .uf-cf-ghost { margin-left: 6px; }
+.t951 > .uf-cf-active + .t-store { margin-top: 14px; }
+.t951 > .uf-cf-active[hidden] + .t-store { margin-top: 14px; }
+
+/* строка «Фильтры | Сортировка» (телефон) */
+.uf-cf-mbar { display: none; }
+/* Липкая строка не прилипала: правило выше «html, body { overflow-x: hidden }»
+   (≤639px, защита от горизонтального скролла) делает body отдельной
+   «прокручиваемой» областью, и position:sticky внутри неё не срабатывает.
+   overflow-x: clip так же режет горизонтальный вылет, но прокручиваемой
+   области не создаёт. Только на страницах каталога с .uf-cat-h1. */
+@media screen and (max-width: 639px) {
+  html.uf-cf-ready:has(.uf-cat-h1),
+  html.uf-cf-ready:has(.uf-cat-h1) body {
+    overflow-x: clip;
+  }
+}
+
+/* панель снизу (телефон) */
+.uf-cf-sheet {
+  position: fixed;
+  inset: 0;
+  z-index: 99990;
+}
+.uf-cf-sheet__dim {
+  position: absolute;
+  inset: 0;
+  background: rgba(23, 9, 11, .45);
+  animation: uf-cf-fade .2s ease;
+}
+.uf-cf-sheet__panel {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  max-height: 86vh;
+  max-height: 86dvh;
+  background: #fff;
+  border-radius: 16px 16px 0 0;
+  display: flex;
+  flex-direction: column;
+  animation: uf-cf-up .24s cubic-bezier(.2, .8, .2, 1);
+}
+.uf-cf-sheet__grab { width: 38px; height: 4px; border-radius: 2px; background: var(--uf-cf-bd); margin: 8px auto 0; flex: none; }
+.uf-cf-sheet__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 16px 12px;
+  border-bottom: 1px solid var(--uf-cf-line);
+  flex: none;
+}
+.uf-cf-sheet__top b { font-size: 14px; letter-spacing: .06em; text-transform: uppercase; font-weight: 600; }
+.uf-cf-sheet__x { font-size: 18px !important; line-height: 1; padding: 6px !important; margin-right: -6px !important; }
+.uf-cf-sheet__body { flex: 1 1 auto; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; padding: 0 16px; }
+.uf-cf-sec { padding: 16px 0; border-bottom: 1px solid var(--uf-cf-line); display: flex; flex-direction: column; gap: 12px; }
+.uf-cf-sec:last-child { border-bottom: 0; }
+.uf-cf-sec_row { flex-direction: row; justify-content: space-between; align-items: center; font-size: 14px; }
+.uf-cf-switch { width: 38px; height: 22px; border-radius: 11px !important; background: var(--uf-cf-bd) !important; position: relative; padding: 0 !important; flex: none; }
+.uf-cf-switch i { position: absolute; left: 3px; top: 3px; width: 16px; height: 16px; border-radius: 50%; background: #fff; transition: left .15s ease; }
+.uf-cf-switch.is-on { background: var(--uf-cf-ink) !important; }
+.uf-cf-switch.is-on i { left: 19px; }
+.uf-cf-sheet__foot {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 8px;
+  padding: 12px 16px calc(14px + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid var(--uf-cf-line);
+  flex: none;
+}
+.uf-cf-sheet__foot .uf-cf-ghost { display: flex; align-items: center; justify-content: center; }
+.uf-cf-sheet .uf-cf-sortlist { padding: 4px 0 calc(12px + env(safe-area-inset-bottom, 0px)); }
+html.uf-cf-lock, html.uf-cf-lock body { overflow: hidden !important; }
+@keyframes uf-cf-up { from { transform: translateY(100%); } to { transform: none; } }
+@keyframes uf-cf-fade { from { opacity: 0; } to { opacity: 1; } }
+
+@media screen and (max-width: 979px) {
+  .uf-cf-bar { display: none !important; }
+  .uf-cf-secs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding: 12px var(--uf-cf-pad) 2px;
+    gap: 6px;
+  }
+  .uf-cf-secs::-webkit-scrollbar { display: none; }
+  .uf-cf-secs::after { content: ""; flex: 0 0 calc(var(--uf-cf-pad) - 6px); }
+  .uf-cf-chip { font-size: 12.5px; padding: 7px 13px !important; }
+  .uf-cf-mbar {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    position: -webkit-sticky;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    margin-top: 12px;
+    background: #fff;
+    border-top: 1px solid var(--uf-cf-line);
+    border-bottom: 1px solid var(--uf-cf-line);
+  }
+  .uf-cf-mbar.is-single { grid-template-columns: 1fr; }
+  .uf-cf-mbar.is-empty { display: none; }
+  .uf-cf-mbar button {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 13px 8px !important;
+    font-size: 12px !important;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    font-weight: 600 !important;
+    min-height: 46px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .uf-cf-mbar button + button { border-left: 1px solid var(--uf-cf-line) !important; }
+  .uf-cf-mbar em {
+    font-style: normal;
+    background: var(--uf-cf-wine);
+    color: #fff;
+    border-radius: 9px;
+    padding: 0 6px;
+    font-size: 10px;
+    line-height: 16px;
+    letter-spacing: 0;
+  }
+  .uf-cf-active { padding: 8px var(--uf-cf-pad) 0; }
+  .uf-cf-active__lbl { display: none; }
+  .t951 > .uf-cf-active + .t-store,
+  .t951 > .uf-cf-active[hidden] + .t-store { margin-top: 10px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .uf-cf-sheet__panel, .uf-cf-sheet__dim { animation: none; }
+}
