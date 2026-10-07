@@ -13,7 +13,7 @@
   var SUB_SEL = '.tn-elem__15428459211762791328198 .tn-atom';
   var FORM_SEL = '.tn-elem__15428459211762791428253';
   var FORM_TAG_SEL = '#rec1542845921 form';
-  var HEADING_TEXT = 'Ранний доступ к новым дропам и −10% на первый заказ';
+  var HEADING_TEXT = 'Ранний доступ к новым дропам и 1 000 RUB на первый заказ';
   var SUB_TEXT = 'Подпишитесь на письма UNFADED — без спама, только новые коллекции и закрытые продажи.';
   var EYEBROW_TEXT = 'Будьте первыми';
   var DISMISS_TEXT = 'Нет, спасибо';
@@ -2192,10 +2192,10 @@ function buildStepper(active) {
         var defect = d.reason === 'Брак/дефект';
         var money = d.payment === 'Наложенным платежом'
           ? '<p>Способ оплаты заказа: ' + f('при получении (наложенный платёж)') + '. Денежные средства в сумме ' +
-            f(rub(d.price) + ' ₽') + ' прошу перечислить по СБП на номер телефона ' + f(d.sbpPhone) +
+            f(rub(d.price) + ' RUB') + ' прошу перечислить по СБП на номер телефона ' + f(d.sbpPhone) +
             ', банк получателя — ' + f(d.bank) + '.</p>'
           : '<p>Способ оплаты заказа: ' + f('картой на сайте') + '. Денежные средства в сумме ' +
-            f(rub(d.price) + ' ₽') + ' прошу вернуть на карту, с которой был оплачен заказ.</p>';
+            f(rub(d.price) + ' RUB') + ' прошу вернуть на карту, с которой был оплачен заказ.</p>';
         return '<div class="uf-paper">' +
           '<div class="to">Индивидуальному предпринимателю<br>Петровой Светлане Юрьевне<br>' +
             'ИНН 143407255768, ОГРНИП 319774600301099<br><br>' +
@@ -2203,7 +2203,7 @@ function buildStepper(active) {
           '<h3>Заявление на возврат товара</h3>' +
           '<p>Прошу принять возврат товара ' + (defect ? 'ненадлежащего' : 'надлежащего') + ' качества по заказу № ' +
             f(d.order) + ', оформленному в интернет-магазине unfadedstore.com, и вернуть уплаченные за него денежные средства.</p>' +
-          '<table><tr><th>Товар</th><th class="sum">Стоимость, ₽</th></tr>' +
+          '<table><tr><th>Товар</th><th class="sum">Стоимость, RUB</th></tr>' +
             '<tr><td>' + f(d.item) + '</td><td class="sum">' + f(rub(d.price)) + '</td></tr></table>' +
           '<p>Причина возврата: ' + f(defect ? 'брак' + (d.defect ? ' — ' + d.defect : '') : lower1(d.reason || 'другое')) + '.</p>' +
           money +
@@ -2289,7 +2289,7 @@ function buildStepper(active) {
           'Здравствуйте! Заявление на возврат по заказу ' + d.order + ' — отправляю фото подписанного заявления.',
           'ФИО: ' + d.fio,
           'Телефон: ' + d.phone,
-          'Товар: ' + d.item + ', ' + rub(d.price) + ' ₽'
+          'Товар: ' + d.item + ', ' + rub(d.price) + ' RUB'
         ];
         if (d.reason) lines.push('Причина: ' + d.reason + (d.reason === 'Брак/дефект' && d.defect ? ' — ' + d.defect : ''));
         lines.push(d.payment === 'Наложенным платежом'
@@ -3163,7 +3163,7 @@ function buildStepper(active) {
     var row = document.createElement('div');
     row.className = 'uf-sub-row';
     row.innerHTML =
-      '<div class="uf-sub-row__text"><div class="uf-sub-row__title">Ранний доступ к новым дропам и −10% на первый заказ</div>' +
+      '<div class="uf-sub-row__text"><div class="uf-sub-row__title">Ранний доступ к новым дропам и 1&nbsp;000&nbsp;RUB на первый заказ</div>' +
       '<div class="uf-sub-row__sub">Письма UNFADED — без спама, только новые коллекции и закрытые продажи.</div></div>' +
       '<form class="uf-sub-row__form" novalidate>' +
         '<div class="uf-sub-row__line"><input type="email" class="uf-sub-row__input" placeholder="Ваш e-mail" autocomplete="email" required>' +
@@ -4961,7 +4961,7 @@ function buildStepper(active) {
     return Object.prototype.hasOwnProperty.call(PROMO_RULES, code) ? PROMO_RULES[code] : null;
   }
   function rub(n) { return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ' '); }
-  function minText(code, min) { return 'Промокод ' + code + ' действует на заказ от ' + rub(min) + ' ₽'; }
+  function minText(code, min) { return 'Промокод ' + code + ' действует на заказ от ' + rub(min) + ' RUB'; }
   function qa(sel) { return Array.prototype.slice.call(document.querySelectorAll(sel)); }
   function call(name) {
     try { if (typeof window[name] === 'function') window[name](); } catch (e) { /* не ломаем корзину */ }
@@ -6048,4 +6048,122 @@ function buildStepper(active) {
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', schedule);
   else schedule();
   window.addEventListener('load', schedule);
+})();
+
+// ============================================================
+// UNFADED — меню «Платья», параметры модели, текст согласия (07.10.2026)
+//
+// 1. Меню. Группы «Верх / Низ / Платья и костюмы» строит HEAD-код
+//    (MENU_GROUPS → .uf-menu-group в мобильном меню и .uf-dm-group в полосе
+//    меню на компьютере). Пункта «Костюмы» в меню больше нет, в группе один
+//    пункт «Платья» — выпадашка из одной строки не нужна. Группу, в которой
+//    осталась одна ссылка, заменяем обычной ссылкой (на компьютере —
+//    .uf-dm-link, как «Last Chance»; в мобильном — исходный пункт Тильды).
+//    HEAD-код строит меню один раз (data-uf-menu), но Тильда может
+//    перерисовать блок — поэтому повторяем по MutationObserver.
+//    Если в группе снова станет 2+ ссылки (вернут «Костюмы») — не трогаем.
+// 2. Параметры модели. В характеристиках товара «Параметры модели:
+//    173/80/60/87» → «Параметры модели: рост 173, грудь 80, талия 60,
+//    бёдра 87». Данные товаров не меняем — только текст на странице
+//    (и в окне товара). Допускаются пробелы и «см» после чисел.
+// 3. Согласие на обработку данных — один текст:
+//    • окно подписки (rec1542845921, форма Тильды): «Я согласна(-ен) на
+//      обработку персональных данных и получение рассылки»;
+//    • окно «Узнать о поступлении / Предзаказ» (#uf-notify-modal, строит
+//      HEAD-код): «Я согласна(-ен) на обработку персональных данных».
+//    Ссылка на документ (/service#consent) сохраняется.
+// Откат: удалить этот блок.
+// ============================================================
+(function () {
+  'use strict';
+  if (window.__ufMenuParamsConsentInit) return;
+  window.__ufMenuParamsConsentInit = true;
+
+  var CONSENT_URL = '/service#consent';
+
+  // --- 1. меню ---
+  function flattenMenu() {
+    // компьютер: <div.uf-dm-group><span.uf-dm-trigger/><div.uf-dm-panel>a…</div></div>
+    var groups = document.querySelectorAll('#uf-desktop-menu .uf-dm-group');
+    for (var i = 0; i < groups.length; i++) {
+      var g = groups[i];
+      var links = g.querySelectorAll('.uf-dm-panel a');
+      if (links.length !== 1) continue;
+      var a = links[0].cloneNode(true);
+      a.className = 'uf-dm-link';
+      a.removeAttribute('style');  // margin-bottom из панели в строке меню не нужен
+      g.parentNode.replaceChild(a, g);
+    }
+    // мобильное меню: <li.uf-menu-group><div.uf-menu-group__toggle/><ul.uf-menu-group__list><li>a</li></ul></li>
+    var mGroups = document.querySelectorAll('li.uf-menu-group');
+    for (var j = 0; j < mGroups.length; j++) {
+      var mg = mGroups[j];
+      var list = mg.querySelector('.uf-menu-group__list');
+      var items = list ? list.children : [];
+      if (items.length !== 1 || !items[0].querySelector('a')) continue;
+      mg.parentNode.insertBefore(items[0], mg);  // исходный пункт Тильды со всеми обработчиками
+      mg.parentNode.removeChild(mg);
+    }
+  }
+
+  // --- 2. параметры модели ---
+  // «173/80/60/87», «173 / 80 / 60 / 87», «173см/80см/60см/87 см»
+  var PARAMS_RE = /(\d{2,3})\s*(?:см\.?)?\s*[\/\\|]\s*(\d{2,3})\s*(?:см\.?)?\s*[\/\\|]\s*(\d{2,3})\s*(?:см\.?)?\s*[\/\\|]\s*(\d{2,3})(?:\s*см)?/i;
+  function fixModelParams() {
+    var els = document.querySelectorAll('.js-store-prod-charcs, .t-typography__characteristics');
+    for (var i = 0; i < els.length; i++) {
+      var el = els[i];
+      if (!/Параметры\s+модели/i.test(el.textContent || '')) continue;
+      var walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null, false);
+      var n;
+      while ((n = walker.nextNode())) {
+        var m = n.nodeValue.match(PARAMS_RE);
+        if (!m) continue;
+        n.nodeValue = n.nodeValue.replace(PARAMS_RE,
+          'рост ' + m[1] + ', грудь ' + m[2] + ', талия ' + m[3] + ', бёдра ' + m[4]);
+      }
+    }
+  }
+
+  // --- 3. согласие ---
+  function setConsent(span, withNews) {
+    if (!span) return;
+    var want = 'Я согласна(-ен) на обработку персональных данных' + (withNews ? ' и получение рассылки' : '');
+    if ((span.textContent || '').replace(/\s+/g, ' ').trim() === want) return;
+    var a = span.querySelector('a') || document.createElement('a');
+    a.setAttribute('href', CONSENT_URL);
+    a.setAttribute('target', '_blank');
+    a.setAttribute('rel', 'noopener');
+    a.setAttribute('data-uf-consent', '1');
+    a.textContent = 'обработку персональных данных';
+    while (span.firstChild) span.removeChild(span.firstChild);
+    span.appendChild(document.createTextNode('Я согласна(-ен) на '));
+    span.appendChild(a);
+    if (withNews) span.appendChild(document.createTextNode(' и получение рассылки'));
+  }
+  function fixConsent() {
+    var popup = document.querySelectorAll('#rec1542845921 .t-checkbox__labeltext');
+    for (var i = 0; i < popup.length; i++) setConsent(popup[i], true);
+    var notify = document.querySelectorAll('#uf-notify-modal .uf-notify-modal__consent span');
+    for (var j = 0; j < notify.length; j++) setConsent(notify[j], false);
+  }
+
+  function run() {
+    try { flattenMenu(); } catch (e) { /* меню важнее — не ломаем остальное */ }
+    try { fixModelParams(); } catch (e) {}
+    try { fixConsent(); } catch (e) {}
+  }
+
+  var queued = false;
+  function schedule() {
+    if (queued) return;
+    queued = true;
+    (window.requestAnimationFrame || setTimeout)(function () { queued = false; run(); });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run);
+  else run();
+  window.addEventListener('load', run);
+  if (window.MutationObserver) {
+    new MutationObserver(schedule).observe(document.documentElement, { childList: true, subtree: true });
+  }
 })();

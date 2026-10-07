@@ -5852,3 +5852,16 @@ body:has(.uf-cat-h1) .t-rec[data-record-type="131"]:has(+ .t-rec[data-record-typ
     padding-top: 16px !important;
   }
 }
+
+/* «или в Telegram» на телефоне (07.10.2026). На 375px строка «Вопрос по размеру?
+   Написать в WhatsApp» (263px) + «или в Telegram» (85px) шире колонки (335px):
+   «или в Telegram» переносилось на новую строку с отступом 4px и не совпадало
+   с текстом над ним. На узких экранах ставим его отдельной строкой точно под
+   текстом (8px точка + 6px зазор = 14px). Компьютер не меняется. */
+@media screen and (max-width: 479px) {
+  .uf-tg {
+    display: block !important;
+    width: max-content;
+    margin: 2px 0 0 14px !important;
+  }
+}
