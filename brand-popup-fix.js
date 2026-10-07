@@ -5654,6 +5654,8 @@ function buildStepper(active) {
     document.body.appendChild(ui.sheet);
     document.documentElement.classList.add(PFX + '-on');
     cache = {};
+    ui.builtAt = Date.now();
+    setTimeout(schedule, 8100);
     scrollActiveChip();
     return true;
   }
@@ -5661,8 +5663,11 @@ function buildStepper(active) {
   function scrollActiveChip() {
     if (!ui || !isMobile()) return;
     var on = ui.secs.querySelector('.is-on');
-    if (on && ui.secs.scrollWidth > ui.secs.clientWidth) {
-      ui.secs.scrollLeft = Math.max(0, on.offsetLeft - 16);
+    if (!on || ui.secs.scrollWidth <= ui.secs.clientWidth) return;
+    // листаем, только если активный чип не виден целиком
+    var box = ui.secs.getBoundingClientRect(), r = on.getBoundingClientRect();
+    if (r.right > box.right - 8 || r.left < box.left) {
+      ui.secs.scrollLeft += r.left - box.left - 16;
     }
   }
 
@@ -5678,6 +5683,11 @@ function buildStepper(active) {
     syncSel(model);
     var count = getCount();
     var hasFilters = model.filters.length || model.price || model.avail;
+    // Тильда рисует свои фильтры после первой загрузки товаров — до этого
+    // держим место под строку, чтобы страница не прыгала
+    // (если за 8 секунд фильтры так и не появились — значит, их в блоке нет)
+    var pending = !rec.querySelector('.js-store-filter') && Date.now() - ui.builtAt < 8000;
+    ui.pending = pending;
     var h1 = getH1();
     if (h1) {
       var pad = getComputedStyle(h1).paddingLeft;
@@ -5703,7 +5713,7 @@ function buildStepper(active) {
     setHtml(ui.bar.querySelector('.' + PFX + '-count'), 'count', count == null ? '' : fmtNum(count) + ' ' + plural(count));
     setHtml(ui.bar.querySelector('.' + PFX + '-bar__sort'), 'sortbtn', model.sort ?
       '<button type="button" class="' + PFX + '-dd' + (model.sort.value ? ' is-sel' : '') + (openPop === 'sort' ? ' is-open' : '') + '" data-act="pop" data-v="sort" aria-expanded="' + (openPop === 'sort') + '">' + esc(sortShort(model)) + '</button>' : '');
-    ui.bar.classList.toggle('is-empty', !hasFilters && !model.sort);
+    ui.bar.classList.toggle('is-empty', !pending && !hasFilters && !model.sort);
 
     // Компьютер: открытая панель
     var pop = ui.bar.querySelector('.' + PFX + '-pop');
@@ -5753,10 +5763,11 @@ function buildStepper(active) {
     em.hidden = !n;
     var fbtn = ui.mbar.querySelector('[data-v="filters"]');
     var sbtn = ui.mbar.querySelector('[data-v="sort"]');
-    fbtn.hidden = !hasFilters;
-    sbtn.hidden = !model.sort;
-    ui.mbar.classList.toggle('is-single', !hasFilters || !model.sort);
-    ui.mbar.classList.toggle('is-empty', !hasFilters && !model.sort);
+    var showF = pending || !!hasFilters, showS = pending || !!model.sort;
+    fbtn.hidden = !showF;
+    sbtn.hidden = !showS;
+    ui.mbar.classList.toggle('is-single', !showF || !showS);
+    ui.mbar.classList.toggle('is-empty', !showF && !showS);
     var sTxt = model.sort && model.sort.value ? sortShort(model) : 'Сортировка';
     if (sbtn.textContent !== sTxt) sbtn.textContent = sTxt;
 
@@ -5923,6 +5934,7 @@ function buildStepper(active) {
       if (model.avail) { setChecked(model.avail, !model.avail.checked); loading = true; }
       refresh();
     } else if (act === 'sheet') {
+      if (ui.pending) return; // фильтры Тильды ещё не загрузились
       openSheet(t.getAttribute('data-v'));
     } else if (act === 'close') {
       closeSheet(!!t.getAttribute('data-apply'));
