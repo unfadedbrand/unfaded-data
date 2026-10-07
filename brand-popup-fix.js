@@ -5688,6 +5688,7 @@ function buildStepper(active) {
     // (если за 8 секунд фильтры так и не появились — значит, их в блоке нет)
     var pending = !rec.querySelector('.js-store-filter') && Date.now() - ui.builtAt < 8000;
     ui.pending = pending;
+    setReady(pending || !!hasFilters || !!model.sort);
     var h1 = getH1();
     if (h1) {
       var pad = getComputedStyle(h1).paddingLeft;
@@ -6013,17 +6014,27 @@ function buildStepper(active) {
   function run() {
     timer = 0;
     try {
-      if (!inScope()) return;
+      if (!inScope()) { setReady(false); return; }
       hookProcess();
       if (!alive()) {
         if (ui) { [ui.secs, ui.bar, ui.mbar, ui.active, ui.sheet].forEach(function (el) { if (el && el.parentNode) el.parentNode.removeChild(el); }); ui = null; }
-        if (!build()) return;
+        if (!build()) { setReady(false); return; }
         updateStickyTop();
       }
       refresh();
     } catch (err) {
+      setReady(false); // что-то пошло не так — вернуть родную колонку Тильды
       if (window.console && console.warn) console.warn('[uf-cf]', err);
     }
+  }
+
+  // html.uf-cf-ready: только при нём CSS прячет фильтры Тильды и ставит 4 в ряд.
+  // Ставим, когда наша полоса построена и либо Тильда ещё грузит фильтры
+  // (её колонка в этот момент всё равно пустая), либо мы нашли её поля.
+  // Если за 8 секунд поля так и не нашлись — снимаем, колонка Тильды вернётся.
+  function setReady(on) {
+    var el = document.documentElement;
+    if (el.classList.contains(PFX + '-ready') !== !!on) el.classList.toggle(PFX + '-ready', !!on);
   }
 
   if (window.MutationObserver) {

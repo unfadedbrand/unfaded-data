@@ -5429,13 +5429,19 @@ html.uf-co2 .uf-cr__join[hidden] { display: none; }
    (body:has(.uf-cat-h1)); главная, /archive, товар — не затрагиваются.
    Родная панель Тильды остаётся в DOM (её чекбоксами управляет наш JS
    из brand-popup-fix.js, блок «uf-cf»), здесь она только спрятана.
+   Страховка: всё, что прячет фильтры Тильды и меняет сетку, — только под
+   html.uf-cf-ready. Этот класс JS ставит, лишь когда наша полоса фильтров
+   построена и нашла поля Тильды (и снимает, если не вышло). Не запустился
+   JS / старый JS из кеша / Тильда сменила разметку — класса нет, и страница
+   выглядит как раньше: родная колонка фильтров Тильды на месте и работает.
    ========================================================================== */
-body:has(.uf-cat-h1) .t951 .t951__sidebar,
-body:has(.uf-cat-h1) .t951 .t-store__filter__search-and-sort {
+html.uf-cf-ready body:has(.uf-cat-h1) .t951 .t951__sidebar,
+html.uf-cf-ready body:has(.uf-cat-h1) .t951 .t-store__filter__search-and-sort,
+html.uf-cf-ready body:has(.uf-cat-h1) .t951 .js-store-filter-mob-btn {
   display: none !important;
 }
-body:has(.uf-cat-h1) .t951 .t951__grid-cont,
-body:has(.uf-cat-h1) .t951 .js-store-grid-cont-preloader {
+html.uf-cf-ready body:has(.uf-cat-h1) .t951 .t951__grid-cont,
+html.uf-cf-ready body:has(.uf-cat-h1) .t951 .js-store-grid-cont-preloader {
   width: 100% !important;
   max-width: 100% !important;
   margin-left: 0 !important;
@@ -5444,7 +5450,7 @@ body:has(.uf-cat-h1) .t951 .js-store-grid-cont-preloader {
 }
 @media screen and (min-width: 980px) {
   /* только основная сетка раздела (.t951__grid-cont), не «Дополните образ» в попапе */
-  body:has(.uf-cat-h1) .t951 .t951__grid-cont .t-store__card-list .t-store__card {
+  html.uf-cf-ready body:has(.uf-cat-h1) .t951 .t951__grid-cont .t-store__card-list .t-store__card {
     width: calc(25% - 2.25px) !important;   /* 4 в ряд, зазор 3px как и был */
   }
 }
@@ -5705,8 +5711,8 @@ a.uf-cf-chip:hover { border-color: var(--uf-cf-ink) !important; }
    overflow-x: clip так же режет горизонтальный вылет, но прокручиваемой
    области не создаёт. Только на страницах каталога с .uf-cat-h1. */
 @media screen and (max-width: 639px) {
-  html:has(.uf-cat-h1),
-  html:has(.uf-cat-h1) body {
+  html.uf-cf-ready:has(.uf-cat-h1),
+  html.uf-cf-ready:has(.uf-cat-h1) body {
     overflow-x: clip;
   }
 }
