@@ -5275,8 +5275,9 @@ function buildStepper(active) {
   function esc(s) {
     return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
+  var NBSP = String.fromCharCode(160);
   function fmtNum(n) {
-    return String(Math.round(+n)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+    return String(Math.round(+n)).replace(/\B(?=(\d{3})+(?!\d))/g, NBSP);
   }
   function cleanNum(s) {
     var v = String(s == null ? '' : s).replace(/[^\d]/g, '');
@@ -5400,8 +5401,11 @@ function buildStepper(active) {
       });
       order.sort(function (a, b) { return keys[a].ord - keys[b].ord; });
       var name = kind === 'color' ? 'Цвет' : (kind === 'size' ? 'Размер' : title.textContent.trim());
-      filters.push({ id: fid, kind: kind, name: name, keys: keys, order: order, cbs: cbs });
+      filters.push({ id: fid, kind: kind, name: name, keys: keys, order: order, cbs: cbs, pos: filters.length });
     });
+    // Порядок как в макете: Размер, Цвет, остальные — как у Тильды
+    var RANK = { size: 0, color: 1, plain: 2 };
+    filters.sort(function (a, b) { return (RANK[a.kind] - RANK[b.kind]) || (a.pos - b.pos); });
     var pmin = rec.querySelector('.js-store-filter-pricemin');
     var pmax = rec.querySelector('.js-store-filter-pricemax');
     var price = null;
@@ -5470,8 +5474,8 @@ function buildStepper(active) {
     max = Math.max(lo, Math.min(hi, max));
     if (min > max) { var t = min; min = max; max = t; }
     if (min === price.min && max === price.max) return;
-    price.pmin.value = fmtNum(min).replace(/ /g, ' ');
-    price.pmax.value = fmtNum(max).replace(/ /g, ' ');
+    price.pmin.value = fmtNum(min).split(NBSP).join(' ');
+    price.pmax.value = fmtNum(max).split(NBSP).join(' ');
     price.pmin.dispatchEvent(new Event('change', { bubbles: true }));
     price.pmax.dispatchEvent(new Event('change', { bubbles: true }));
     loading = true;
