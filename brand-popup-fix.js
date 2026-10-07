@@ -8,6 +8,33 @@
  * текст на сайте.
  * Подключается отдельным <script> в HEAD, рядом с brand-style.css.
  */
+// UNFADED — заплатка для ошибки Тильды на странице товара (07.10.2026).
+// t_store_get_productPopup_closeIcon_color (tilda-catalog-1.1.min.js) красит
+// крестик попапа, но в карточке товара (.t-store__prod-snippet__container)
+// крестика .t-popup__close нет → «Cannot read properties of null (reading
+// 'style')». Ошибка обрывает функцию, и Тильда не отправляет событие
+// аналитики «detail» (просмотр товара). Оборачиваем её в try/catch: крестика
+// нет — красить нечего, остальной код Тильды идёт дальше.
+// Скрипт подключён с defer после каталога и выполняется до DOMContentLoaded,
+// то есть раньше, чем Тильда рисует карточку. Откат: удалить этот блок.
+(function () {
+  var NAME = 't_store_get_productPopup_closeIcon_color';
+  function wrap() {
+    var orig = window[NAME];
+    if (typeof orig !== 'function' || orig.__ufGuard) return typeof orig === 'function';
+    var guarded = function () {
+      try { return orig.apply(this, arguments); } catch (e) { /* нет крестика — пропускаем */ }
+    };
+    guarded.__ufGuard = true;
+    window[NAME] = guarded;
+    return true;
+  }
+  if (!wrap()) {
+    var tries = 0;
+    var t = setInterval(function () { if (wrap() || ++tries > 100) clearInterval(t); }, 50);
+  }
+})();
+
 (function () {
   var HEADING_SEL = '.tn-elem__15428459211762791192110 .tn-atom';
   var SUB_SEL = '.tn-elem__15428459211762791328198 .tn-atom';
@@ -6166,4 +6193,138 @@ function buildStepper(active) {
   if (window.MutationObserver) {
     new MutationObserver(schedule).observe(document.documentElement, { childList: true, subtree: true });
   }
+})();
+
+/*
+ * UNFADED — закреплённая кнопка «В корзину» и кнопка чата на телефоне (07.10.2026).
+ * Макет: https://claude.ai/artifact/WrwAYAX1QNKqrXApLs21Co (Лера выбрала вариант А и чат 1+2).
+ * 1) Страница товара, экран ≤639px: внизу полоса «фото · название · цена · В корзину».
+ *    Видна, когда основной кнопки нет на экране. Тильда сама отмечает первый размер,
+ *    поэтому, пока покупательница сама не нажала размер, кнопка полосы не кладёт товар,
+ *    а прокручивает к размерам и подсвечивает их. Если основная кнопка не «в корзину»
+ *    (нет в наличии, предзаказ) — в полосе тот же текст, нажатие = нажатие основной кнопки.
+ * 2) Кнопка чата (.t898__btn), экран ≤639px, все страницы: при прокрутке вниз уезжает
+ *    за край, при прокрутке вверх или через 1,5 с после остановки возвращается.
+ *    Уведомление «добавлено в корзину» (.t706__bubble-container) поднято над кнопкой —
+ *    это в brand-style.css. Когда полоса видна, чат и уведомление стоят над ней.
+ * Откат: удалить этот блок и блок «uf-sticky-buy / чат» в brand-style.css.
+ */
+(function () {
+  var MQ = window.matchMedia ? window.matchMedia('(max-width: 639px)') : { matches: false };
+  var root = document.documentElement;
+
+  /* ---------- 1. полоса «В корзину» ---------- */
+  var bar = null, main = null, sizeChosen = false, mainVisible = true;
+
+  function txt(el) { return el ? (el.textContent || '').replace(/\s+/g, ' ').trim() : ''; }
+
+  function sizeOption(sn) {
+    var opts = sn.querySelectorAll('.js-product-edition-option');
+    for (var i = 0; i < opts.length; i++) {
+      if (/размер/i.test(opts[i].getAttribute('data-edition-option-id') || '')) return opts[i];
+    }
+    return null;
+  }
+
+  function refresh() {
+    if (!bar || !main) return;
+    var sn = main.closest('.t-store__product-snippet');
+    var price = sn && sn.querySelector('.js-store-prod-price-val');
+    var priceText = price && txt(price) ? txt(price) + ' RUB' : '';
+    var priceEl = bar.querySelector('.uf-sticky-buy__price');
+    if (priceEl.textContent !== priceText) priceEl.textContent = priceText;
+    var label = txt(main);
+    var btnText = /корзин/i.test(label) ? 'В корзину' : label;
+    var btnEl = bar.querySelector('.uf-sticky-buy__btn');
+    if (btnEl.textContent !== btnText) btnEl.textContent = btnText;
+    var on = MQ.matches && !mainVisible && main.offsetParent !== null;
+    bar.classList.toggle('uf-sticky-buy_on', on);
+    root.classList.toggle('uf-sticky-on', on);
+  }
+
+  function buildBar() {
+    var sn = document.querySelector('.t-store__product-snippet');
+    if (!sn) return false;
+    main = sn.querySelector('.t-store__prod-popup__btn');
+    if (!main) return false;
+    if (document.querySelector('.uf-sticky-buy')) return true;
+
+    var img = sn.querySelector('[data-original]');
+    bar = document.createElement('div');
+    bar.className = 'uf-sticky-buy';
+    bar.innerHTML =
+      '<span class="uf-sticky-buy__thumb"></span>' +
+      '<span class="uf-sticky-buy__info"><small class="uf-sticky-buy__name"></small><b class="uf-sticky-buy__price"></b></span>' +
+      '<button type="button" class="uf-sticky-buy__btn">В корзину</button>';
+    if (img) bar.querySelector('.uf-sticky-buy__thumb').style.backgroundImage = 'url("' + img.getAttribute('data-original') + '")';
+    bar.querySelector('.uf-sticky-buy__name').textContent = txt(sn.querySelector('.js-store-prod-name'));
+    document.body.appendChild(bar);
+
+    var opt = sizeOption(sn);
+    if (!opt) sizeChosen = true;
+    else opt.addEventListener('click', function (e) {
+      if (e.target.closest('.t-product__option-item, label, input, select')) sizeChosen = true;
+    });
+
+    bar.querySelector('.uf-sticky-buy__btn').addEventListener('click', function () {
+      if (/корзин/i.test(txt(main)) && !sizeChosen && opt) {
+        opt.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        opt.classList.remove('uf-size-nudge');
+        void opt.offsetWidth;
+        opt.classList.add('uf-size-nudge');
+        setTimeout(function () { opt.classList.remove('uf-size-nudge'); }, 1800);
+        return;
+      }
+      main.click();
+    });
+
+    var ticking = false;
+    function check() {
+      ticking = false;
+      var r = main.getBoundingClientRect();
+      mainVisible = r.bottom > 0 && r.top < (window.innerHeight || root.clientHeight);
+      refresh();
+    }
+    function onScroll() {
+      if (ticking) return;
+      ticking = true;
+      setTimeout(check, 80);
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    check();
+    if (window.MutationObserver) {
+      new MutationObserver(refresh).observe(sn, { childList: true, subtree: true, characterData: true });
+    }
+    if (MQ.addEventListener) MQ.addEventListener('change', refresh);
+    refresh();
+    return true;
+  }
+
+  /* ---------- 2. кнопка чата прячется при прокрутке вниз ---------- */
+  var lastY = window.pageYOffset || 0, idle = null;
+  function chatOpen() {
+    var cb = document.querySelector('.t898__btn_input');
+    return cb && cb.checked;
+  }
+  function setChatAway(away) {
+    root.classList.toggle('uf-chat-away', !!away && MQ.matches && !chatOpen());
+  }
+  window.addEventListener('scroll', function () {
+    var y = window.pageYOffset || 0;
+    if (y > lastY + 8 && y > 200) setChatAway(true);
+    else if (y < lastY - 8) setChatAway(false);
+    if (Math.abs(y - lastY) > 8) lastY = y;
+    clearTimeout(idle);
+    idle = setTimeout(function () { setChatAway(false); }, 1500);
+  }, { passive: true });
+
+  /* ---------- запуск: карточку товара Тильда рисует позже ---------- */
+  var tries = 0;
+  function start() {
+    if (buildBar() || ++tries > 40) return;
+    setTimeout(start, 250);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
+  else start();
 })();
