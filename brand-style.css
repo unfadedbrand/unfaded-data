@@ -5918,3 +5918,19 @@ body:has(.uf-cat-h1) .t-rec[data-record-type="131"]:has(+ .t-rec[data-record-typ
   .t706__bubble-container { bottom: 84px !important; }
   html.uf-sticky-on .t706__bubble-container { bottom: 154px !important; }
 }
+
+/* UNFADED — подпись «Долями» в карточках каталога (07.10.2026).
+   HEAD-код прячет её через display:none, а виджет Долями (aq.dolyame.ru/7117/client.js),
+   не видя своей подписи, перерисовывает её без конца (~500 раз в секунду). Из-за этого
+   страница не «успокаивается», и HEAD-код не дорисовывает плашки «Новинка / Осталось мало / Скоро»
+   и кружочки цвета (ждёт 150 мс тишины). Прячем подпись иначе — элемент «виден» для виджета,
+   но занимает 0 px и не кликается: цикл останавливается. Откат: удалить этот блок. */
+html body .t-store__card .digi-dolyame-label--container {
+  display: block !important;
+  visibility: hidden !important;
+  height: 0 !important;
+  overflow: hidden !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  pointer-events: none !important;
+}
