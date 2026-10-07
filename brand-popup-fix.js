@@ -6158,7 +6158,7 @@ function buildStepper(active) {
   function schedule() {
     if (queued) return;
     queued = true;
-    (window.requestAnimationFrame || setTimeout)(function () { queued = false; run(); });
+    setTimeout(function () { queued = false; run(); }, 60);
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run);
   else run();
