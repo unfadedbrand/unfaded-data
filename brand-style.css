@@ -5443,7 +5443,8 @@ body:has(.uf-cat-h1) .t951 .js-store-grid-cont-preloader {
   flex: 1 1 100% !important;
 }
 @media screen and (min-width: 980px) {
-  body:has(.uf-cat-h1) .t951 .t-store__card-list .t-store__card {
+  /* только основная сетка раздела (.t951__grid-cont), не «Дополните образ» в попапе */
+  body:has(.uf-cat-h1) .t951 .t951__grid-cont .t-store__card-list .t-store__card {
     width: calc(25% - 2.25px) !important;   /* 4 в ряд, зазор 3px как и был */
   }
 }
