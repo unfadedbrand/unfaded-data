@@ -5868,11 +5868,7 @@ function buildStepper(active) {
     if (!ui || !inScope()) return;
     var t = e.target.closest ? e.target.closest('[data-act]') : null;
     var inUi = t && t.closest('.' + PFX);
-    if (!inUi) {
-      // клик мимо — закрыть выпадающую панель на компьютере
-      if (openPop && !(e.target.closest && e.target.closest('.' + PFX + '-pop'))) closePop(true);
-      return;
-    }
+    if (!inUi) return;
     var act = t.getAttribute('data-act');
     var rec = getRec();
     if (!rec) return;
@@ -5926,6 +5922,15 @@ function buildStepper(active) {
       closeSheet(!!t.getAttribute('data-apply'));
     }
   });
+
+  // Нажатие мимо — закрыть выпадающую панель на компьютере. Именно pointerdown
+  // и только настоящий (isTrusted): Тильда сама шлёт программные click по
+  // документу после перерисовки, и на click панель закрывалась бы сама.
+  document.addEventListener('pointerdown', function (e) {
+    if (!ui || !openPop || !e.isTrusted) return;
+    if (e.target.closest && e.target.closest('.' + PFX + '-bar')) return;
+    closePop(true);
+  }, true);
 
   document.addEventListener('keydown', function (e) {
     if (!ui) return;
