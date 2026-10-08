@@ -5934,3 +5934,19 @@ html body .t-store__card .digi-dolyame-label--container {
   padding: 0 !important;
   pointer-events: none !important;
 }
+
+/* ==========================================================================
+   UNFADED — «Категории товаров» на главной (rec1717180551, T1196), 08.10.2026.
+   Шрифт как у остального сайта: заголовок Onest 600, подписи Onest 500 тёмные
+   (было 300, серые). На компьютере (от 960px) все карточки в один ряд по центру,
+   без стрелок; карточки сжимаются до 200px максимум. Телефон — без изменений.
+   Откат: удалить этот блок.
+   ========================================================================== */
+#rec1717180551 .t-section__title{font-family:'Onest',Arial,sans-serif!important;font-weight:600!important;font-size:20px!important;letter-spacing:.08em!important;color:#17090B!important;}
+#rec1717180551 .t-card__title{font-family:'Onest',Arial,sans-serif!important;font-weight:500!important;font-size:12px!important;letter-spacing:.06em!important;color:#17090B!important;}
+@media screen and (min-width:960px){
+  #rec1717180551 .t1196__slider{justify-content:center!important;padding:0 40px!important;overflow:visible!important;flex-wrap:nowrap!important;gap:12px!important;}
+  #rec1717180551 .t1196__item{flex:1 1 0!important;width:auto!important;max-width:200px!important;min-width:0!important;}
+  #rec1717180551 .t1196__imgwrapper,#rec1717180551 .t1196__bgimg{width:100%!important;height:auto!important;aspect-ratio:1/1;}
+  #rec1717180551 .t1196__controls,#rec1717180551 .t1196__scroll-icon-wrapper{display:none!important;}
+}
