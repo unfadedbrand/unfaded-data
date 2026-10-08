@@ -20,8 +20,10 @@
 .ufcb__lv.is-on { background: var(--ufcb-burgundy); border-color: var(--ufcb-burgundy); color: var(--ufcb-cream); }
 .ufcb__lv.is-on span { color: #e9c9cd; }
 .ufcb__act { display: grid; gap: 10px; width: 100%; }
-.ufcb__btn { display: block; width: 100%; text-align: center; text-decoration: none !important; font-weight: 700; font-size: 16px;
-  padding: 16px 18px; border-radius: 12px; background: var(--ufcb-ink); color: var(--ufcb-cream) !important; }
+/* кнопка — как остальные кнопки сайта: бордовая, углы 4px, капс 12px (08.10.2026) */
+.ufcb__btn { display: block; width: 100%; text-align: center; text-decoration: none !important; font-weight: 700; font-size: 12px;
+  letter-spacing: .07em; text-transform: uppercase; padding: 18px 30px; border-radius: 4px; background: #7A1F2A; color: #FAFAFA !important; }
+.ufcb__btn:hover { background: #5e1621; }
 .ufcb__btn:focus-visible { outline: 2px solid var(--ufcb-burgundy); outline-offset: 3px; }
 .ufcb__sub { font-family: "PT Mono", ui-monospace, Menlo, monospace; font-size: 11.5px; color: var(--ufcb-muted); }
 .ufcb__stage { perspective: 1100px; display: grid; place-items: center; padding: 6px 0 2px; order: -1; }
@@ -59,7 +61,7 @@
   .ufcb__levels { gap: 10px; }
   .ufcb__lv { padding: 12px 6px 11px; } .ufcb__lv b { font-size: 11px; } .ufcb__lv strong { font-size: 22px; } .ufcb__lv span { font-size: 12px; }
   .ufcb__act { display: flex; align-items: center; gap: 18px; width: auto; }
-  .ufcb__btn { width: auto; padding: 17px 34px; }
+  .ufcb__btn { width: auto; padding: 18px 34px; }
 }
 @media (max-width: 959px) { .ufcb__stage--desk { display: none; } }
 @media (prefers-reduced-motion: reduce) { .ufcb__card { transform: none !important; } .ufcb__lv { transition: none; } }
