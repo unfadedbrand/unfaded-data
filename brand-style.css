@@ -5942,11 +5942,27 @@ html body .t-store__card .digi-dolyame-label--container {
    без стрелок; карточки сжимаются до 200px максимум. Телефон — без изменений.
    Откат: удалить этот блок.
    ========================================================================== */
-#rec1717180551 .t-section__title{font-family:'Onest',Arial,sans-serif!important;font-weight:600!important;font-size:20px!important;letter-spacing:.08em!important;color:#17090B!important;}
 #rec1717180551 .t-card__title{font-family:'Onest',Arial,sans-serif!important;font-weight:500!important;font-size:12px!important;letter-spacing:.06em!important;color:#17090B!important;}
 @media screen and (min-width:960px){
   #rec1717180551 .t1196__slider{justify-content:center!important;padding:0 40px!important;overflow:visible!important;flex-wrap:nowrap!important;gap:12px!important;}
   #rec1717180551 .t1196__item{flex:1 1 0!important;width:auto!important;max-width:200px!important;min-width:0!important;}
   #rec1717180551 .t1196__imgwrapper,#rec1717180551 .t1196__bgimg{width:100%!important;height:auto!important;aspect-ratio:1/1;}
   #rec1717180551 .t1196__controls,#rec1717180551 .t1196__scroll-icon-wrapper{display:none!important;}
+}
+
+/* «Категории товаров» (rec1717180551), 09.10.2026: заголовок в стиле «Новинок» и
+   «Бестселлеров» — слева, бордовая надпись «Каталог» сверху, Onest 26px 600
+   без капса. На ПК карточки растягиваются на всю ширину (до 240px), отступ 48px
+   как у заголовков. Телефон: только вид заголовка, лента как была.
+   Откат: удалить этот блок. */
+#rec1717180551 .t-section__title{text-align:left!important;margin:0!important;padding:0 0 22px!important;font-family:'Onest',sans-serif!important;font-size:26px!important;line-height:1!important;font-weight:600!important;letter-spacing:normal!important;text-transform:none!important;color:#17090B!important;}
+#rec1717180551 .t-section__title::before{content:"Каталог";display:block;font-size:10.5px;line-height:1.4;letter-spacing:.16em;text-transform:uppercase;color:#7A1F2A;font-weight:600;margin:0 0 6px;}
+@media screen and (min-width:960px){
+  #rec1717180551 .t1196__container_flex,#rec1717180551 .t1196__col,#rec1717180551 .t-section__container{max-width:none!important;width:100%!important;margin:0!important;padding:0!important;}
+  #rec1717180551 .t-section__container > .t-col_12{max-width:none!important;width:100%!important;margin:0!important;padding:0 48px!important;float:none!important;}
+  #rec1717180551 .t1196__slider{padding:0 48px!important;}
+  #rec1717180551 .t1196__item{max-width:240px!important;}
+}
+@media screen and (max-width:639px){
+  #rec1717180551 .t-section__title{font-size:21px!important;padding-bottom:16px!important;}
 }
