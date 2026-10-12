@@ -858,6 +858,9 @@
     if (initialized) return;
     var grid = document.getElementById(GRID_REC_ID);
     if (!grid || !grid.parentNode) return;
+    // Страница товара (/tproduct/503881643-…) собрана из этого же блока каталога главной —
+    // заголовок «Новинки» там лишний и сдвигал карточку (CLS). 12.10.2026.
+    if (/\/tproduct\//.test(location.pathname) || document.querySelector('.t-store__product-snippet')) { initialized = true; return; }
     if (document.querySelector('.uf-nov-header')) { initialized = true; return; }
     initialized = true;
 

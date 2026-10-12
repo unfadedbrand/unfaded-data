@@ -5966,3 +5966,12 @@ html body .t-store__card .digi-dolyame-label--container {
 @media screen and (max-width:639px){
   #rec1717180551 .t-section__title{font-size:21px!important;padding-bottom:16px!important;}
 }
+
+/* Карточка товара на телефоне: место под фото-галерею резервируется сразу
+   (Тильда задаёт высоту слайдера скриптом позже — цена и кнопка «прыгали» вниз,
+   CLS 0,78 по PageSpeed). Пропорция 100:177 = padding-bottom 177% у слайдов.
+   Только отдельная страница товара (.t-store__product-snippet), не всплывающее окно.
+   12.10.2026. Откат: удалить этот блок. */
+@media screen and (max-width:639px){
+  .t-store__product-snippet .t-store__prod-popup__slider{min-height:calc(100vw * 1.77);}
+}
