@@ -6383,3 +6383,16 @@ function buildStepper(active) {
     if (ready || tries >= 20) { clearInterval(t); run(); }
   }, 1000);
 })();
+
+/*
+ * UNFADED — опрос «Как село?» после покупки (бриф C5, 13.10.2026).
+ * Ссылка из письма ведёт на сайт с ?fit=<заказ>&t=<подпись>; только тогда подгружаем форму
+ * fit-survey.js (остальным посетителям она не скачивается). Откат: удалить этот блок.
+ */
+(function () {
+  if (!/[?&]fit=/.test(location.search)) return;
+  var s = document.createElement('script');
+  s.src = 'https://unfadedbrand.github.io/unfaded-data/fit-survey.js';
+  s.async = true;
+  document.head.appendChild(s);
+})();
