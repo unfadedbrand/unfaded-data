@@ -6396,3 +6396,134 @@ function buildStepper(active) {
   s.async = true;
   document.head.appendChild(s);
 })();
+
+/*
+ * UNFADED — разметка воронки для Метрики через GTM (бриф «Сайт: деньги и разметка», задача 4, 13.10.2026).
+ * Только dataLayer.push — на странице ничего не меняет. GTM (GTM-KCR4J5WC) ловит события
+ * и отправляет их целями в Метрику 97187910. Каждое событие — не чаще раза за визит в оформление.
+ *   cart_open        — открыта боковая корзина
+ *   checkout_start   — открыто оформление (страница корзины)
+ *   step_delivery    — переход на шаг «Доставка»
+ *   city_from_list   — город выбран из подсказки
+ *   city_manual      — нажали «Далее» с городом, введённым руками (не из списка)
+ *   primerka_on      — поставлена галочка примерки
+ *   step_payment     — переход на шаг «Оплата»
+ *   order_submit     — нажато «Оформить заказ» на последнем шаге (uf_pay — способ оплаты)
+ *   search_used      — запрос в поиске сайта (от 2 символов, пауза 1,2 с)
+ * Тестовые визиты (?utm_source=test, держится до закрытия вкладки) идут с uf_test: 1 —
+ * GTM исключает их из целей. Откат: удалить этот блок.
+ */
+(function () {
+  var TEST_KEY = 'uf_test_visit';
+  var isTest = false;
+  try {
+    if (/[?&]utm_source=test(&|$)/.test(location.search)) sessionStorage.setItem(TEST_KEY, '1');
+    isTest = sessionStorage.getItem(TEST_KEY) === '1';
+  } catch (e) {}
+
+  var sent = {};
+  function push(name, extra, repeatable) {
+    if (!repeatable && sent[name]) return;
+    sent[name] = true;
+    var o = { event: name, uf_test: isTest ? 1 : 0 };
+    if (extra) for (var k in extra) o[k] = extra[k];
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push(o);
+  }
+  // Новое открытие оформления — шаги считаются заново.
+  function resetCheckout() {
+    ['checkout_start', 'step_delivery', 'city_from_list', 'city_manual', 'primerka_on', 'step_payment', 'order_submit']
+      .forEach(function (n) { delete sent[n]; });
+  }
+
+  // Корзина и оформление — по классам, которые Тильда ставит на <body>.
+  var wasSide = false, wasPage = false;
+  function onBody() {
+    var c = document.body.className;
+    var side = /t706__body_cartwinshowed|cartsidebarshowed/.test(c);
+    var page = /t706__body_cartpageshowed/.test(c);
+    if (side && !wasSide) { delete sent.cart_open; push('cart_open'); }
+    if (page && !wasPage) { resetCheckout(); push('checkout_start'); }
+    wasSide = side; wasPage = page;
+  }
+
+  // Шаги — по атрибуту data-active-step, который ставит наш мастер оформления.
+  var lastStep = 1;
+  function onStep(box) {
+    var step = parseInt(box.getAttribute('data-active-step'), 10) || 1;
+    if (step === 2 && lastStep < 2) push('step_delivery');
+    if (step === 3 && lastStep < 3) push('step_payment');
+    lastStep = step;
+  }
+  var watched = null;
+  function watchBox() {
+    var box = document.querySelector('.t-form__inputsbox[data-uf-wizard]');
+    if (!box || box === watched) return;
+    watched = box;
+    lastStep = parseInt(box.getAttribute('data-active-step'), 10) || 1;
+    new MutationObserver(function () { onStep(box); })
+      .observe(box, { attributes: true, attributeFilter: ['data-active-step'] });
+  }
+
+  function payMethod() {
+    var r = document.querySelector('.t706 input[name="paymentsystem"]:checked, .t706 .t-input-group_pm input:checked');
+    if (!r) return '';
+    var lbl = r.closest('label');
+    return ((lbl && lbl.textContent) || r.value || '').replace(/\s+/g, ' ').trim().slice(0, 60);
+  }
+
+  // Город: выбор из подсказки ловим по нажатию на пункт списка (Тильда убирает список до click).
+  function onPick(e) {
+    if (!e.isTrusted) return;
+    var item = e.target.closest && e.target.closest('.searchbox-list-item');
+    if (!item) return;
+    var wrap = item.closest('.searchbox-inner-wrapper');
+    var input = wrap && wrap.querySelector('input[name="tildadelivery-city"]');
+    if (input) push('city_from_list');
+  }
+  document.addEventListener('mousedown', onPick, true);
+  document.addEventListener('touchstart', onPick, true);
+
+  document.addEventListener('click', function (e) {
+    if (!e.isTrusted || !e.target.closest) return;
+    // «Далее» на шаге «Доставка» с городом, набранным руками, — тут человек и застревает.
+    if (e.target.closest('.uf-checkout-nav__next') && lastStep === 2) {
+      var city = document.querySelector('.t706 input[name="tildadelivery-city"]');
+      var guid = document.querySelector('.t706 input[name="tildadelivery-guid"]');
+      if (city && city.value.trim() && (city.dataset.ufTyped === '1' || !(guid && guid.value))) push('city_manual');
+    }
+    if (e.target.closest('.t706 .t-form__submit .t-submit') && lastStep === 4) {
+      push('order_submit', { uf_pay: payMethod() });
+    }
+  }, true);
+
+  document.addEventListener('change', function (e) {
+    var t = e.target;
+    if (e.isTrusted && t && t.name === 'primerka' && t.checked) push('primerka_on');
+  }, true);
+
+  // Поиск: один сигнал на запрос, после паузы в наборе.
+  var sTimer = null, lastQ = '';
+  document.addEventListener('input', function (e) {
+    var t = e.target;
+    if (!e.isTrusted || !t.classList || !t.classList.contains('ufs-overlay__input')) return;
+    clearTimeout(sTimer);
+    sTimer = setTimeout(function () {
+      var qv = t.value.trim().toLowerCase();
+      if (qv.length < 2 || qv === lastQ) return;
+      lastQ = qv;
+      push('search_used', { uf_query: qv.slice(0, 40) }, true);
+    }, 1200);
+  }, true);
+
+  if (isTest) push('uf_test_visit');
+
+  function start() {
+    onBody();
+    new MutationObserver(function () { onBody(); watchBox(); })
+      .observe(document.body, { attributes: true, attributeFilter: ['class'] });
+    watchBox();
+    setInterval(function () { if (/t706__body_cartpageshowed/.test(document.body.className)) watchBox(); }, 1500);
+  }
+  if (document.body) start(); else document.addEventListener('DOMContentLoaded', start);
+})();
