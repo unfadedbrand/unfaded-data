@@ -6373,6 +6373,13 @@ function buildStepper(active) {
       document.head.appendChild(s);
     } catch (e) {}
   }
-  if (document.readyState === 'complete') setTimeout(run, 1500);
-  else window.addEventListener('load', function () { setTimeout(run, 1500); });
+  // Не ждём window.load: на страницах товара он может не наступить (долго висят сторонние скрипты).
+  // Пробуем раз в секунду до 20 раз: на товаре ждём, пока Тильда отрисует название.
+  var tries = 0;
+  var t = setInterval(function () {
+    tries++;
+    var snip = document.querySelector('.t-store__product-snippet');
+    var ready = snip ? !!(snip.querySelector('.js-store-prod-name') || {}).textContent : !!document.querySelector('h1');
+    if (ready || tries >= 20) { clearInterval(t); run(); }
+  }, 1000);
 })();
