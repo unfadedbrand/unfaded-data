@@ -6398,9 +6398,9 @@ function buildStepper(active) {
 })();
 
 /*
- * UNFADED — разметка воронки для Метрики через GTM (бриф «Сайт: деньги и разметка», задача 4, 13.10.2026).
- * Только dataLayer.push — на странице ничего не меняет. GTM (GTM-KCR4J5WC) ловит события
- * и отправляет их целями в Метрику 97187910. Каждое событие — не чаще раза за визит в оформление.
+ * UNFADED — разметка воронки для Метрики (бриф «Сайт: деньги и разметка», задача 4, 13.10.2026).
+ * На странице ничего не меняет: событие уходит в dataLayer и целью (reachGoal) прямо в счётчик
+ * Метрики 97187910 — без GTM (решение Леры 13.10). Каждое событие — не чаще раза за визит в оформление.
  *   cart_open        — открыта боковая корзина
  *   checkout_start   — открыто оформление (страница корзины)
  *   step_delivery    — переход на шаг «Доставка»
@@ -6411,7 +6411,7 @@ function buildStepper(active) {
  *   order_submit     — нажато «Оформить заказ» на последнем шаге (uf_pay — способ оплаты)
  *   search_used      — запрос в поиске сайта (от 2 символов, пауза 1,2 с)
  * Тестовые визиты (?utm_source=test, держится до закрытия вкладки) идут с uf_test: 1 —
- * GTM исключает их из целей. Откат: удалить этот блок.
+ * в цели они не отправляются. Откат: удалить этот блок.
  */
 (function () {
   var TEST_KEY = 'uf_test_visit';
@@ -6429,6 +6429,27 @@ function buildStepper(active) {
     if (extra) for (var k in extra) o[k] = extra[k];
     window.dataLayer = window.dataLayer || [];
     window.dataLayer.push(o);
+    if (!isTest) goal(name, extra);
+  }
+
+  // Цели Метрики — напрямую в счётчик (без GTM, решение Леры 13.10). Счётчик в HEAD запускается
+  // с задержкой ~2 с, поэтому до его готовности цели ждут в очереди (не дольше 30 с).
+  var COUNTER = 'yaCounter97187910';
+  var goalQueue = [], goalTimer = null, goalWait = 0;
+  function flushGoals() {
+    var c = window[COUNTER];
+    if (!c || typeof c.reachGoal !== 'function') {
+      if ((goalWait += 500) > 30000) { clearInterval(goalTimer); goalTimer = null; goalQueue = []; }
+      return;
+    }
+    clearInterval(goalTimer); goalTimer = null;
+    while (goalQueue.length) { var g = goalQueue.shift(); try { c.reachGoal(g[0], g[1] || {}); } catch (e) {} }
+  }
+  function goal(name, params) {
+    goalQueue.push([name, params]);
+    var c = window[COUNTER];
+    if (c && typeof c.reachGoal === 'function') { flushGoals(); return; }
+    if (!goalTimer) { goalWait = 0; goalTimer = setInterval(flushGoals, 500); }
   }
   // Новое открытие оформления — шаги считаются заново.
   function resetCheckout() {
