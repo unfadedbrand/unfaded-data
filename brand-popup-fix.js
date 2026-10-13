@@ -6337,3 +6337,42 @@ function buildStepper(active) {
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
   else start();
 })();
+
+// UNFADED 13.10.2026: разметка для поисковиков — «хлебные крошки» (BreadcrumbList JSON-LD)
+// на разделах и товарах + бренд UNFADED у товара (microdata в карточке Тильды).
+// Здесь, а не в HEAD: HEAD у страниц товаров упёрся в лимит размера Тильды (13.10 товары пустели).
+// Откат: удалить этот блок.
+(function () {
+  function run() {
+    try {
+      if (document.getElementById('uf-ld-bc')) return;
+      var p = location.pathname, o = location.origin;
+      var items = [{ n: 'Главная', u: o + '/' }];
+      var snip = document.querySelector('.t-store__product-snippet[itemtype*="Product"]');
+      if (snip) {
+        if (!snip.querySelector('[itemprop="brand"]')) {
+          var b = document.createElement('div');
+          b.setAttribute('itemprop', 'brand'); b.setAttribute('itemscope', ''); b.setAttribute('itemtype', 'https://schema.org/Brand');
+          b.style.display = 'none';
+          var m = document.createElement('meta');
+          m.setAttribute('itemprop', 'name'); m.setAttribute('content', 'UNFADED');
+          b.appendChild(m); snip.appendChild(b);
+        }
+        var nm = snip.querySelector('.js-store-prod-name');
+        if (nm && nm.textContent.trim()) items.push({ n: nm.textContent.trim(), u: o + p });
+      } else if (p !== '/') {
+        var h1 = document.querySelector('h1');
+        if (h1 && h1.textContent.trim()) items.push({ n: h1.textContent.trim(), u: o + p });
+      }
+      if (items.length < 2) return;
+      var ld = { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: items.map(function (it, i) {
+        return { '@type': 'ListItem', position: i + 1, name: it.n, item: it.u };
+      }) };
+      var s = document.createElement('script');
+      s.type = 'application/ld+json'; s.id = 'uf-ld-bc'; s.textContent = JSON.stringify(ld);
+      document.head.appendChild(s);
+    } catch (e) {}
+  }
+  if (document.readyState === 'complete') setTimeout(run, 1500);
+  else window.addEventListener('load', function () { setTimeout(run, 1500); });
+})();
