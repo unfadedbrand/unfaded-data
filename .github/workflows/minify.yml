@@ -1,0 +1,34 @@
+# UNFADED: при каждом изменении brand-popup-fix.js / brand-style.css собирает сжатые копии
+# brand-popup-fix.min.js и brand-style.min.css (их подключает HEAD сайта). 13.10.2026.
+# Правьте ТОЛЬКО исходники (.js/.css без .min) — сжатые файлы перезаписываются автоматически.
+name: Сжатие файлов сайта
+on:
+  push:
+    branches: [main]
+    paths:
+      - brand-popup-fix.js
+      - brand-style.css
+      - .github/workflows/minify.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  minify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Сжать скрипт
+        run: npx --yes terser@5 brand-popup-fix.js -c -m -o brand-popup-fix.min.js
+      - name: Сжать стили (без перестановки правил)
+        run: npx --yes csso-cli@4 brand-style.css --no-restructure -o brand-style.min.css
+      - name: Проверить синтаксис сжатого скрипта
+        run: node -e "new Function(require('fs').readFileSync('brand-popup-fix.min.js','utf8'))"
+      - name: Сохранить, если изменилось
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add brand-popup-fix.min.js brand-style.min.css
+          git diff --cached --quiet || (git commit -m "Сжатые brand-popup-fix.min.js и brand-style.min.css (автоматически)" && git push)
