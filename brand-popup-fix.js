@@ -4497,7 +4497,7 @@ function buildStepper(active) {
  * в браузере. Состояние «open» — карточка обычная. Бэкенд недоступен — работает как раньше (по остатку).
  */
 (function () {
-  var DATA_URL = 'https://raw.githubusercontent.com/unfadedbrand/unfaded-data/main/data.json';
+  var DATA_URL = 'https://unfadedbrand.github.io/unfaded-data/data.json'; // 13.10.2026: с GitHub Pages, как в HEAD (было raw.githubusercontent)
   var DROPS_URL = 'https://unfaded-app-api.onrender.com/drops/public';
   var CLUB_URL = 'https://t.me/unfaded_club_bot?start=drop';
   var DEFAULT_TITLE = 'Мы оповестим вас, когда данный товар появится в наличии';
@@ -4552,7 +4552,7 @@ function buildStepper(active) {
 
   function loadSoon() {
     if (window.UF_SOON_OVERRIDE) { soon = window.UF_SOON_OVERRIDE; return; }
-    fetch(DATA_URL, { cache: 'no-store' })
+    fetch(DATA_URL)
       .then(function (r) { return r.ok ? r.json() : null; })
       .then(function (d) { soon = (d && d.coming_soon) || {}; })
       .catch(function () { soon = {}; });
