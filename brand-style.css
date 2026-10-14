@@ -5975,3 +5975,11 @@ html body .t-store__card .digi-dolyame-label--container {
 @media screen and (max-width:639px){
   .t-store__product-snippet .t-store__prod-popup__slider{min-height:calc(100vw * 1.77);}
 }
+
+/* UNFADED 14.10.2026 — «прыжки» страницы (CLS ~0,8 на телефоне, все страницы).
+   Скрытая форма «Сообщить о поступлении» — зеро-блок #rec3213338101 в общей шапке — до этой
+   правки пряталась только скриптом из HEAD (NOTIFY_FORM_ANCHOR, после загрузки страницы), а до
+   того стояла на виду высотой ~760 px и потом схлопывалась — всё содержимое прыгало вверх.
+   То же самое правило здесь: прячем с первой отрисовки. Форма работает как раньше (её заполняет скрипт).
+   Откат: удалить это правило. */
+#rec3213338101{position:fixed !important;left:-9999px !important;top:0 !important;width:1px !important;height:1px !important;overflow:hidden !important;opacity:.01 !important;}
