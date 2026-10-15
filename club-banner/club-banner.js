@@ -18,7 +18,9 @@
   var INNER = '<div class="ufcb__edge ufcb__edge--1"></div><div class="ufcb__edge ufcb__edge--2"></div>' +
     '<div class="ufcb__face ufcb__back">' + LOGO + '<div>ACCESS SYSTEM</div><i class="ufcb__gloss"></i></div>' +
     '<div class="ufcb__face ufcb__front"><img alt="Карта UNFADED ACCESS SYSTEM" width="816" height="600" src="' + CARDS[0] + '"><i class="ufcb__gloss"></i></div>';
-  CARDS.forEach(function (s) { var i = new Image(); i.src = s; });
+  // Остальные три карты — после загрузки страницы: раньше качались сразу и отнимали канал у первого экрана.
+  function preloadRest() { CARDS.slice(1).forEach(function (s) { var i = new Image(); i.src = s; }); }
+  var BACK = '<div class="ufcb__face ufcb__back">' + LOGO + '<div>ACCESS SYSTEM</div><i class="ufcb__gloss"></i></div>';
   var reduce = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : { matches: false };
   function easeIO(x) { return x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; }
 
@@ -29,7 +31,11 @@
     Array.prototype.forEach.call(roots, function (root) {
       if (root.__ufcb) return; root.__ufcb = true;
       Array.prototype.forEach.call(root.querySelectorAll('.ufcb__card'), function (el) {
-        el.innerHTML = INNER;
+        // Первая карта уже стоит в HTML (12.10, для LCP) — не пересоздаём её, только дописываем оборот.
+        // Раньше innerHTML заменял готовую картинку новой, и PageSpeed считал главную картинку на ~5 с позже.
+        if (el.querySelector('.ufcb__front img')) {
+          if (!el.querySelector('.ufcb__back')) el.querySelector('.ufcb__front').insertAdjacentHTML('beforebegin', BACK);
+        } else el.innerHTML = INNER;
         cards.push({ el: el, img: el.querySelector('.ufcb__front img'), gf: el.querySelector('.ufcb__front .ufcb__gloss'), gb: el.querySelector('.ufcb__back .ufcb__gloss'), shown: 0 });
       });
       var lv = root.querySelectorAll('.ufcb__lv'); if (lv.length) groups.push(lv);
@@ -57,6 +63,14 @@
     }
     requestAnimationFrame(frame);
   }
-  function start() { if (init()) requestAnimationFrame(frame); else setTimeout(start, 500); }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
+  // Вращение и подгрузка остальных карт — после загрузки страницы (или через 4 с, если load задерживают сторонние скрипты):
+  // пока страница грузится, первая карта стоит неподвижно и не отнимает время у отрисовки.
+  var go = false;
+  function run() {
+    if (go) return; go = true;
+    preloadRest();
+    (function start() { if (init()) requestAnimationFrame(frame); else setTimeout(start, 500); })();
+  }
+  if (document.readyState === 'complete') run();
+  else { window.addEventListener('load', function () { setTimeout(run, 300); }); setTimeout(run, 4000); }
 })();
