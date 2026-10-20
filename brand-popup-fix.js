@@ -2959,6 +2959,107 @@ function buildStepper(active) {
 })();
 
 // ============================================================
+// UNFADED — product page: main gallery photo first (LCP, 20.10.2026)
+// On a phone the first gallery photo is the LCP element. Tilda builds
+// the gallery after all its scripts, then its lazy loader waits a
+// 200–500 ms timer and first fetches the full-size webp (~170 KB),
+// then the resized copy (~90 KB) — PageSpeed: LCP 24 s on «slow 4G».
+// Here the photo is requested as soon as the HTML is parsed (address
+// from <meta itemprop="image">, size from the screen width), with high
+// priority, at the very address Tilda's loader computes, so optim.tildacdn
+// serves it from its cache. When the slide appears it gets this photo
+// and leaves Tilda's lazy queue; on an error Tilda's loader gets it back.
+// Only the product page (.t-store__product-snippet), screens ≤639px.
+// Rollback: delete this block.
+// ============================================================
+(function () {
+  var sn = document.querySelector('.t-store__product-snippet');
+  if (!sn || !window.matchMedia || !window.matchMedia('(max-width: 639px)').matches) return;
+  if (window.lazy_webp === 'n' || window.lazy_imgoptimoff === 'yes' || window.lazy_err_thumb === 'y') return;
+  var RE = /^https:\/\/static\.tildacdn\.com\/((?:stor|tild)[\w-]+)\/([^\/?#]+\.(?:jpe?g|png))$/i;
+  var RATIO = 1.77; // padding-bottom: 177% у слайдов (то же число — в brand-style.css, блок CLS карточки)
+
+  // Как t_lazyload в tilda-lazyload-1.0: размер обёртки слайда с округлением
+  // вверх до 100 px, ×2 при плотности экрана > 1; больше 1000×1800 — исходник
+  // в webp. Если оба размера кратны 5, Тильда берёт точный размер (-/cover/) —
+  // тогда не угадываем и не трогаем. Другие размеры optim.tildacdn отдаёт
+  // переадресацией на оригинал, поэтому адрес должен совпадать с тильдовским.
+  function tildaUrl(original, w, h) {
+    var m = RE.exec(original || '');
+    if (!m || !w || !h || (w % 5 === 0 && h % 5 === 0)) return null;
+    w = Math.ceil(w / 100) * 100;
+    h = Math.ceil(h / 100) * 100;
+    var dpr = window.devicePixelRatio || 1;
+    var d = dpr > 1 ? 2 : (dpr === 1 && Math.max(w, h) <= 400 ? 1.2 : 1);
+    w = parseInt(d * w, 10);
+    h = parseInt(d * h, 10);
+    var base = 'https://optim.tildacdn.com/' + m[1] + '/';
+    if (w > 1000 || h > 1800) return base + '-/format/webp/' + m[2] + '.webp';
+    return base + '-/resize/' + w + 'x' + h + '/-/format/webp/' + m[2] + '.webp';
+  }
+
+  var loads = {};
+  function load(url, ok, fail) {
+    var r = loads[url];
+    if (!r) {
+      r = loads[url] = { state: 0, ok: [], fail: [] };
+      var img = new Image();
+      img.fetchPriority = 'high';
+      img.onload = function () { r.state = 1; r.ok.forEach(function (f) { f(); }); };
+      img.onerror = function () { r.state = 2; r.fail.forEach(function (f) { f(); }); };
+      img.src = url;
+    }
+    if (r.state === 1) { if (ok) ok(); }
+    else if (r.state === 2) { if (fail) fail(); }
+    else { if (ok) r.ok.push(ok); if (fail) r.fail.push(fail); }
+  }
+
+  // 1. Сразу: адрес первого фото — из разметки, размер — по ширине экрана.
+  var meta = sn.querySelector('meta[itemprop="image"]');
+  var vw = document.documentElement.clientWidth || window.innerWidth;
+  var early = meta && tildaUrl(meta.getAttribute('content'), vw, Math.round(vw * RATIO));
+  if (early) load(early);
+
+  // 2. Когда Тильда построила галерею — видимому слайду ставим это фото.
+  var done = false, mo = null;
+  function slide() {
+    var els = sn.querySelectorAll('.t-slds__bgimg.t-bgimg[data-original]');
+    for (var i = 0; i < els.length; i++) {
+      var b = els[i].getBoundingClientRect();
+      if (b.width > 0 && b.height > 0 && b.top < (window.innerHeight || 0) && b.bottom > 0) return els[i];
+    }
+    return null;
+  }
+  function check() {
+    if (done) return;
+    var el = slide();
+    if (!el) return;
+    var wrap = el.closest('.t-slds__wrapper') || el.closest('.t-slds__container');
+    var url = tildaUrl(el.getAttribute('data-original'), wrap ? wrap.clientWidth : el.clientWidth, wrap ? wrap.clientHeight : el.clientHeight);
+    done = true;
+    if (mo) mo.disconnect();
+    if (!url) return;
+    el.classList.remove('t-bgimg');
+    load(url, function () {
+      el.style.backgroundImage = 'url("' + url + '")';
+      el.classList.add('loaded');
+    }, function () {
+      el.classList.add('t-bgimg');
+      if (typeof window.t_lazyload_update === 'function') window.t_lazyload_update();
+    });
+  }
+
+  check();
+  if (!done && window.MutationObserver) {
+    mo = new MutationObserver(check);
+    mo.observe(sn, { childList: true, subtree: true, attributes: true, attributeFilter: ['class', 'style'] });
+    window.addEventListener('load', function () {
+      setTimeout(function () { done = true; if (mo) mo.disconnect(); }, 3000);
+    });
+  }
+})();
+
+// ============================================================
 // UNFADED — Try-on strip (catalog pages)
 // Each catalog section page has its own copy of a big Zero Block banner
 // «Доставка с примеркой по всей России» that pushed the products below
