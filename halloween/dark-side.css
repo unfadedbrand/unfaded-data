@@ -58,14 +58,12 @@
   .ufds-look { grid-template-columns: 1fr; gap: 18px; padding: 40px max(16px, env(safe-area-inset-right, 0px)) 40px max(16px, env(safe-area-inset-left, 0px)); }
   .ufds-look h2 { font-size: 28px; }
   .ufds-look__cards[data-ufhw-egg="cat"] { margin-top: 30px; } /* место под уши кошки */
-  /* карточки образа листаются вбок, как в макете */
-  .ufds-row { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; gap: 10px;
-    margin: 0 calc(-1 * max(16px, env(safe-area-inset-right, 0px))) 0 calc(-1 * max(16px, env(safe-area-inset-left, 0px)));
-    padding: 0 max(16px, env(safe-area-inset-right, 0px)) 4px max(16px, env(safe-area-inset-left, 0px)); }
-  .ufds-row::-webkit-scrollbar { display: none; }
-  .ufds-row { scroll-padding-inline: max(16px, env(safe-area-inset-left, 0px)); } /* иначе привязка прокрутки прижимает первую карточку к краю */
-  .ufds-row .ufds-card { flex: 0 0 62%; scroll-snap-align: start; }
-  .ufds-row--2 .ufds-card { flex-basis: 70%; }
+  /* телефон: карточки образа по 2 в ряд, как в каталоге; третья вещь — во втором ряду слева (Лера 20.10, без прокрутки вбок) */
+  .ufds-row, .ufds-row--2, .ufds-row--3 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px 10px; }
+  /* карточка — как в «Всех тёмных вещах»: фото 3:4, название и цена; размеры и кнопку на телефоне не показываем — нажатие на фото открывает товар */
+  .ufds-card__sz, .ufds-card__btn { display: none; }
+  .ufds-card__nm { margin-top: 10px; font-size: 13px; line-height: 1.35; }
+  .ufds-card__pr { margin-top: 4px; font-size: 14px; }
   .ufds-allh { padding: 40px max(16px, env(safe-area-inset-right, 0px)) 0 max(16px, env(safe-area-inset-left, 0px)); }
   .ufds-cond { margin: 0 0 40px; }
 }
