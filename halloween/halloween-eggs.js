@@ -252,7 +252,9 @@
   }
   function isBatProduct(btn) {
     if (btn.hasAttribute('data-ufhw-egg')) return true; // превью
-    var p = btn.closest('.t-store__product-snippet, .js-store-product, .js-product, [data-product-gen-uid]');
+    // липкая полоса «В корзину» внизу страницы товара на телефоне (brand-popup-fix.js) — относится к товару страницы
+    var p = btn.classList.contains('uf-sticky-buy__btn') ? document.querySelector('.t-store__product-snippet')
+      : btn.closest('.t-store__product-snippet, .js-store-product, .js-product, [data-product-gen-uid]');
     return !!(p && BAT.uid && (p.getAttribute('data-product-gen-uid') === BAT.uid || p.getAttribute('data-product-uid') === BAT.uid));
   }
   // на «Тёмной стороне» «Brat» тоже есть (образы 01 и 12) — там мыши не вылетают, третья часть прячется среди новинок
@@ -263,6 +265,9 @@
     if (!btn || batBusy || found['31'] || !isBatProduct(btn) || !batWhere(btn)) return;
     lib(); data('bat'); // прогреть, пока Тильда кладёт вещь в корзину
     var before = cartQty(), r = btn.getBoundingClientRect();
+    // нажали липкую полосу — она сама жмёт основную кнопку, которая сейчас за экраном: стая летит из полосы
+    var sticky = document.querySelector('.uf-sticky-buy_on .uf-sticky-buy__btn');
+    if (sticky && (r.bottom < 0 || r.top > innerHeight)) r = sticky.getBoundingClientRect();
     batBusy = true;
     setTimeout(function () {
       batBusy = false;
@@ -288,7 +293,7 @@
   }
   // «чёрная кнопка»: у куртки «Brat» (кроме /dark-side) «Добавить в корзину» чёрная с золотой точкой — у остальных товаров обычная
   function paintCart() {
-    [].forEach.call(document.querySelectorAll('.t-store__prod-popup__btn, [data-ufhw-egg="bat"]'), function (b) {
+    [].forEach.call(document.querySelectorAll('.t-store__prod-popup__btn, .uf-sticky-buy__btn, [data-ufhw-egg="bat"]'), function (b) {
       var on = isBatProduct(b) && batWhere(b);
       if (b.classList.contains('ufhw-cartbtn') !== on) b.classList.toggle('ufhw-cartbtn', on);
     });
