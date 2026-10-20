@@ -1,0 +1,71 @@
+/* Страница «Тёмная сторона» (/dark-side), Хэллоуин 2026 «NOT A COSTUME» — по макету, утверждённому Лерой 20.10
+   (07_MARKETING/halloween_maket/temnaya_storona_maket.html).
+   Раскладка: тезис по центру → 12 образов (подпись слева, 2–3 карточки товара справа; на телефоне карточки листаются вбок)
+   → «Все тёмные вещи» (блок каталога Тильды) → условия кода. Шрифт — Onest, как на сайте. */
+.ufds {
+  --page: #0F0D0D; --txt: #ECE7E2; --mut: #9A918B; --acc: #8B1E2B; --acc-soft: #E8B8BD; --line: #2A2424; --ph: #1C1818;
+  --f: 'Onest', Arial, sans-serif;
+  background: var(--page); color: var(--txt); font-family: var(--f);
+  -webkit-font-smoothing: antialiased;
+}
+.ufds *, .ufds *::before, .ufds *::after { box-sizing: border-box; }
+.ufds a { color: inherit; }
+
+.ufds-hero { text-align: center; border-bottom: 1px solid var(--line); padding: 72px max(16px, env(safe-area-inset-right, 0px)) 56px max(16px, env(safe-area-inset-left, 0px)); }
+.ufds-hero h1 { margin: 0; font-size: clamp(40px, 8vw, 96px); line-height: 1; font-weight: 800; letter-spacing: .06em; text-wrap: balance; }
+.ufds-hero__sub { margin: 18px 0 0; font-size: 18px; }
+.ufds-hero__intro { max-width: 560px; margin: 22px auto 0; color: var(--mut); font-size: 15px; line-height: 1.55; }
+.ufds-hero__ship { display: inline-block; margin: 26px 0 0; border: 1px solid var(--acc); color: var(--acc-soft); padding: 9px 16px; font-size: 13px; letter-spacing: .04em; }
+
+.ufds-look {
+  max-width: 1200px; margin: 0 auto; border-bottom: 1px solid var(--line);
+  display: grid; grid-template-columns: 280px minmax(0, 1fr); gap: 32px; align-items: start;
+  padding: 56px max(24px, env(safe-area-inset-right, 0px)) 56px max(24px, env(safe-area-inset-left, 0px));
+}
+.ufds-look__num { margin: 0; font-size: 12px; letter-spacing: .2em; text-transform: uppercase; color: var(--acc-soft); }
+.ufds-look h2 { margin: 8px 0 12px; font-size: 34px; font-weight: 700; line-height: 1.1; }
+.ufds-look__cap { margin: 0; color: var(--mut); font-size: 15px; line-height: 1.5; }
+.ufds-look__sum { margin: 20px 0 0; padding-top: 14px; border-top: 1px solid var(--line); font-size: 13px; font-variant-numeric: tabular-nums; }
+.ufds-look__cards { position: relative; min-width: 0; } /* опора для кошки: вне прокрутки ряда, иначе её обрежет */
+.ufds-row { display: grid; gap: 14px; }
+.ufds-row--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.ufds-row--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+.ufds-card { min-width: 0; display: flex; flex-direction: column; }
+.ufds-card__ph { position: relative; display: block; aspect-ratio: 3 / 4; background: var(--ph); overflow: hidden; max-width: 100%; }
+.ufds-card__ph img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.ufds-card__tag { position: absolute; left: 8px; top: 8px; background: var(--txt); color: var(--page); font-size: 10px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; padding: 3px 6px; }
+.ufds-card__nm { margin-top: 10px; font-size: 13px; line-height: 1.35; }
+.ufds-card__pr { margin-top: 4px; font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.ufds-card__sz { margin-top: 4px; font-size: 11px; color: var(--mut); letter-spacing: .08em; }
+.ufds-card__btn { margin-top: auto; display: block; border: 1px solid var(--txt); text-align: center; padding: 10px; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; text-decoration: none; transition: background .2s, color .2s; }
+.ufds-card__sz + .ufds-card__btn { margin-top: 10px; }
+.ufds-card__btn:hover, .ufds-card__btn:focus-visible { background: var(--txt); color: var(--page); outline: none; }
+.ufds-card.is-out .ufds-card__btn { opacity: .4; pointer-events: none; }
+
+.ufds-allh { max-width: 1200px; margin: 0 auto; padding: 56px max(24px, env(safe-area-inset-right, 0px)) 8px max(24px, env(safe-area-inset-left, 0px)); }
+.ufds-allh h2 { margin: 0; font-size: 28px; font-weight: 700; }
+.ufds-allh p { margin: 8px 0 0; color: var(--mut); font-size: 14px; }
+
+.ufds-cond { max-width: 1152px; margin: 0 auto 56px; border: 1px solid var(--line); padding: 22px; text-align: center; color: var(--mut); font-size: 14px; line-height: 1.6; }
+.ufds-cond p { margin: 0; }
+.ufds-cond b { color: var(--txt); }
+.ufds--tail { padding: 8px max(16px, env(safe-area-inset-right, 0px)) 1px max(16px, env(safe-area-inset-left, 0px)); }
+
+@media (max-width: 760px) {
+  .ufds-hero { padding-top: 48px; padding-bottom: 40px; }
+  .ufds-hero__sub { font-size: 16px; }
+  .ufds-look { grid-template-columns: 1fr; gap: 18px; padding: 40px max(16px, env(safe-area-inset-right, 0px)) 40px max(16px, env(safe-area-inset-left, 0px)); }
+  .ufds-look h2 { font-size: 28px; }
+  .ufds-look__cards[data-ufhw-egg="cat"] { margin-top: 30px; } /* место под уши кошки */
+  /* карточки образа листаются вбок, как в макете */
+  .ufds-row { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; gap: 10px;
+    margin: 0 calc(-1 * max(16px, env(safe-area-inset-right, 0px))) 0 calc(-1 * max(16px, env(safe-area-inset-left, 0px)));
+    padding: 0 max(16px, env(safe-area-inset-right, 0px)) 4px max(16px, env(safe-area-inset-left, 0px)); }
+  .ufds-row::-webkit-scrollbar { display: none; }
+  .ufds-row .ufds-card { flex: 0 0 62%; scroll-snap-align: start; }
+  .ufds-row--2 .ufds-card { flex-basis: 70%; }
+  .ufds-allh { padding: 40px max(16px, env(safe-area-inset-right, 0px)) 0 max(16px, env(safe-area-inset-left, 0px)); }
+  .ufds-cond { margin: 0 0 40px; }
+}
+@media (prefers-reduced-motion: reduce) { .ufds-row { scroll-behavior: auto; } }
