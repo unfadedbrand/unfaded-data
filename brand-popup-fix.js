@@ -2967,8 +2967,9 @@ function buildStepper(active) {
 // Here the photo is requested as soon as the HTML is parsed (address
 // from <meta itemprop="image">, size from the screen width), with high
 // priority, at the very address Tilda's loader computes, so optim.tildacdn
-// serves it from its cache. When the slide appears it gets this photo
-// and leaves Tilda's lazy queue; on an error Tilda's loader gets it back.
+// serves it from its cache. When the slide appears it (and its loop copy)
+// gets this photo and leaves Tilda's lazy queue; on an error Tilda's
+// loader gets them back.
 // Only the product page (.t-store__product-snippet), screens ≤639px.
 // Rollback: delete this block.
 // ============================================================
@@ -3014,13 +3015,19 @@ function buildStepper(active) {
     else { if (ok) r.ok.push(ok); if (fail) r.fail.push(fail); }
   }
 
-  // 1. Сразу: адрес первого фото — из разметки, размер — по ширине экрана.
-  var meta = sn.querySelector('meta[itemprop="image"]');
+  // Размер — по ширине экрана: на телефоне галерея в итоге во всю ширину, и Тильда
+  // считает адрес уже от неё (412 px → 1000×1600). Сразу после построения слайд
+  // бывает уже (372 px, с полями) — по нему вышел бы другой адрес и второе скачивание.
   var vw = document.documentElement.clientWidth || window.innerWidth;
-  var early = meta && tildaUrl(meta.getAttribute('content'), vw, Math.round(vw * RATIO));
+  function urlFor(original) { return tildaUrl(original, vw, Math.round(vw * RATIO)); }
+
+  // 1. Сразу: адрес первого фото — из разметки.
+  var meta = sn.querySelector('meta[itemprop="image"]');
+  var early = meta && urlFor(meta.getAttribute('content'));
   if (early) load(early);
 
-  // 2. Когда Тильда построила галерею — видимому слайду ставим это фото.
+  // 2. Когда Тильда построила галерею — видимому слайду и его копии для
+  //    зацикливания (тот же data-original) ставим это фото.
   var done = false, mo = null;
   function slide() {
     var els = sn.querySelectorAll('.t-slds__bgimg.t-bgimg[data-original]');
@@ -3034,17 +3041,22 @@ function buildStepper(active) {
     if (done) return;
     var el = slide();
     if (!el) return;
-    var wrap = el.closest('.t-slds__wrapper') || el.closest('.t-slds__container');
-    var url = tildaUrl(el.getAttribute('data-original'), wrap ? wrap.clientWidth : el.clientWidth, wrap ? wrap.clientHeight : el.clientHeight);
+    var original = el.getAttribute('data-original');
+    var url = urlFor(original);
     done = true;
     if (mo) mo.disconnect();
     if (!url) return;
-    el.classList.remove('t-bgimg');
+    var els = Array.prototype.filter.call(sn.querySelectorAll('.t-slds__bgimg.t-bgimg[data-original]'), function (e) {
+      return e.getAttribute('data-original') === original;
+    });
+    els.forEach(function (e) { e.classList.remove('t-bgimg'); });
     load(url, function () {
-      el.style.backgroundImage = 'url("' + url + '")';
-      el.classList.add('loaded');
+      els.forEach(function (e) {
+        e.style.backgroundImage = 'url("' + url + '")';
+        e.classList.add('loaded');
+      });
     }, function () {
-      el.classList.add('t-bgimg');
+      els.forEach(function (e) { e.classList.add('t-bgimg'); });
       if (typeof window.t_lazyload_update === 'function') window.t_lazyload_update();
     });
   }
