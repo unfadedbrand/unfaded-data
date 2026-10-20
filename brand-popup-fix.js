@@ -2959,6 +2959,123 @@ function buildStepper(active) {
 })();
 
 // ============================================================
+// UNFADED — product page: main gallery photo first (LCP, 20.10.2026)
+// On a phone the first gallery photo is the LCP element. Tilda builds
+// the gallery after all its scripts, then its lazy loader waits a
+// 200–500 ms timer and first fetches the full-size webp (~170 KB),
+// then the resized copy (~90 KB) — PageSpeed: LCP 24 s on «slow 4G».
+// Here the photo is requested as soon as the HTML is parsed (address
+// from <meta itemprop="image">, size from the screen width), with high
+// priority, at the very address Tilda's loader computes, so optim.tildacdn
+// serves it from its cache. When the slide appears it (and its loop copy)
+// gets this photo and leaves Tilda's lazy queue; on an error Tilda's
+// loader gets them back.
+// Only the product page (.t-store__product-snippet), screens ≤639px.
+// Rollback: delete this block.
+// ============================================================
+(function () {
+  var sn = document.querySelector('.t-store__product-snippet');
+  if (!sn || !window.matchMedia || !window.matchMedia('(max-width: 639px)').matches) return;
+  if (window.lazy_webp === 'n' || window.lazy_imgoptimoff === 'yes' || window.lazy_err_thumb === 'y') return;
+  var RE = /^https:\/\/static\.tildacdn\.com\/((?:stor|tild)[\w-]+)\/([^\/?#]+\.(?:jpe?g|png))$/i;
+  var RATIO = 1.77; // padding-bottom: 177% у слайдов (то же число — в brand-style.css, блок CLS карточки)
+
+  // Как t_lazyload в tilda-lazyload-1.0: размер слайда с округлением вверх
+  // до 100 px (если оба размера кратны 5 — точный размер и команда -/cover/),
+  // ×2 при плотности экрана > 1; больше 1000×1800 — исходник в webp.
+  // Размер, которого ещё нет в кеше optim.tildacdn, при первом запросе отдаётся
+  // переадресацией на оригинал (дальше — из кеша), поэтому адрес — тильдовский.
+  function tildaUrl(original, w, h) {
+    var m = RE.exec(original || '');
+    if (!m || !w || !h) return null;
+    var cover = w % 5 === 0 && h % 5 === 0;
+    if (!cover) {
+      w = Math.ceil(w / 100) * 100;
+      h = Math.ceil(h / 100) * 100;
+    }
+    var dpr = window.devicePixelRatio || 1;
+    var d = dpr > 1 ? 2 : (dpr === 1 && Math.max(w, h) <= 400 ? 1.2 : 1);
+    w = parseInt(d * w, 10);
+    h = parseInt(d * h, 10);
+    var base = 'https://optim.tildacdn.com/' + m[1] + '/';
+    if (w > 1000 || h > 1800) return base + '-/format/webp/' + m[2] + '.webp';
+    return base + (cover ? '-/cover/' + w + 'x' + h + '/center/center/' : '-/resize/' + w + 'x' + h + '/') +
+      '-/format/webp/' + m[2] + '.webp';
+  }
+
+  var loads = {};
+  function load(url, ok, fail) {
+    var r = loads[url];
+    if (!r) {
+      r = loads[url] = { state: 0, ok: [], fail: [] };
+      var img = new Image();
+      img.fetchPriority = 'high';
+      img.onload = function () { r.state = 1; r.ok.forEach(function (f) { f(); }); };
+      img.onerror = function () { r.state = 2; r.fail.forEach(function (f) { f(); }); };
+      img.src = url;
+    }
+    if (r.state === 1) { if (ok) ok(); }
+    else if (r.state === 2) { if (fail) fail(); }
+    else { if (ok) r.ok.push(ok); if (fail) r.fail.push(fail); }
+  }
+
+  // Размер — по ширине экрана: на телефоне галерея в итоге во всю ширину, и Тильда
+  // считает адрес уже от неё (412 px → 1000×1600). Сразу после построения слайд
+  // бывает уже (372 px, с полями) — по нему вышел бы другой адрес и второе скачивание.
+  var vw = document.documentElement.clientWidth || window.innerWidth;
+  function urlFor(original) { return tildaUrl(original, vw, Math.round(vw * RATIO)); }
+
+  // 1. Сразу: адрес первого фото — из разметки.
+  var meta = sn.querySelector('meta[itemprop="image"]');
+  var early = meta && urlFor(meta.getAttribute('content'));
+  if (early) load(early);
+
+  // 2. Когда Тильда построила галерею — видимому слайду и его копии для
+  //    зацикливания (тот же data-original) ставим это фото.
+  var done = false, mo = null;
+  function slide() {
+    var els = sn.querySelectorAll('.t-slds__bgimg.t-bgimg[data-original]');
+    for (var i = 0; i < els.length; i++) {
+      var b = els[i].getBoundingClientRect();
+      if (b.width > 0 && b.height > 0 && b.top < (window.innerHeight || 0) && b.bottom > 0) return els[i];
+    }
+    return null;
+  }
+  function check() {
+    if (done) return;
+    var el = slide();
+    if (!el) return;
+    var original = el.getAttribute('data-original');
+    var url = urlFor(original);
+    done = true;
+    if (mo) mo.disconnect();
+    if (!url) return;
+    var els = Array.prototype.filter.call(sn.querySelectorAll('.t-slds__bgimg.t-bgimg[data-original]'), function (e) {
+      return e.getAttribute('data-original') === original;
+    });
+    els.forEach(function (e) { e.classList.remove('t-bgimg'); });
+    load(url, function () {
+      els.forEach(function (e) {
+        e.style.backgroundImage = 'url("' + url + '")';
+        e.classList.add('loaded');
+      });
+    }, function () {
+      els.forEach(function (e) { e.classList.add('t-bgimg'); });
+      if (typeof window.t_lazyload_update === 'function') window.t_lazyload_update();
+    });
+  }
+
+  check();
+  if (!done && window.MutationObserver) {
+    mo = new MutationObserver(check);
+    mo.observe(sn, { childList: true, subtree: true, attributes: true, attributeFilter: ['class', 'style'] });
+    window.addEventListener('load', function () {
+      setTimeout(function () { done = true; if (mo) mo.disconnect(); }, 3000);
+    });
+  }
+})();
+
+// ============================================================
 // UNFADED — Try-on strip (catalog pages)
 // Each catalog section page has its own copy of a big Zero Block banner
 // «Доставка с примеркой по всей России» that pushed the products below
