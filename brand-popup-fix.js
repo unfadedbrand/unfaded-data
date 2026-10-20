@@ -4630,6 +4630,32 @@ function buildStepper(active) {
     if (lock.getAttribute('data-when') !== when) { lock.innerHTML = html; lock.setAttribute('data-when', when); }
   }
 
+  // Партия на складе, ранний доступ ещё не запущен: «В корзину» прячем, объясняем, что будет дальше.
+  function applyStockedLock(on) {
+    var wrap = document.querySelector('.t-store__prod-popup__btn-wrapper');
+    var nativeBtn = wrap && wrap.querySelector('.t-store__prod-popup__btn');
+    var lock = document.getElementById('uf-stocked-lock');
+    if (!on) {
+      if (lock) {
+        lock.remove();
+        if (nativeBtn && !document.getElementById('uf-early-lock')) nativeBtn.style.display = '';
+      }
+      return;
+    }
+    ensureSoonBadge(document.getElementById('uf-badge-stack-prod'));
+    var oldNote = document.getElementById('uf-soon-note');
+    if (oldNote) oldNote.remove();
+    if (nativeBtn) nativeBtn.style.display = 'none';
+    if (!wrap || lock) return;
+    lock = document.createElement('div');
+    lock.id = 'uf-stocked-lock';
+    lock.className = 'uf-early-lock';
+    lock.innerHTML = '<div class="uf-early-lock__btn">Скоро в продаже</div>' +
+      '<div class="uf-soon-note">Партия уже у нас. Сначала — сутки раннего доступа для тех, кто оформил предзаказ, ' +
+      'и участниц ARCHIVE и PRIVATE PASS, потом — для всех. <a href="' + CLUB_URL + '" target="_blank" rel="noopener">Клуб UNFADED</a></div>';
+    wrap.appendChild(lock);
+  }
+
   // Карточка товара
   function applyPdp() {
     var product = getProduct();
@@ -4637,9 +4663,15 @@ function buildStepper(active) {
     var entry = sku && soon[sku];
     var state = sku && dropState(sku);
     var locked = state === 'early' && !earlyOk[sku];
+    if (locked) applyStockedLock(false);
     applyEarlyLock(locked, sku);
     if (locked) { document.body.classList.add('uf-soon'); return; }
-    var on = !!(entry && state !== 'open' && state !== 'early' && allZero(product));
+    // 20.10.2026: партия уже на складе, но Лера ещё не запустила ранний доступ (бэкенд отдаёт «soon») —
+    // держим «скоро» и при ненулевом остатке, иначе карточка откроется для всех до раннего доступа.
+    // Бэкенд недоступен (state = null) — как раньше, по остатку.
+    var on = !!(entry && state !== 'open' && state !== 'early' && (allZero(product) || state === 'soon'));
+    applyStockedLock(on && !allZero(product));
+    if (on && !allZero(product)) { document.body.classList.add('uf-soon'); return; }
     document.body.classList.toggle('uf-soon', on);
     var btn = document.getElementById('uf-notify');
     var note = document.getElementById('uf-soon-note');
