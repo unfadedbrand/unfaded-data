@@ -6221,6 +6221,13 @@ function buildStepper(active) {
 
   function txt(el) { return el ? (el.textContent || '').replace(/\s+/g, ' ').trim() : ''; }
 
+  // Миниатюра 38×48: не оригинал фото (~300 КБ, качался раньше главного фото
+  // галереи и отнимал у него канал — LCP), а копия шириной 100 px (~6 КБ).
+  function thumbUrl(original) {
+    var m = /^https:\/\/static\.tildacdn\.com\/((?:stor|tild)[\w-]+)\/([^\/?#]+\.(?:jpe?g|png))$/i.exec(original || '');
+    return m ? 'https://static.tildacdn.com/' + m[1] + '/-/resizeb/100x/' + m[2] : original;
+  }
+
   function sizeOption(sn) {
     var opts = sn.querySelectorAll('.js-product-edition-option');
     for (var i = 0; i < opts.length; i++) {
@@ -6236,7 +6243,7 @@ function buildStepper(active) {
     if (!thumb.style.backgroundImage) {
       // фото галереи Тильда дорисовывает позже карточки — ставим, как только появилось
       var img = sn && sn.querySelector('[data-original]');
-      if (img) thumb.style.backgroundImage = 'url("' + img.getAttribute('data-original') + '")';
+      if (img) thumb.style.backgroundImage = 'url("' + thumbUrl(img.getAttribute('data-original')) + '")';
     }
     var price = sn && sn.querySelector('.js-store-prod-price-val');
     var priceText = price && txt(price) ? txt(price) + ' RUB' : '';
@@ -6265,7 +6272,7 @@ function buildStepper(active) {
       '<span class="uf-sticky-buy__thumb"></span>' +
       '<span class="uf-sticky-buy__info"><small class="uf-sticky-buy__name"></small><b class="uf-sticky-buy__price"></b></span>' +
       '<button type="button" class="uf-sticky-buy__btn">В корзину</button>';
-    if (img) bar.querySelector('.uf-sticky-buy__thumb').style.backgroundImage = 'url("' + img.getAttribute('data-original') + '")';
+    if (img) bar.querySelector('.uf-sticky-buy__thumb').style.backgroundImage = 'url("' + thumbUrl(img.getAttribute('data-original')) + '")';
     bar.querySelector('.uf-sticky-buy__name').textContent = txt(sn.querySelector('.js-store-prod-name'));
     document.body.appendChild(bar);
 
