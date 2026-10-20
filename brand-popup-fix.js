@@ -6464,7 +6464,8 @@ function buildStepper(active) {
     var side = /t706__body_cartwinshowed|cartsidebarshowed/.test(c);
     var page = /t706__body_cartpageshowed/.test(c);
     if (side && !wasSide) { delete sent.cart_open; push('cart_open'); }
-    if (page && !wasPage) { resetCheckout(); push('checkout_start'); }
+    // На телефоне боковой корзины нет — значок сразу открывает оформление; корзину считаем открытой и тут.
+    if (page && !wasPage) { push('cart_open'); resetCheckout(); push('checkout_start'); }
     wasSide = side; wasPage = page;
   }
 
@@ -6505,7 +6506,9 @@ function buildStepper(active) {
   document.addEventListener('mousedown', onPick, true);
   document.addEventListener('touchstart', onPick, true);
 
-  document.addEventListener('click', function (e) {
+  // На window, а не на document: проверки перед отправкой (архив, промокод) ловят клик по «Оформить заказ»
+  // на document раньше нас, гасят его и потом нажимают кнопку программно (isTrusted = false).
+  window.addEventListener('click', function (e) {
     if (!e.isTrusted || !e.target.closest) return;
     // «Далее» на шаге «Доставка» с городом, набранным руками, — тут человек и застревает.
     if (e.target.closest('.uf-checkout-nav__next') && lastStep === 2) {
