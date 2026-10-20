@@ -72,7 +72,11 @@
 /* --- Тильда: страница /dark-side (этот файл подключается только на ней) ---
    Блок «Все тёмные вещи» — копия блока каталога ST320N (T951) с разделом «Тёмная сторона» (20 вещей):
    фон страницы тёмный, боковая панель фильтров скрыта (для 20 вещей не нужна, на тёмном фоне была белой полосой). */
-body { background: #0F0D0D; }
+/* фон: Тильда красит body.t-body в белый правилом посильнее — поднимаем специфичность и красим ещё и обёртку записей */
+html body.t-body:not(#ufds-x), #allrecords:not(#ufds-x) { background-color: #0F0D0D !important; }
+/* блок каталога: без белой полосы сверху (отступ 135 px из настроек блока) и без панели сортировки — для 20 вещей не нужна */
+.t-rec:has(.t951):not(#ufds-x) { padding-top: 16px !important; background-color: #0F0D0D !important; }
+.t951 .t-store__filter__search-and-sort:not(#ufds-x), .t951 .t-store__filter__sort:not(#ufds-x) { display: none !important; }
 .t951__sidebar:not(#ufds-x) { display: none !important; }
 .t951 .t-store__card-list, .t951 .t951__grid-cont, .t951 .js-store-grid-cont { margin-left: auto !important; }
 .t951 .t-store__sort-select, .t951 .t-store__filter__opts-mob-btn, .t951 .js-store-filter-opts-mob-btn { color: #ECE7E2; }
