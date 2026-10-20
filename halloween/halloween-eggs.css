@@ -1,0 +1,100 @@
+/* Хэллоуин 2026 «Найди тёмную сторону»: три пасхалки (кошка → DARK, паутина → SIDE, мыши → 31).
+   Подключается вместе с halloween-eggs.js. Всё с префиксом .ufhw-, чужие стили не трогает. */
+:root { --ufhw-ink: #17090B; --ufhw-paper: #FAFAFA; --ufhw-gold: #C9A45C; --ufhw-wine: #7A1F2A; --ufhw-line: #9A9D9F; }
+
+/* Опора для пасхалки: фото карточки должно быть positioned (у Тильды уже relative) */
+.ufhw-host { position: relative; }
+
+/* ---------- 1. Кошка: выглядывает из-за верхнего края карточки ---------- */
+.ufhw-cat {
+  position: absolute; bottom: 100%; right: 14%; z-index: 5;
+  width: var(--ufhw-cat-w, 72px); height: calc(var(--ufhw-cat-w, 72px) * 2.1);
+  overflow: hidden; pointer-events: none;
+}
+.ufhw-cat__body {
+  position: absolute; left: 0; bottom: 0; width: 100%;
+  height: calc(var(--ufhw-cat-w, 72px) * 1.778); /* пропорция композиции 1440×2560 */
+  will-change: transform;
+}
+.ufhw-cat__body svg { overflow: visible !important; }
+.ufhw-cat__hit {
+  position: absolute; left: -8px; right: -8px; bottom: 0; height: 52%; min-height: 44px; /* палец попадает даже по краю ушей */
+  pointer-events: auto; cursor: pointer; background: none; border: 0; padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+.ufhw-cat__hit:focus-visible { outline: 2px solid var(--ufhw-gold); outline-offset: 2px; border-radius: 8px; }
+@media (max-width: 640px) { .ufhw-cat { --ufhw-cat-w: 56px; right: 10%; } }
+
+/* ---------- 2. Паутина + паук в верхнем углу фото ---------- */
+.ufhw-web {
+  position: absolute; top: 0; right: 0; z-index: 4;
+  width: var(--ufhw-web-w, 38%); max-width: 160px; aspect-ratio: 1;
+  cursor: pointer; touch-action: pan-y; -webkit-tap-highlight-color: transparent;
+}
+.ufhw-web svg.ufhw-web__net { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; transform: scaleX(-1); } /* угол — правый верхний */
+.ufhw-web__net path { fill: none; stroke: var(--ufhw-line); stroke-width: 1; stroke-linecap: round; vector-effect: non-scaling-stroke; opacity: .85; }
+.ufhw-web__spider {
+  /* композиция паука 512×512: нить крепится в точке (50%, 5%), паук ≈ 11% ширины, качается ±25% */
+  --sp: 150px;
+  position: absolute; width: var(--sp); height: var(--sp); pointer-events: none;
+  left: calc(58% - var(--sp) / 2); top: calc(16% - var(--sp) * .05);
+}
+@media (min-width: 641px) { .ufhw-web__spider { --sp: 200px; } }
+.ufhw-web:focus-visible { outline: 2px solid var(--ufhw-gold); outline-offset: -2px; }
+/* «рвётся и тает»: каждая нить падает и растворяется по-своему (задержки — из JS) */
+.ufhw-web.is-torn { pointer-events: none; }
+.ufhw-web.is-torn .ufhw-web__net path {
+  animation: ufhw-thread .9s cubic-bezier(.3,.1,.6,1) forwards; animation-delay: var(--d, 0ms);
+}
+@keyframes ufhw-thread {
+  0%   { opacity: .85; transform: none; }
+  25%  { opacity: .9;  transform: translate(calc(var(--dx, 0px) * .3), 2px) rotate(calc(var(--r, 0deg) * .3)); }
+  100% { opacity: 0;   transform: translate(var(--dx, 0px), 26px) rotate(var(--r, 0deg)); stroke-dashoffset: 40; }
+}
+.ufhw-web.is-torn .ufhw-web__spider { animation: ufhw-fade .35s ease .7s forwards; }
+@keyframes ufhw-fade { to { opacity: 0; } }
+
+/* ---------- 3. Чёрная «Добавить в корзину» у «Brat» (без точки — решение Леры 20.10), из неё вылетают мыши ---------- */
+/* :not(#ufhw-x) поднимает специфичность выше правил Тильды вида #recXXX .class (приём из tilda_grid_selectors_and_pitfalls) */
+.t-store__prod-popup__btn.ufhw-cartbtn:not(#ufhw-x), .ufhw-cartbtn:not(#ufhw-x) {
+  background: #0B0B0B !important; border-color: #0B0B0B !important; color: #FAFAFA !important;
+}
+.ufhw-flock { position: fixed; inset: 0; pointer-events: none; z-index: 2147482000; overflow: hidden; }
+.ufhw-flock__bat { position: absolute; width: 76px; height: 76px; margin: -38px 0 0 -38px; will-change: transform, opacity; }
+
+/* ---------- Плашка «Ты нашла N из 3» ---------- */
+.ufhw-toast {
+  position: fixed; left: 50%; top: 50%; z-index: 2147482001;
+  width: min(320px, calc(100vw - 32px)); box-sizing: border-box;
+  transform: translate(-50%, -46%) scale(.96); opacity: 0;
+  transition: opacity .25s ease, transform .35s cubic-bezier(.2,.9,.25,1.15);
+  background: var(--ufhw-paper); color: var(--ufhw-ink);
+  border: 1.5px solid var(--ufhw-ink); border-radius: 14px;
+  padding: 18px 20px 20px; text-align: center;
+  font-family: 'Onest', Arial, sans-serif; box-shadow: 0 18px 50px rgba(23, 9, 11, .22);
+}
+.ufhw-toast.is-in { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+.ufhw-toast__x {
+  position: absolute; top: 6px; right: 6px; width: 36px; height: 36px; border: 0; background: none;
+  font: 400 22px/1 Arial, sans-serif; color: var(--ufhw-ink); cursor: pointer; opacity: .55;
+}
+.ufhw-toast__x:hover, .ufhw-toast__x:focus-visible { opacity: 1; }
+.ufhw-toast__n { font-size: 14px; color: #55575A; margin: 0 0 4px; }
+.ufhw-toast__lead { font-size: 13px; color: #55575A; margin: 6px 0 0; }
+.ufhw-toast__part { font-size: 34px; font-weight: 800; letter-spacing: .04em; margin: 0; line-height: 1.1; }
+.ufhw-toast__slots { display: flex; justify-content: center; gap: 6px; margin: 12px 0 0; font: 600 13px/1 'Onest', Arial, sans-serif; letter-spacing: .06em; }
+.ufhw-toast__slot { padding: 6px 9px; border-radius: 6px; border: 1px dashed #D7D8D9; color: #9A9D9F; min-width: 34px; }
+.ufhw-toast__slot.is-found { border: 1px solid var(--ufhw-ink); background: var(--ufhw-ink); color: var(--ufhw-paper); }
+.ufhw-toast__hint { font-size: 13px; color: #55575A; margin: 12px 0 0; line-height: 1.4; }
+.ufhw-toast__code {
+  display: block; width: 100%; margin: 14px 0 0; padding: 12px; box-sizing: border-box;
+  border: 0; border-radius: 10px; background: var(--ufhw-ink); color: var(--ufhw-paper);
+  font: 800 22px/1 'Onest', Arial, sans-serif; letter-spacing: .08em; cursor: pointer;
+}
+.ufhw-toast__code small { display: block; margin-top: 6px; font: 500 11px/1 'Onest', Arial, sans-serif; letter-spacing: .02em; color: var(--ufhw-gold); }
+.ufhw-toast__terms { font-size: 12px; color: #55575A; margin: 10px 0 0; line-height: 1.45; }
+
+@media (prefers-reduced-motion: reduce) {
+  .ufhw-toast { transition: none; }
+  .ufhw-web.is-torn .ufhw-web__net path, .ufhw-web.is-torn .ufhw-web__spider { animation-duration: .01s; animation-delay: 0s; }
+}
