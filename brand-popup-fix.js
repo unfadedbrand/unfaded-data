@@ -2980,23 +2980,27 @@ function buildStepper(active) {
   var RE = /^https:\/\/static\.tildacdn\.com\/((?:stor|tild)[\w-]+)\/([^\/?#]+\.(?:jpe?g|png))$/i;
   var RATIO = 1.77; // padding-bottom: 177% у слайдов (то же число — в brand-style.css, блок CLS карточки)
 
-  // Как t_lazyload в tilda-lazyload-1.0: размер обёртки слайда с округлением
-  // вверх до 100 px, ×2 при плотности экрана > 1; больше 1000×1800 — исходник
-  // в webp. Если оба размера кратны 5, Тильда берёт точный размер (-/cover/) —
-  // тогда не угадываем и не трогаем. Другие размеры optim.tildacdn отдаёт
-  // переадресацией на оригинал, поэтому адрес должен совпадать с тильдовским.
+  // Как t_lazyload в tilda-lazyload-1.0: размер слайда с округлением вверх
+  // до 100 px (если оба размера кратны 5 — точный размер и команда -/cover/),
+  // ×2 при плотности экрана > 1; больше 1000×1800 — исходник в webp.
+  // Размер, которого ещё нет в кеше optim.tildacdn, при первом запросе отдаётся
+  // переадресацией на оригинал (дальше — из кеша), поэтому адрес — тильдовский.
   function tildaUrl(original, w, h) {
     var m = RE.exec(original || '');
-    if (!m || !w || !h || (w % 5 === 0 && h % 5 === 0)) return null;
-    w = Math.ceil(w / 100) * 100;
-    h = Math.ceil(h / 100) * 100;
+    if (!m || !w || !h) return null;
+    var cover = w % 5 === 0 && h % 5 === 0;
+    if (!cover) {
+      w = Math.ceil(w / 100) * 100;
+      h = Math.ceil(h / 100) * 100;
+    }
     var dpr = window.devicePixelRatio || 1;
     var d = dpr > 1 ? 2 : (dpr === 1 && Math.max(w, h) <= 400 ? 1.2 : 1);
     w = parseInt(d * w, 10);
     h = parseInt(d * h, 10);
     var base = 'https://optim.tildacdn.com/' + m[1] + '/';
     if (w > 1000 || h > 1800) return base + '-/format/webp/' + m[2] + '.webp';
-    return base + '-/resize/' + w + 'x' + h + '/-/format/webp/' + m[2] + '.webp';
+    return base + (cover ? '-/cover/' + w + 'x' + h + '/center/center/' : '-/resize/' + w + 'x' + h + '/') +
+      '-/format/webp/' + m[2] + '.webp';
   }
 
   var loads = {};
