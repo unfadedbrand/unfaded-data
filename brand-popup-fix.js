@@ -5413,11 +5413,11 @@ function buildStepper(active) {
     ['Шорты', '/catalog/shorts']
   ];
   // Общие разделы — для /catalog, /new, /bestseller, /catalog/sale, /last, /catalog/dresses
+  // Hot sale убран 26.10.2026: SALE закрыт, /catalog/sale опубликована, но скрыта
   var SEC_MAIN = [
     ['Все товары', '/catalog'],
     ['Новинки', '/new'],
     ['Bestseller', '/bestseller'],
-    ['Hot sale — до 50%', '/catalog/sale'],
     ['Платья', '/catalog/dresses'],
     ['Last chance', '/last']
   ];
