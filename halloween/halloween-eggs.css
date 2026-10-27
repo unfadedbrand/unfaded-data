@@ -66,8 +66,10 @@
 .ufhw-strip__a:not(#ufhw-x) { color: #FFFFFF !important; text-decoration: none !important; }
 .ufhw-strip__go { text-decoration: underline; text-underline-offset: 3px; }
 @media (max-width: 760px) { .ufhw-strip__go { display: none; } }
-.ufhw-hero { display: block; line-height: 0; background: #2A0A0E; }
-.ufhw-hero img { display: block; width: 100%; height: auto; }
+.ufhw-hero { display: block; line-height: 0; background: #1E0507; text-align: center; }
+.ufhw-hero img { display: inline-block; width: 100%; height: auto; }
+/* широкие мониторы: не выше экрана под шапкой (текст в картинке, поэтому не обрезаем, а вписываем по центру) */
+@media (min-width: 761px) { .ufhw-hero img { width: auto; max-width: 100%; max-height: calc(100vh - 90px); } }
 
 .ufhw-flock { position: fixed; inset: 0; pointer-events: none; z-index: 2147482000; overflow: hidden; }
 .ufhw-flock__bat { position: absolute; width: 76px; height: 76px; margin: -38px 0 0 -38px; will-change: transform, opacity; }
