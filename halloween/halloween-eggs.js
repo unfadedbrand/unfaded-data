@@ -311,8 +311,8 @@
     if (club && !document.querySelector('.ufhw-hero')) {
       var a = document.createElement('a');
       a.className = 'ufhw-hero'; a.href = '/dark-side';
-      a.innerHTML = '<picture><source media="(max-width: 760px)" srcset="' + BASE + 'banner_mobile.jpg">' +
-        '<img src="' + BASE + 'banner_desktop.jpg" width="2400" height="1339" alt="Хэллоуин до 1 ноября. NOT A COSTUME. ' +
+      a.innerHTML = '<picture><source media="(max-width: 760px)" srcset="' + BASE + 'banner_mobile_v2.jpg">' +
+        '<img src="' + BASE + 'banner_desktop_v2.jpg" width="2400" height="1339" alt="Хэллоуин до 1 ноября. NOT A COSTUME. ' +
         '−13% на всё — найдите код на сайте. Тёмная сторона"></picture>';
       club.parentNode.insertBefore(a, club);
     }
