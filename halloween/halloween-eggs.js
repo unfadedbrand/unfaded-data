@@ -298,7 +298,29 @@
       if (b.classList.contains('ufhw-cartbtn') !== on) b.classList.toggle('ufhw-cartbtn', on);
     });
   }
+  // баннер на главной и бордовая полоса под шапкой — тоже только в окне акции (Лера 27.10, вариант 1)
+  var STRIP = '#rec1604078031', HERO_BEFORE = '#rec4561751401';
+  function promo() {
+    var r = document.querySelector(STRIP), atom = r && r.querySelector('.tn-atom');
+    if (atom && !/NOT A COSTUME/.test(atom.textContent)) {
+      r.classList.add('ufhw-strip');
+      atom.innerHTML = '<a class="ufhw-strip__a" href="/dark-side">NOT A COSTUME · −13% на всё, если найдёте код' +
+        '<span class="ufhw-strip__go"> · На тёмную сторону →</span></a>';
+    }
+    var club = /^\/?$/.test(location.pathname) && document.querySelector(HERO_BEFORE);
+    if (club && !document.querySelector('.ufhw-hero')) {
+      var a = document.createElement('a');
+      a.className = 'ufhw-hero'; a.href = '/dark-side';
+      a.innerHTML = '<picture><source media="(max-width: 760px)" srcset="' + BASE + 'banner_mobile.jpg">' +
+        '<img src="' + BASE + 'banner_desktop.jpg" width="2400" height="1339" alt="Хэллоуин до 1 ноября. NOT A COSTUME. ' +
+        '−13% на всё — найдите код на сайте. Тёмная сторона"></picture>';
+      club.parentNode.insertBefore(a, club);
+    }
+    // блок клуба «UNFADED ACCESS SYSTEM» на время акции прячем (Лера 27.10), 02.11 вернётся сам
+    if (club) club.classList.add('ufhw-off');
+  }
   function scan() {
+    promo();
     paintCart();
     var p = location.pathname;
     EGGS.forEach(function (egg) {

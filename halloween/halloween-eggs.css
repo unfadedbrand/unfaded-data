@@ -59,6 +59,19 @@
 .t-store__prod-popup__btn.ufhw-cartbtn:not(#ufhw-x), .ufhw-cartbtn:not(#ufhw-x) {
   background: #0B0B0B !important; border-color: #0B0B0B !important; color: #FAFAFA !important;
 }
+/* ---------- 4. Баннер на главной и бордовая полоса под шапкой (27.10–01.11, классы ставит скрипт только в окне акции) ---------- */
+.ufhw-strip .t396__artboard:not(#ufhw-x), .ufhw-strip .t396__carrier:not(#ufhw-x), .ufhw-strip .t396__filter:not(#ufhw-x) { background-color: #8B1E2B !important; background-image: none !important; }
+.ufhw-strip .tn-elem:not(#ufhw-x) { left: 0 !important; width: 100% !important; text-align: center !important; }
+.ufhw-strip .tn-atom:not(#ufhw-x) { white-space: nowrap; }
+.ufhw-strip__a:not(#ufhw-x) { color: #FFFFFF !important; text-decoration: none !important; }
+.ufhw-strip__go { text-decoration: underline; text-underline-offset: 3px; }
+@media (max-width: 760px) { .ufhw-strip__go { display: none; } }
+.ufhw-hero { display: block; line-height: 0; background: #1E0507; text-align: center; }
+.ufhw-hero img { display: inline-block; width: 100%; height: auto; }
+/* широкие мониторы: не выше экрана под шапкой (текст в картинке, поэтому не обрезаем, а вписываем по центру) */
+@media (min-width: 761px) { .ufhw-hero img { width: auto; max-width: 100%; max-height: calc(100vh - 90px); } }
+.ufhw-off:not(#ufhw-x) { display: none !important; }
+
 .ufhw-flock { position: fixed; inset: 0; pointer-events: none; z-index: 2147482000; overflow: hidden; }
 .ufhw-flock__bat { position: absolute; width: 76px; height: 76px; margin: -38px 0 0 -38px; will-change: transform, opacity; }
 
