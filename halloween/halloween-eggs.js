@@ -316,6 +316,8 @@
         '−13% на всё — найдите код на сайте. Тёмная сторона"></picture>';
       club.parentNode.insertBefore(a, club);
     }
+    // блок клуба «UNFADED ACCESS SYSTEM» на время акции прячем (Лера 27.10), 02.11 вернётся сам
+    if (club) club.classList.add('ufhw-off');
   }
   function scan() {
     promo();

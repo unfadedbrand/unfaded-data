@@ -70,6 +70,7 @@
 .ufhw-hero img { display: inline-block; width: 100%; height: auto; }
 /* широкие мониторы: не выше экрана под шапкой (текст в картинке, поэтому не обрезаем, а вписываем по центру) */
 @media (min-width: 761px) { .ufhw-hero img { width: auto; max-width: 100%; max-height: calc(100vh - 90px); } }
+.ufhw-off:not(#ufhw-x) { display: none !important; }
 
 .ufhw-flock { position: fixed; inset: 0; pointer-events: none; z-index: 2147482000; overflow: hidden; }
 .ufhw-flock__bat { position: absolute; width: 76px; height: 76px; margin: -38px 0 0 -38px; will-change: transform, opacity; }
