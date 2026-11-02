@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="ru" class="uf-co2"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>UNFADED — проверка исправления итогов</title>
+<link rel="stylesheet" href="../brand-style.css">
+<style>body{margin:0;padding:24px;background:#fafafa;font:14px Arial;color:#17090b}main{max-width:560px;margin:auto}button{padding:12px;border:1px solid #ddd;background:white;margin:4px}#result{padding:16px;background:#eef5ee;white-space:pre-line}.t706__cartwin-totalamount-row{display:flex;justify-content:space-between;padding:12px 0}.t706__cartwin-totalamount-row_total{font-weight:600;border-top:1px solid #ddd}.t706__cartpage-totals{padding:20px;border:1px solid #ddd}</style>
+<main><h1>Проверка итогов UNFADED</h1><p>Изолированный тест отображения. Заказы не отправляются.</p>
+<pre id="result">Проверяем…</pre>
+<button id="quantity">Добавить рубашку · 22 000 ₽</button><button id="discount">Тест скидки −11%</button><button id="delivery">Доставка · 500 ₽</button>
+<section class="t706__cartpage"><h2>Ваш заказ</h2><div class="t706__cartpage-totals"><div class="t706__cartwin-totalamount-info"><div class="t706__cartwin-totalamount-list"></div></div></div></section></main>
+<script>window.t_onReady=function(){};</script>
+<script src="https://static.tildacdn.com/js/tilda-cart-1.1.min.js"></script>
+<script>
+(async function(){
+  const result=document.querySelector('#result'),passed=[];
+  const assert=(value,text)=>{if(!value)throw Error(text);passed.push('✓ '+text)};
+  try {
+    window.t_cart__browserLang='RU';
+    const source=await(await fetch('../brand-popup-fix.js')).text();
+    const begin=source.indexOf('// UNFADED — native flex totals compatibility');
+    const end=source.indexOf('// UNFADED — Checkout v2 layer',begin);
+    const fsBegin=source.indexOf('  function renderFs('),fsEnd=source.indexOf('  function applyCart()',fsBegin);
+    const renderFs=new Function(source.slice(fsBegin,fsEnd)+';return renderFs;')();
+    const totals=document.querySelector('.t706__cartpage-totals');
+    const list=()=>totals.querySelector('.t706__cartwin-totalamount-list');
+    const row=()=>list().querySelector('.t706__cartwin-totalamount-row_total');
+    // No full-store init in this harness: supply its language/currency settings.
+    window.tcart_dict=key=>({grandTotalFlex:'Итого',total:'Итого'})[key]||key;
+    window.tcart={products:[{name:'Жакет',quantity:1}],prodamount:53900,amount:53900,currency_txt_r:'р.'};
+    // Real Tilda rendering functions; replace only the unrelated full-cart entry point.
+    const data={subtotal:{text:'Товары',value:'53 900 RUB'}};
+    window.tcart__reDrawTotal=function(){window.tcart_reDrawCartTotal(data,false)};
+    new Function(source.slice(begin,end))();
+    assert(!!row(),'Восстановлена отсутствовавшая строка «Итого»');
+    assert(row().textContent.includes('53 900'),'Итог заполнен штатным рендерером Тильды');
+    const hint={key:'free',html:'✓ Бесплатная доставка СДЭК при оплате на сайте',bar:100};
+    renderFs(totals,'append',hint);
+    totals.appendChild(document.createElement('div'));
+    renderFs(totals,'append',hint);
+    assert(totals.querySelectorAll('.uf-fs').length===1,'Подсказка не дублируется после вставки новых итогов');
+    const duplicate=totals.querySelector('.uf-fs').cloneNode(true);totals.appendChild(duplicate);
+    renderFs(totals,'append',hint);
+    assert(totals.querySelectorAll('.uf-fs').length===1,'Существовавшие дубли удаляются');
+    for(let i=0;i<3;i++)window.tcart__reDrawTotal();
+    assert(list().querySelectorAll('.t706__cartwin-totalamount-row_total').length===1,'Повторные пересчёты сохраняют ровно один итог');
+    const protectedRow=row();protectedRow.classList.remove('t706__cartwin-totalamount-row_total');
+    window.tcart__reDrawTotal();
+    assert(row()===protectedRow,'Существующая строка сохраняется и защищается от удаления');
+    row().remove();window.tcart__reDrawTotal();
+    assert(!!row()&&row().textContent.includes('53 900'),'Итог восстанавливается после удаления при перерисовке');
+    document.querySelector('#quantity').onclick=function(){window.tcart.prodamount+=22000;window.tcart.amount=window.tcart.prodamount;data.subtotal.value=window.tcart.prodamount.toLocaleString('ru-RU')+' RUB';window.tcart__reDrawTotal()};
+    document.querySelector('#discount').onclick=function(){window.tcart.amount=window.tcart.prodamount*.89;data.discount={text:'Скидка',value:'−11%'};window.tcart__reDrawTotal()};
+    document.querySelector('#delivery').onclick=function(){window.tcart.amount+=500;data.delivery={text:'Доставка',value:'500 RUB'};window.tcart__reDrawTotal();renderFs(totals,'append',hint)};
+    document.querySelector('#quantity').click();
+    assert(row().textContent.includes('75 900'),'Изменение количества обновляет итог');
+    document.querySelector('#discount').click();
+    assert(row().textContent.includes('67 551'),'Сумма со скидкой берётся из Тильды');
+    document.querySelector('#delivery').click();
+    assert(row().textContent.includes('68 051'),'Доставка включается в штатный итог');
+    assert(totals.querySelectorAll('.uf-fs').length===1,'После скидки и доставки подсказка остаётся одна');
+    const amount=window.tcart.amount;window.tcart__reDrawTotal();
+    assert(window.tcart.amount===amount,'Исправление не изменяет денежные поля корзины');
+    window.tcart.prodamount=0;window.tcart.amount=0;window.tcart.products=[];window.tcart__reDrawTotal();
+    assert(totals.style.display==='none','Пустая корзина не показывает старый итог');
+    window.tcart.products=[{name:'Жакет',quantity:1}];
+    window.tcart.prodamount=53900;window.tcart.amount=53900;data.subtotal.value='53 900 RUB';delete data.discount;delete data.delivery;window.tcart__reDrawTotal();
+    result.textContent=passed.join('\n');document.documentElement.dataset.test='passed';
+  } catch(e){result.textContent=passed.join('\n')+'\nОШИБКА: '+e.message;document.documentElement.dataset.test='failed'}
+})();
+</script></html>

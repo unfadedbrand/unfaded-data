@@ -3175,8 +3175,15 @@ function buildStepper(active) {
   }
 
   function renderFs(anchor, where, st) {
-    var box = where === 'after' ? anchor.nextElementSibling : anchor.lastElementChild;
-    if (!box || !box.classList || !box.classList.contains('uf-fs')) {
+    // Tilda appends/replaces totals after us. Find our direct child rather
+    // than assuming it stays last; also clean up earlier duplicate hints.
+    var owner = where === 'after' ? anchor.parentElement : anchor;
+    var boxes = Array.prototype.filter.call(owner.children, function (el) {
+      return el.classList.contains('uf-fs');
+    });
+    var box = boxes.shift();
+    boxes.forEach(function (el) { el.remove(); });
+    if (!box) {
       box = document.createElement('div');
       box.className = 'uf-fs';
       box.innerHTML = '<div class="uf-fs__text"></div><div class="uf-fs__bar"><i></i></div>';
@@ -3360,6 +3367,50 @@ function buildStepper(active) {
 })();
 
 // ============================================================
+// UNFADED — native flex totals compatibility, 02.11.2026
+// Keep Tilda's protected total row: its renderer inserts all other rows
+// before this anchor. Prices, discounts and delivery remain Tilda-owned.
+(function () {
+  function restoreNativeTotalRows() {
+    if (typeof window.tcart__createBottomTotalAmountMarkup !== 'function') return false;
+    var changed = false;
+    document.querySelectorAll('.t706__cartwin-totalamount-info, .t706__sidebar-totalamount-info').forEach(function (info) {
+      var list = info.querySelector('.t706__cartwin-totalamount-list');
+      if (!list || list.querySelector('.t706__cartwin-totalamount-row_total')) return;
+      var sidebar = info.classList.contains('t706__sidebar-totalamount-info');
+      var label = list.querySelector(sidebar ? '.t706__sidebar-totalamount-label' : '.t706__cartwin-totalamount-label');
+      var row = label && label.closest('.t706__cartwin-totalamount-row');
+      if (row) row.classList.add('t706__cartwin-totalamount-row_total');
+      else {
+        var holder = document.createElement('div');
+        holder.innerHTML = window.tcart__createBottomTotalAmountMarkup(sidebar ? 'total' : 'grandTotal', sidebar ? 'sidebar' : 'cartwin');
+        row = holder.querySelector('.t706__cartwin-totalamount-row_total');
+        if (!row) return;
+        list.appendChild(row);
+      }
+      changed = true;
+    });
+    return changed;
+  }
+  function install() {
+    var original = window.tcart__reDrawTotal;
+    if (typeof original !== 'function') return;
+    if (!original.ufNativeTotalsGuard) {
+      var guarded = function () {
+        restoreNativeTotalRows();
+        return original.apply(this, arguments);
+      };
+      guarded.ufNativeTotalsGuard = true;
+      window.tcart__reDrawTotal = guarded;
+    }
+    if (restoreNativeTotalRows() && window.tcart && Array.isArray(window.tcart.products)) {
+      window.tcart__reDrawTotal();
+    }
+  }
+  install();
+  setInterval(install, 700);
+})();
+
 // UNFADED — Checkout v2 layer (approved mockup 26.09.2026,
 // https://claude.ai/artifact/7ztkiLh2czJDnnAeEAq6hq)
 // Sits on top of the step wizard above without changing it: step
