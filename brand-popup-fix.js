@@ -4115,6 +4115,13 @@ function buildStepper(active) {
 
   function build() {
     if (busy) return;
+    // The approved 11.11 module supplies its own size-matched recommendations.
+    if (window.UF1111 && window.UF1111.isActive()) {
+      var campaignOld = document.getElementById('uf-xs');
+      if (campaignOld) campaignOld.remove();
+      lastKey = '';
+      return;
+    }
     var host = document.querySelector('.t706__cartpage_showed .t706__cartpage-products') ||
                document.querySelector('.t706__cartpage-products');
     if (!host) return;
@@ -6706,4 +6713,14 @@ function buildStepper(active) {
     setInterval(function () { if (/t706__body_cartpageshowed/.test(document.body.className)) watchBox(); }, 1500);
   }
   if (document.body) start(); else document.addEventListener('DOMContentLoaded', start);
+})();
+
+// UNFADED 11.11 cart — staged, not enabled or published. Enable after final QA.
+(function () {
+  var settings = window.UF1111_SETTINGS = { enabled: false, lamodaFullPriceSkus: [] };
+  if (!settings.enabled) return;
+  var script = document.createElement('script');
+  script.src = 'https://unfadedbrand.github.io/unfaded-data/cart-1111.js?v=20261102';
+  script.async = true;
+  document.head.appendChild(script);
 })();
