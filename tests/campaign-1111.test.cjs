@@ -8,7 +8,7 @@ function product(sku='JH01FW26', price=1000, quantity=2) {
 }
 test('approved six outfits contain fifteen distinct products; links preserve the full catalog path',()=>{
  assert.equal(app.outfits.length,6);assert.equal(new Set(app.outfits.flatMap(l=>l.skus)).size,15);
- assert.equal(app.catalogUrl,'/#rec1717180551');assert.equal(app.looksUrl,'/?uf-page=looks-1111');
+ assert.equal(app.catalogUrl,'/catalog');assert.equal(app.looksUrl,'/?uf-page=looks-1111');
  assert.match(app.banner(),/ВЫБРАТЬ ВЕЩИ/);assert.match(app.banner(),/Готовые образы/);assert.doesNotMatch(app.banner(),/Кроме новогодней/);
 });
 test('only safe public product/photo URLs reach markup',()=>{

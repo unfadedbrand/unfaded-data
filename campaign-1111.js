@@ -6,7 +6,7 @@
 })(typeof window !== 'undefined' ? window : this, function (core) {
   'use strict';
   var BASE = 'https://unfadedbrand.github.io/unfaded-data/';
-  var CATALOG = '/#rec1717180551';
+  var CATALOG = '/catalog';
   var LOOKS_URL = '/?uf-page=looks-1111';
   var OUTFITS = [
     { name: 'Графит и характер', tag: 'PAPARAZZI / ГРАФИТ', text: 'Строгая шерсть, выразительные пряжки и белая рубашка. Три вещи для цельного силуэта.', skus: ['JH01FW26', 'SU01FW26', 'SW01NY26'] },
