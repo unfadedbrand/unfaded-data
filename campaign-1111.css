@@ -1,0 +1,89 @@
+/* Scoped to campaign content; Tilda header, footer, cart and checkout are untouched. */
+.ufc-route-hidden,.ufc-banner-replaced{display:none!important}
+.uf-campaign{--ufc-paper:#fafafa;--ufc-ink:#17090b;--ufc-wine:#7a1f2a;--ufc-line:#d7d8d9;background:var(--ufc-paper);color:var(--ufc-ink);font-family:Onest,Arial,sans-serif;font-size:14px;line-height:1.5;container-type:inline-size}
+.uf-campaign *{box-sizing:border-box}
+.uf-campaign p,.uf-campaign h1,.uf-campaign h2{margin:0}
+.uf-campaign a{color:inherit}
+.uf-campaign button,.uf-campaign select,.uf-campaign input{font:inherit;border-radius:0}
+.uf-campaign button,.uf-campaign select{cursor:pointer}
+.uf-campaign button:disabled,.uf-campaign input:disabled,.uf-campaign select:disabled{cursor:wait;opacity:.6}
+.uf-campaign a:focus-visible,.uf-campaign button:focus-visible,.uf-campaign select:focus-visible,.uf-campaign input:focus-visible{outline:2px solid var(--ufc-wine);outline-offset:4px}
+.uf-campaign h1{font-weight:400;font-size:clamp(36px,5.3cqi,64px);line-height:1.06;letter-spacing:-.055em}
+.uf-campaign h2{font-size:35px;line-height:1.12;font-weight:400;letter-spacing:-.04em;margin-bottom:14px}
+.uf-campaign .ufc-note{font-size:11px;line-height:1.6;color:#6b6d6f;margin-top:14px}
+.uf-campaign .ufc-primary{display:flex;justify-content:space-between;align-items:center;gap:12px;width:100%;border:0;border-radius:0;padding:17px 20px;min-height:52px;margin-top:22px;background:var(--ufc-wine);color:var(--ufc-paper)!important;font-size:11px;letter-spacing:.06em;text-decoration:none;text-align:center;cursor:pointer}
+.uf-campaign .ufc-primary>span{font-size:21px;line-height:1}
+.uf-campaign .ufc-secondary{display:block;width:100%;min-height:44px;text-align:center;padding:16px 10px 10px;color:var(--ufc-wine)!important;font-size:12px;text-decoration:underline;text-underline-offset:4px}
+.uf-campaign .ufc-tiers{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;padding:17px 0 18px;border-top:1px solid var(--ufc-line);border-bottom:1px solid var(--ufc-line)}
+.uf-campaign .ufc-tiers>div{display:flex;flex-direction:column;gap:6px}
+.uf-campaign .ufc-tiers span{font-size:10px;letter-spacing:.07em;white-space:nowrap}
+.uf-campaign .ufc-tiers b{font-weight:400;font-size:33px;letter-spacing:-.06em;line-height:1.15;color:var(--ufc-wine)}
+.uf-campaign .ufc-photo{position:relative;width:100%;height:auto;background:#d5d4d6;display:grid;justify-items:center}
+.uf-campaign .ufc-photo>img{display:block;width:auto;max-width:100%;height:780px;object-fit:contain}
+.uf-campaign .ufc-photo-copy{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:min(100%,540px);padding:100px 32px 29px;color:var(--ufc-paper);background:linear-gradient(0deg,rgba(23,9,11,.82),rgba(23,9,11,.42) 72%,transparent)}
+.uf-campaign .ufc-photo-copy .ufc-kicker{display:flex;justify-content:space-between;gap:10px;font-size:10px;letter-spacing:.11em;line-height:1.5}
+.uf-campaign .ufc-photo-copy .ufc-date{font-size:100px;line-height:.98;font-weight:500;letter-spacing:-.085em;margin:22px 0 12px}
+.uf-campaign .ufc-photo-copy h1{font-size:40px;line-height:1.1;letter-spacing:-.045em}
+.uf-campaign .ufc-photo-copy>p:last-child{font-size:14px;line-height:1.5;margin-top:13px}
+.uf-campaign .ufc-banner-offer{max-width:650px;margin:auto;padding:0 30px 28px}
+.uf-campaign .ufc-container{max-width:1200px;margin:auto;padding:0 40px 40px}
+.uf-campaign .ufc-crumb{font-size:10px;letter-spacing:.08em;color:#6b6d6f;padding-top:25px}
+.uf-campaign .ufc-crumb a{text-decoration:none}
+.uf-campaign .ufc-intro{display:grid;grid-template-columns:1.2fr 1fr;align-items:end;gap:35px;padding:38px 0 40px}
+.uf-campaign .ufc-eyebrow{font-size:10px;letter-spacing:.1em;color:var(--ufc-wine);margin-bottom:13px}
+.uf-campaign .ufc-intro h1{margin-bottom:19px}
+.uf-campaign .ufc-intro>div>p:not(.ufc-eyebrow):not(.ufc-note){font-size:14px;line-height:1.6;color:#6b6d6f}
+.uf-campaign .ufc-text-link{display:inline-block;font-size:12px;text-decoration:underline;text-underline-offset:4px;margin-top:15px;color:var(--ufc-wine)!important}
+.uf-campaign .ufc-look-picker{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:13px;margin-bottom:38px}
+.uf-campaign .ufc-look-picker button{min-width:0;border:0;border-bottom:2px solid transparent;background:transparent;padding:0 0 12px;text-align:left;color:var(--ufc-ink)}
+.uf-campaign .ufc-look-picker button[aria-pressed=true]{border-bottom-color:var(--ufc-wine)}
+.uf-campaign .ufc-look-picker img{width:100%;height:auto;aspect-ratio:3/4;object-fit:cover;display:block;margin-bottom:10px}
+.uf-campaign .ufc-look-picker span{display:block;font-size:11px;line-height:1.4}
+.uf-campaign .ufc-look-picker small{display:block;font-size:10px;line-height:1.5;color:#6b6d6f;margin-top:4px}
+.uf-campaign .ufc-detail{display:grid;grid-template-columns:1fr 1fr;gap:48px;border-top:1px solid var(--ufc-line);padding-top:32px;align-items:start}
+.uf-campaign .ufc-main-photo{width:100%;height:auto;display:block}
+.uf-campaign .ufc-caption{font-size:10px;letter-spacing:.07em;color:#6b6d6f;margin-top:12px}
+.uf-campaign .ufc-compose{min-width:0;padding-top:5px}
+.uf-campaign .ufc-description{font-size:13px;line-height:1.6;color:#6b6d6f;margin-bottom:24px}
+.uf-campaign .ufc-product{display:grid;grid-template-columns:18px 60px minmax(0,1fr);gap:13px;border-top:1px solid #edeeee;padding:16px 0;align-items:start}
+.uf-campaign .ufc-product input{accent-color:var(--ufc-wine);margin:4px 0 0;width:17px;height:17px}
+.uf-campaign .ufc-product img{width:60px;height:auto;aspect-ratio:3/4;object-fit:cover}
+.uf-campaign .ufc-product a{display:block;font-size:12px;line-height:1.5;text-decoration:none;margin-bottom:7px;overflow-wrap:anywhere}
+.uf-campaign .ufc-product p{font-size:12px;margin:0 0 10px}
+.uf-campaign .ufc-product select{width:100%;max-width:230px;font-size:12px;min-height:38px;padding:8px;border:1px solid var(--ufc-line);background:var(--ufc-paper);color:var(--ufc-ink)}
+.uf-campaign .ufc-total{border-top:1px solid var(--ufc-line);padding-top:19px;margin-top:3px}
+.uf-campaign .ufc-total>div{display:flex;align-items:end;justify-content:space-between;gap:14px}
+.uf-campaign .ufc-total>div>span{font-size:12px;line-height:1.5}
+.uf-campaign .ufc-total>div>div{text-align:right}
+.uf-campaign .ufc-total s{font-size:12px;color:#6b6d6f;display:block;margin-bottom:4px}
+.uf-campaign .ufc-total strong{font-size:28px;font-weight:400;letter-spacing:-.04em;color:var(--ufc-wine);white-space:nowrap}
+.uf-campaign .ufc-total>p{font-size:11px;color:var(--ufc-wine);text-align:right;margin-top:8px}
+.uf-campaign .ufc-status{font-size:12px;line-height:1.5;color:var(--ufc-wine);margin-top:12px}
+.uf-campaign .ufc-status:empty{display:none}
+.uf-campaign .ufc-no-photo{background:#edeeee;min-height:90px;padding:15px;font-size:12px;color:#6b6d6f}
+.uf-campaign .ufc-unavailable{color:#6b6d6f}
+.uf-campaign .ufc-ended,.uf-campaign .ufc-loading{padding-top:40px;padding-bottom:40px}
+.uf-campaign .ufc-ended>p{margin-top:20px}
+@container(max-width:700px){
+ .uf-campaign .ufc-container{padding-right:20px;padding-left:20px}
+ .uf-campaign .ufc-intro{grid-template-columns:1fr;gap:25px;padding:30px 0}
+ .uf-campaign .ufc-look-picker{grid-template-columns:repeat(3,minmax(0,1fr));gap:16px 10px;margin-bottom:25px}
+ .uf-campaign .ufc-detail{grid-template-columns:1fr;gap:28px;padding-top:23px}
+ .uf-campaign h2{font-size:30px}
+ .uf-campaign .ufc-product{grid-template-columns:22px 55px minmax(0,1fr);gap:10px}
+ .uf-campaign .ufc-product input{width:20px;height:20px}
+ .uf-campaign .ufc-product img{width:55px}
+ .uf-campaign .ufc-product select{font-size:16px;min-height:44px}
+ .uf-campaign .ufc-total strong{font-size:25px}
+}
+@container(max-width:600px){
+ .uf-campaign .ufc-photo>img{width:100%;height:auto;max-height:none}
+ .uf-campaign .ufc-photo-copy{width:100%;padding:65px 23px 22px}
+ .uf-campaign .ufc-photo-copy .ufc-kicker{font-size:9px}
+ .uf-campaign .ufc-photo-copy .ufc-date{font-size:70px;margin:15px 0 10px}
+ .uf-campaign .ufc-photo-copy h1{font-size:29px}
+ .uf-campaign .ufc-photo-copy>p:last-child{font-size:12px;margin-top:12px}
+ .uf-campaign .ufc-banner-offer{padding:0 23px 24px}
+ .uf-campaign .ufc-tiers b{font-size:31px}
+ .uf-campaign .ufc-primary{margin-top:20px}
+}

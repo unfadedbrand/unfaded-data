@@ -6724,3 +6724,27 @@ function buildStepper(active) {
   script.async = true;
   document.head.appendChild(script);
 })();
+
+// UNFADED 11.11 homepage + looks — staged, disabled. No additional Tilda HEAD code.
+(function () {
+  var settings = window.UF1111_CAMPAIGN_SETTINGS = { enabled: false };
+  if (!settings.enabled) return;
+  var base = 'https://unfadedbrand.github.io/unfaded-data/';
+  var css = document.createElement('link');
+  css.rel = 'stylesheet'; css.href = base + 'campaign-1111.css?v=20261102';
+  document.head.appendChild(css);
+  function run() {
+    if (!window.UF1111) return;
+    var script = document.createElement('script');
+    script.src = base + 'campaign-1111.js?v=20261102'; script.async = true;
+    document.head.appendChild(script);
+  }
+  if (window.UF1111) run();
+  else {
+    var existing = document.querySelector('script[src*="/cart-1111.js"]');
+    if (existing) { existing.addEventListener('load', run, { once: true }); return; }
+    var coreScript = document.createElement('script');
+    coreScript.src = base + 'cart-1111.js?v=20261102'; coreScript.async = true;
+    coreScript.onload = run; document.head.appendChild(coreScript);
+  }
+})();
