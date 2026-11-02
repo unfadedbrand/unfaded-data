@@ -118,7 +118,14 @@
     var active = function () { return preview || review || settings.enabled === true && core.inWindow(Date.now()); };
     var pageId = doc.getElementById('allrecords') && doc.getElementById('allrecords').getAttribute('data-tilda-page-id');
     if (!preview && (win.location.pathname !== '/' || pageId !== '31004708')) return;
-    var anchor = doc.getElementById('t-main-content'); if (!anchor) return;
+    var anchor = doc.getElementById('t-main-content');
+    if (!anchor) {
+      var records = doc.getElementById('allrecords'); if (!records) return;
+      anchor = doc.createElement('div'); anchor.id = 't-main-content';
+      var first = doc.getElementById('rec4561751401');
+      if (first && first.parentElement === records) records.insertBefore(anchor, first);
+      else { var header = doc.getElementById('t-header'); if (header && header.parentElement === records) header.insertAdjacentElement('afterend', anchor); else records.insertBefore(anchor, records.firstChild); }
+    }
     var host = doc.createElement(isLooks ? 'main' : 'section'); host.className = 'uf-campaign ' + (isLooks ? 'ufc-looks' : 'ufc-banner');
     host.setAttribute('aria-label', isLooks ? 'Собрать образ к 11.11' : 'Акция UNFADED 11.11'); anchor.insertAdjacentElement('afterend', host);
     var club = doc.getElementById('rec4561751401');
