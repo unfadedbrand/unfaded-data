@@ -4789,9 +4789,16 @@ html.uf-co2 .t706__cartpage .t706__cartwin-totalamount-row[data-uf-row="total"] 
 html.uf-co2 .t706__cartpage .t706__cartwin-totalamount-row[data-uf-row="total"] .t706__cartwin-totalamount-label { text-transform: none; font-size: 16px !important; font-weight: 600; }
 html.uf-co2 .t706__cartpage .t706__cartwin-totalamount-row[data-uf-row="total"] .t706__cartwin-prodamount-price,
 html.uf-co2 .t706__cartpage .t706__cartwin-totalamount-row[data-uf-row="total"] .t706__cartwin-prodamount-currency::after { font-size: 16px !important; }
-/* до выбора города: только «Товары», без чужой доставки и «Итого» */
-html.uf-co2 .t706__cartpage.uf-co2-nodl .t706__cartwin-totalamount-row[data-uf-row="delivery"],
-html.uf-co2 .t706__cartpage.uf-co2-nodl .t706__cartwin-totalamount-row[data-uf-row="total"] { display: none !important; }
+/* Итог остаётся видимым до выбора адреса; неподтверждённую доставку не показываем. */
+html.uf-co2 .t706__cartpage.uf-co2-nodl .t706__cartwin-totalamount-row[data-uf-row="delivery"] { display: none !important; }
+html.uf-co2 .t706__cartpage.uf-co2-nodl .t706__cartwin-totalamount-wrap::after {
+  content: 'Доставка рассчитывается после выбора способа и адреса.';
+  display: block;
+  margin-top: 10px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--co-ink-2);
+}
 
 @media screen and (max-width: 980px) {
   html.uf-co2 .t706__cartpage-info-wrapper { margin-top: 24px; border-radius: 0; }
