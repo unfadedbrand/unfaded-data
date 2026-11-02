@@ -6717,15 +6717,15 @@ function buildStepper(active) {
   var base = 'https://unfadedbrand.github.io/unfaded-data/';
   function mount() {
     var css = document.createElement('link'); css.rel = 'stylesheet';
-    css.href = base + 'campaign-1111.css?v=review20261102'; document.head.appendChild(css);
+    css.href = base + 'campaign-1111.css?v=desktop20261102'; document.head.appendChild(css);
     function run() {
       var app = document.createElement('script'); app.async = true;
-      app.src = base + 'campaign-1111.js?v=review20261102'; document.head.appendChild(app);
+      app.src = base + 'campaign-1111.js?v=desktop20261102'; document.head.appendChild(app);
     }
     if (window.UF1111) run();
     else {
       var script = document.createElement('script'); script.async = true;
-      script.src = base + 'cart-1111.js?v=review20261102'; script.onload = run; document.head.appendChild(script);
+      script.src = base + 'cart-1111.js?v=desktop20261102'; script.onload = run; document.head.appendChild(script);
     }
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount, { once: true });
