@@ -1,0 +1,9 @@
+Desktop banner image — 11.jpg, 02.11.2026
+Method: built-in image_gen, edit/outpaint of the user-supplied photograph.
+Original: 11.jpg; mobile photograph 15.jpg stays unchanged.
+Output: paparazzi-11-desktop-16x9.png (1672 × 941, rounded 16:9 raster); desktop layout uses an exact 16:9 frame.
+Desktop source breakpoint: viewport >= 961px; mobile fallback: paparazzi-15.jpg.
+No deployment in this change: image and picture/CSS are staged in draft #84.
+
+Final prompt:
+Edit target: attached original fashion photograph 11.jpg. Outpaint ONLY the plain studio background horizontally to create a polished LANDSCAPE 16:9 desktop website hero, ideally 3840x2160 or 1920x1080. Preserve the entire original woman from top of fur hat to both boot tips, exactly the same face/identity/expression, blonde hair, pose, body proportions, wool khaki jacket and skirt, both belts and metal buckles, cream turtleneck, tights, boots, fabric texture, lighting and original shadow. Do NOT redesign or regenerate the model or clothing; retain the original photographed subject as faithfully as possible. Scale the full original photograph proportionally to fit height with small headroom and floor margin, never crop hat or boots. Position the woman at approximately 70–73% of final canvas width. Extend the existing subtle cool light-gray studio wall and light-gray floor seamlessly left and right, matching its soft lighting, texture, wall-floor junction and perspective. Leave the left 50–55% as clean quiet gray negative space suitable for website typography. Do not add text, logos, typography, watermarks, furniture, props, extra people, decorations, hard seams, mirrored subject or duplicate body parts. The output is the photographic background asset only, without banner text. Exact composition: full-body model on right third, large uninterrupted studio background on left, true horizontal 16:9.
