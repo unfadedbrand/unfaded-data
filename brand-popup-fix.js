@@ -6707,3 +6707,27 @@ function buildStepper(active) {
   }
   if (document.body) start(); else document.addEventListener('DOMContentLoaded', start);
 })();
+
+// Authorized 11.11 review link only. Normal storefront and campaign schedule remain unchanged.
+(function () {
+  if (location.hostname !== 'unfadedstore.com' || location.pathname !== '/' ||
+      new URLSearchParams(location.search).get('uf-review') !== '1111-2026') return;
+  window.UF1111_SETTINGS = { enabled: false, lamodaFullPriceSkus: [] };
+  window.UF1111_CAMPAIGN_SETTINGS = { enabled: false, reviewEnabled: true };
+  var base = 'https://unfadedbrand.github.io/unfaded-data/';
+  function mount() {
+    var css = document.createElement('link'); css.rel = 'stylesheet';
+    css.href = base + 'campaign-1111.css?v=review20261102'; document.head.appendChild(css);
+    function run() {
+      var app = document.createElement('script'); app.async = true;
+      app.src = base + 'campaign-1111.js?v=review20261102'; document.head.appendChild(app);
+    }
+    if (window.UF1111) run();
+    else {
+      var script = document.createElement('script'); script.async = true;
+      script.src = base + 'cart-1111.js?v=review20261102'; script.onload = run; document.head.appendChild(script);
+    }
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount, { once: true });
+  else mount();
+})();
