@@ -98,3 +98,10 @@ test('Tilda edition identity, size, inventory and section travel with the item',
   assert.deepEqual(i.options, [{ option: 'Размер', variant: 'S' }]);
   assert.equal(core.cartItem(p, { ...p.editions[0], quantity: 0 }), null);
 });
+
+test('native size-specific externalid is preserved for CRM instead of the base model SKU', () => {
+  const p = product('TLB01SS26', 'Топ с баской, шампань', 16000);
+  const ed = { ...p.editions[0], externalid: 'TLB01SS26XS', sku: 'TLB01SS26', 'Размер': 'XS' };
+  assert.equal(core.cartItem(p, ed).sku, 'TLB01SS26XS');
+  assert.equal(core.article(core.cartItem(p, ed), ['TLB01SS26']), 'TLB01SS26');
+});

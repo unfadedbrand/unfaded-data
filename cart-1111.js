@@ -143,7 +143,7 @@
     ['Размер', 'Цвет'].forEach(function (key) { if (edition[key]) options.push({ option: key, variant: edition[key] }); });
     return { name: product.title, price: price, amount: price, img: photo(product), recid: match[1],
       lid: String(edition.uid), uid: String(edition.uid), gen_uid: String(product.uid),
-      sku: edition.sku || product.externalid, inv: number(edition.quantity), quantity: 1,
+      sku: edition.externalid || edition.sku || product.externalid, inv: number(edition.quantity), quantity: 1,
       part_uids: parts(product), options: options, url: product.url,
       pack_label: product.pack_label || 'lwh', pack_m: String(product.pack_m || 0),
       pack_x: String(product.pack_x || 0), pack_y: String(product.pack_y || 0), pack_z: String(product.pack_z || 0) };
