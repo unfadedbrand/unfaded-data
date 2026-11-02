@@ -17,6 +17,10 @@
     { name: 'Шоколадный вельвет', tag: 'REBEL GRACE', text: 'Бомбер и шорты Rebel Grace со сливочным кружевным топом. Расслабленный объём и тонкие детали.', skus: ['BV01SS26', 'SV01SS26', 'TL02SS26'] }
   ];
   var SKUS = [].concat.apply([], OUTFITS.map(function (l) { return l.skus; }));
+  function reviewAllowed(settings, location) {
+    return settings.reviewEnabled === true && location.hostname === 'unfadedstore.com' && location.pathname === '/' &&
+      new URLSearchParams(location.search).get('uf-review') === '1111-2026';
+  }
   function escape(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
   function parse(value, fallback) { if (typeof value !== 'string') return value || fallback; try { return JSON.parse(value); } catch (e) { return fallback; } }
   function safeUrl(value, image) {
@@ -107,16 +111,20 @@
     var settings = win.UF1111_CAMPAIGN_SETTINGS || {};
     var local = /^(localhost|127\.0\.0\.1|\[::1\])$/.test(win.location.hostname);
     var preview = local && settings.preview === true;
-    if (!settings.enabled && !preview) return;
+    var review = reviewAllowed(settings, win.location);
+    if (!settings.enabled && !preview && !review) return;
     win.__uf1111CampaignStarted = true;
     var doc = win.document, isLooks = new URLSearchParams(win.location.search).get('uf-page') === 'looks-1111';
-    var active = function () { return preview || settings.enabled === true && core.inWindow(Date.now()); };
+    var active = function () { return preview || review || settings.enabled === true && core.inWindow(Date.now()); };
     var pageId = doc.getElementById('allrecords') && doc.getElementById('allrecords').getAttribute('data-tilda-page-id');
     if (!preview && (win.location.pathname !== '/' || pageId !== '31004708')) return;
     var anchor = doc.getElementById('t-main-content'); if (!anchor) return;
     var host = doc.createElement(isLooks ? 'main' : 'section'); host.className = 'uf-campaign ' + (isLooks ? 'ufc-looks' : 'ufc-banner');
     host.setAttribute('aria-label', isLooks ? 'Собрать образ к 11.11' : 'Акция UNFADED 11.11'); anchor.insertAdjacentElement('afterend', host);
     var club = doc.getElementById('rec4561751401');
+    if (review) {
+      var reviewMeta = doc.createElement('meta'); reviewMeta.name = 'robots'; reviewMeta.content = 'noindex,follow'; doc.head.appendChild(reviewMeta);
+    }
     if (isLooks) {
       Array.prototype.forEach.call(doc.querySelectorAll('#allrecords > .t-rec'), function (el) {
         if (!el.querySelector('.t706')) el.classList.add('ufc-route-hidden');
@@ -196,8 +204,17 @@
       totals(); status('');
     });
     reconcile();
+    if (review) {
+      var badge = doc.createElement('p'); badge.className = 'ufc-review-notice'; badge.textContent = 'ТЕСТ 11.11 · скидка в обычной корзине включится по расписанию акции';
+      host.insertAdjacentElement('beforebegin', badge);
+      // Keep only the campaign navigation on the explicitly enabled review address.
+      host.addEventListener('click', function (event) {
+        var a = event.target.closest('a');
+        if (a && a.getAttribute('href') === LOOKS_URL) { event.preventDefault(); win.location.href = LOOKS_URL + '&uf-review=1111-2026'; }
+      });
+    }
     // Browsers freeze this timer with the page in BFCache and resume it on Back.
     win.setInterval(function () { reconcile(); if (isLooks && active() && host.querySelector('[data-ufc-total]') && !busy) totals(); }, 1000);
   }
-  return { start: start, outfits: OUTFITS, catalogUrl: CATALOG, looksUrl: LOOKS_URL, estimate: estimate, validate: validate, editions: editions, variant: variant, safeUrl: safeUrl, createCatalog: createCatalog, banner: banner };
+  return { start: start, reviewAllowed: reviewAllowed, outfits: OUTFITS, catalogUrl: CATALOG, looksUrl: LOOKS_URL, estimate: estimate, validate: validate, editions: editions, variant: variant, safeUrl: safeUrl, createCatalog: createCatalog, banner: banner };
 });
