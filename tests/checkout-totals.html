@@ -6,7 +6,7 @@
 <main><h1>Проверка итогов UNFADED</h1><p>Изолированный тест отображения. Заказы не отправляются.</p>
 <pre id="result">Проверяем…</pre>
 <button id="quantity">Добавить рубашку · 22 000 ₽</button><button id="discount">Тест скидки −11%</button><button id="delivery">Доставка · 500 ₽</button>
-<section class="t706__cartpage"><h2>Ваш заказ</h2><div class="t706__cartpage-totals"><div class="t706__cartwin-totalamount-info"><div class="t706__cartwin-totalamount-list"></div></div></div></section></main>
+<section class="t706__cartpage uf-co2-nodl"><h2>Ваш заказ</h2><div class="t706__cartpage-totals"><div class="t706__cartwin-totalamount-info"><div class="t706__cartwin-totalamount-list"></div></div></div></section></main>
 <script>window.t_onReady=function(){};</script>
 <script src="https://static.tildacdn.com/js/tilda-cart-1.1.min.js"></script>
 <script>
@@ -30,6 +30,7 @@
     const data={subtotal:{text:'Товары',value:'53 900 RUB'}};
     window.tcart__reDrawTotal=function(){window.tcart_reDrawCartTotal(data,false)};
     new Function(source.slice(begin,end))();
+    assert(getComputedStyle(row()).display!=='none','Итог виден до выбора адреса доставки');
     assert(!!row(),'Восстановлена отсутствовавшая строка «Итого»');
     assert(row().textContent.includes('53 900'),'Итог заполнен штатным рендерером Тильды');
     const hint={key:'free',html:'✓ Бесплатная доставка СДЭК при оплате на сайте',bar:100};
