@@ -3547,19 +3547,26 @@ function buildStepper(active) {
   function markTotals(box) {
     var page = document.querySelector('.t706__cartpage');
     if (!page) return;
-    qa(page, '.t706__cartpage-totals .t706__cartwin-totalamount-row').forEach(function (row, i) {
-      // first row is the goods subtotal (we relabel it «Товары» below, so
-      // it can't be recognised by its text), the one with the big label is
-      // the total, everything in between is delivery
+    qa(page, '.t706__cartpage-totals .t706__cartwin-totalamount-row').forEach(function (row) {
+      // Tilda may omit the goods subtotal. A first delivery/discount row
+      // must keep its own label, including when delivery costs zero.
       var text = row.textContent.replace(/\s+/g, ' ').trim();
+      var lt = q(row, '.t706__cartwin-totalamount-info_label-text');
+      var label = lt ? lt.textContent.replace(/\s+/g, ' ').replace(/:\s*$/, '').trim() : '';
+      var subtotal = typeof window.tcart_dict === 'function' ? window.tcart_dict('subtotal') : 'Сумма';
+      var address = q(row, '.t706__cartwin-totalamount-hint_address');
       var kind = q(row, '.t706__cartwin-totalamount-label') ? 'total'
-        : i === 0 ? 'sum'
+        : address ? 'delivery'
         : /^(Промокод|Скидка|CREDITS|Сумма со скидкой)/.test(text) ? 'discount'
+        : label === 'Товары' || label === 'Сумма' || label === subtotal ? 'sum'
         : 'delivery';
       row.setAttribute('data-uf-row', kind);
       if (kind === 'sum') {
-        var lt = q(row, '.t706__cartwin-totalamount-info_label-text');
         if (lt && lt.textContent !== 'Товары') lt.textContent = 'Товары';
+      } else if (kind === 'delivery' && address && label === 'Товары' && lt) {
+        // Repair a row already relabelled by the previous checkout layer.
+        var delivery = window.tcart && window.tcart.delivery;
+        lt.textContent = delivery && delivery.name || 'Доставка';
       }
     });
     var guid = q(box, 'input[name="tildadelivery-guid"]');

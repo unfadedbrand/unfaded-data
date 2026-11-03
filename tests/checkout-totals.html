@@ -64,6 +64,34 @@
     assert(totals.style.display==='none','Пустая корзина не показывает старый итог');
     window.tcart.products=[{name:'Жакет',quantity:1}];
     window.tcart.prodamount=53900;window.tcart.amount=53900;data.subtotal.value='53 900 RUB';delete data.discount;delete data.delivery;window.tcart__reDrawTotal();
+    const markBegin=source.indexOf('  function markTotals(box)'),markEnd=source.indexOf('  function totalText()',markBegin);
+    const markTotals=new Function('q','qa',source.slice(markBegin,markEnd)+';return markTotals;')(
+      (el,sel)=>el&&el.querySelector(sel),(el,sel)=>Array.from(el.querySelectorAll(sel)));
+    const form=document.createElement('div');form.innerHTML='<input name="tildadelivery-guid" value="test-city">';
+    window.tcart.delivery={name:'СДЭК до двери'};
+    delete data.subtotal;
+    data.delivery={text:'СДЭК до двери',value:'0 RUB',hint:'Россия, г Москва'};
+    window.tcart__reDrawTotal();markTotals(form);
+    const deliveryRow=()=>list().querySelector('[data-uf-row="delivery"]');
+    const label=r=>r.querySelector('.t706__cartwin-totalamount-info_label-text').textContent;
+    assert(!!deliveryRow()&&label(deliveryRow())==='СДЭК до двери','Бесплатная доставка первой строкой сохраняет своё название');
+    assert(!list().querySelector('[data-uf-row="sum"]'),'Если подытога нет, строка «Товары — 0» не создаётся');
+    assert(getComputedStyle(deliveryRow()).display!=='none','Выбранная доставка видна');
+    deliveryRow().querySelector('.t706__cartwin-totalamount-info_label-text').textContent='Товары';
+    markTotals(form);
+    assert(label(deliveryRow())==='СДЭК до двери','Уже испорченная подпись восстанавливается из названия доставки');
+    data.delivery.value='500 RUB';window.tcart.amount=54400;window.tcart__reDrawTotal();markTotals(form);
+    assert(label(deliveryRow())==='СДЭК до двери'&&deliveryRow().textContent.includes('500'),'Платная доставка первой строкой тоже не становится товарами');
+    assert(row().textContent.includes('54 400'),'Итог с платной доставкой остаётся штатным');
+    delete data.delivery;data.discount={text:'Скидка',value:'−1 100 RUB'};window.tcart__reDrawTotal();markTotals(form);
+    assert(list().querySelector('[data-uf-row="discount"]')?.textContent.includes('Скидка'),'Первая строка скидки сохраняет подпись');
+    delete data.discount;data.subtotalDiscount={text:'Сумма со скидкой',value:'52 800 RUB'};window.tcart__reDrawTotal();markTotals(form);
+    assert(list().querySelector('[data-uf-row="discount"]')?.textContent.includes('Сумма со скидкой'),'Сумма со скидкой не переименовывается в товары');
+    delete data.subtotalDiscount;data.subtotal={text:'Сумма',value:'53 900 RUB'};data.delivery={text:'СДЭК до двери',value:'0 RUB',hint:'Россия, г Москва'};
+    window.tcart.amount=53900;window.tcart__reDrawTotal();markTotals(form);markTotals(form);
+    assert(label(list().querySelector('[data-uf-row="sum"]'))==='Товары','Настоящая сумма товаров корректно подписана после повторной обработки');
+    assert(label(deliveryRow())==='СДЭК до двери','Доставка после товаров сохраняет подпись');
+    assert(totals.querySelectorAll('.uf-fs').length===1,'Дополнительные пересчёты не дублируют подсказку доставки');
     result.textContent=passed.join('\n');document.documentElement.dataset.test='passed';
   } catch(e){result.textContent=passed.join('\n')+'\nОШИБКА: '+e.message;document.documentElement.dataset.test='failed'}
 })();
