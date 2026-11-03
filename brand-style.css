@@ -2947,12 +2947,15 @@ body:not(#uf-bg-boost), .t-body { background: #FFFFFF !important; }
 }
 
 /* ---------- Step visibility ---------- */
-.t-form__inputsbox [data-uf-step] { display: none; }
-.t-form__inputsbox[data-active-step="1"] [data-uf-step="1"],
-.t-form__inputsbox[data-active-step="2"] [data-uf-step="2"],
-.t-form__inputsbox[data-active-step="3"] [data-uf-step="3"],
-.t-form__inputsbox[data-active-step="4"] [data-uf-step="4"] {
-  display: block;
+.t-form__inputsbox[data-uf-wizard] [data-uf-step] { display: none !important; }
+/* Tilda writes display:none inline when an open checkout crosses its mobile
+   breakpoint. The wizard still owns the active step; keep its fields visible
+   without resetting values or revealing explicitly hidden service fields. */
+.t-form__inputsbox[data-uf-wizard][data-active-step="1"] [data-uf-step="1"]:not([hidden]):not(.uf-checkout-hidden-field),
+.t-form__inputsbox[data-uf-wizard][data-active-step="2"] [data-uf-step="2"]:not([hidden]):not(.uf-checkout-hidden-field),
+.t-form__inputsbox[data-uf-wizard][data-active-step="3"] [data-uf-step="3"]:not([hidden]):not(.uf-checkout-hidden-field),
+.t-form__inputsbox[data-uf-wizard][data-active-step="4"] [data-uf-step="4"]:not([hidden]):not(.uf-checkout-hidden-field) {
+  display: block !important;
 }
 
 .uf-checkout-step-title {
@@ -4686,6 +4689,9 @@ html.uf-co2 .t-form__inputsbox .t-form__submit .t-submit:hover { background: var
 
 /* ---------- Сводка заказа справа ---------- */
 html.uf-co2 .t706__cartpage-info-wrapper {
+  /* Two independently sticky blocks (the whole card and its totals) overlap
+     products/CREDITS on short laptop screens. Scroll this summary as one flow. */
+  position: static !important;
   background: var(--co-pale);
   padding: 22px !important;
   border-radius: 2px;
@@ -4765,7 +4771,7 @@ html.uf-co2 .uf-co2-promo__msg:empty { display: none; }
 
 /* итог */
 html.uf-co2 .t706__cartpage .t706__cartpage-prodamount { display: none !important; }
-html.uf-co2 .t706__cartpage-totals { border-top: 1px solid var(--co-line); padding-top: 14px; }
+html.uf-co2 .t706__cartpage-totals { position: static !important; bottom: auto !important; border-top: 1px solid var(--co-line); padding-top: 14px; }
 html.uf-co2 .t706__cartpage .t706__cartwin-totalamount-hint { display: none !important; }
 html.uf-co2 .t706__cartpage .t706__cartwin-totalamount-row {
   display: flex !important;

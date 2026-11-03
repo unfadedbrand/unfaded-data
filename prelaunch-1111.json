@@ -1,0 +1,18 @@
+{
+  "status": "draft-not-published",
+  "public_start_moscow": "2026-11-09T00:00:00+03:00",
+  "ends_moscow": "2026-11-13T00:00:00+03:00",
+  "cart_enabled": false,
+  "campaign_enabled": false,
+  "strict_early_access_ready": false,
+  "tilda_discount_start_observed": "2026-11-08 18:45",
+  "tilda_settings_changed": false,
+  "release_blockers": [
+    "Strict member verification before payment is not implemented",
+    "Tilda general discount must start on 9 November",
+    "New changes need on-domain integration QA after review release approval",
+    "Full order/payment/CRM/receipt verification not performed"
+  ],
+  "mailings_sent": false,
+  "mailings_scheduled": false
+}

@@ -115,7 +115,7 @@
     if (!settings.enabled && !preview && !review) return;
     win.__uf1111CampaignStarted = true;
     var doc = win.document, isLooks = new URLSearchParams(win.location.search).get('uf-page') === 'looks-1111';
-    var active = function () { return preview || review || settings.enabled === true && core.inWindow(Date.now()); };
+    var active = function () { return preview || review || settings.enabled === true && core.inPublicWindow(Date.now()); };
     var pageId = doc.getElementById('allrecords') && doc.getElementById('allrecords').getAttribute('data-tilda-page-id');
     if (!preview && (win.location.pathname !== '/' || pageId !== '31004708')) return;
     var anchor = doc.getElementById('t-main-content');
@@ -185,7 +185,7 @@
       if (!active()) {
         if (outside) return; outside = true;
         if (!isLooks) { host.remove(); if (club) club.classList.remove('ufc-banner-replaced'); }
-        else { host.innerHTML = '<div class="ufc-container ufc-ended"><h1>UNFADED DAYS</h1><p>Акция проходит с 8 ноября, 19:00 до 12 ноября включительно, по Москве.</p><a class="ufc-primary" href="' + CATALOG + '">ВЫБРАТЬ ВЕЩИ ↗</a></div>'; }
+        else { host.innerHTML = '<div class="ufc-container ufc-ended"><h1>UNFADED DAYS</h1><p>Акция проходит с 9 по 12 ноября включительно, по Москве.</p><a class="ufc-primary" href="' + CATALOG + '">ВЫБРАТЬ ВЕЩИ ↗</a></div>'; }
         mounted = false; return;
       }
       outside = false;

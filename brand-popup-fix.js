@@ -6766,24 +6766,37 @@ function buildStepper(active) {
   if (document.body) start(); else document.addEventListener('DOMContentLoaded', start);
 })();
 
-// Authorized 11.11 review link only. Normal storefront and campaign schedule remain unchanged.
+// One loader for the cart, banner and looks. Production flags stay OFF until
+// release approval; the existing explicit review URL is the only remote preview.
 (function () {
-  if (location.hostname !== 'unfadedstore.com' || location.pathname !== '/' ||
-      new URLSearchParams(location.search).get('uf-review') !== '1111-2026') return;
-  window.UF1111_SETTINGS = { enabled: false, lamodaFullPriceSkus: [] };
-  window.UF1111_CAMPAIGN_SETTINGS = { enabled: false, reviewEnabled: true };
+  if (location.hostname !== 'unfadedstore.com') return;
+  var review = location.pathname === '/' &&
+    new URLSearchParams(location.search).get('uf-review') === '1111-2026';
+  window.UF1111_SETTINGS = { enabled: false, reviewEnabled: review, lamodaFullPriceSkus: [] };
+  window.UF1111_CAMPAIGN_SETTINGS = { enabled: false, reviewEnabled: review };
+  var cartEnabled = window.UF1111_SETTINGS.enabled || review;
+  var campaignEnabled = window.UF1111_CAMPAIGN_SETTINGS.enabled || review;
+  if (!cartEnabled && !campaignEnabled) return;
   var base = 'https://unfadedbrand.github.io/unfaded-data/';
-  function mount() {
+  var version = 'prelaunch20261103';
+  function style(file) {
+    if (document.querySelector('link[data-uf1111-file="' + file + '"]')) return;
     var css = document.createElement('link'); css.rel = 'stylesheet';
-    css.href = base + 'campaign-1111.css?v=desktop20261102'; document.head.appendChild(css);
+    css.setAttribute('data-uf1111-file', file);
+    css.href = base + file + '?v=' + version; document.head.appendChild(css);
+  }
+  function mount() {
+    if (cartEnabled) style('cart-1111.css');
+    if (campaignEnabled) style('campaign-1111.css');
     function run() {
+      if (!campaignEnabled || window.__uf1111CampaignStarted) return;
       var app = document.createElement('script'); app.async = true;
-      app.src = base + 'campaign-1111.js?v=desktop20261102'; document.head.appendChild(app);
+      app.src = base + 'campaign-1111.js?v=' + version; document.head.appendChild(app);
     }
     if (window.UF1111) run();
     else {
       var script = document.createElement('script'); script.async = true;
-      script.src = base + 'cart-1111.js?v=desktop20261102'; script.onload = run; document.head.appendChild(script);
+      script.src = base + 'cart-1111.js?v=' + version; script.onload = run; document.head.appendChild(script);
     }
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount, { once: true });

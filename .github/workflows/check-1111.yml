@@ -1,0 +1,21 @@
+name: Check staged 11.11 site
+on:
+  pull_request:
+    paths:
+      - 'brand-popup-fix.js'
+      - 'brand-style.css'
+      - '*1111*'
+      - 'tests/**'
+      - '.github/workflows/check-1111.yml'
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: node --check brand-popup-fix.js && node --check cart-1111.js && node --check campaign-1111.js
+      - run: node --test tests/*.test.cjs

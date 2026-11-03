@@ -1,5 +1,7 @@
 /* Scoped to campaign content; Tilda header, footer, cart and checkout are untouched. */
 .ufc-route-hidden,.ufc-banner-replaced{display:none!important}
+/* Hide the homepage heading even when its existing script inserts it later. */
+.ufc-looks ~ .uf-nov-header{display:none!important}
 .ufc-review-notice{font:12px/1.5 Onest,Arial,sans-serif;text-align:center;padding:10px 16px;margin:0;background:#edeeee;color:#17090b}
 .uf-campaign{--ufc-paper:#fafafa;--ufc-ink:#17090b;--ufc-wine:#7a1f2a;--ufc-line:#d7d8d9;background:var(--ufc-paper);color:var(--ufc-ink);font-family:Onest,Arial,sans-serif;font-size:14px;line-height:1.5;container-type:inline-size}
 .uf-campaign *{box-sizing:border-box}
