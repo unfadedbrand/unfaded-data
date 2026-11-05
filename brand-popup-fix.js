@@ -6802,3 +6802,52 @@ function buildStepper(active) {
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount, { once: true });
   else mount();
 })();
+
+;// Retired October archive: deny cached prices without depending on network/catalog availability.
+(function () {
+  'use strict';
+  var retired = {"JC01SM25XS":5600.0,"PMigMHyU1CJhfuL0IiUi":5600.0,"JC01SM25S":5600.0,"8uRziGPg2ZjoTCVAcDdu":5600.0,"JC01SM25M":5600.0,"n8HCZcpevJse4ot3skE2":5600.0,"J01NY25GXS":10200.0,"h2yagzcxdAUYut41gJeP":10200.0,"J01NY25GS":10200.0,"uip4oNFzIkPxk1eLx7uL":10200.0,"J01NY25GM":10200.0,"LMiUsX7Nb2T4ZVVE968L":10200.0,"DN02SP25XS":8400.0,"CR7y06gvNbT3bgpO44pB":8400.0,"DN02SP25S":8400.0,"1X3pld08NBhemid7M1P9":8400.0,"DN02SP25M":8400.0,"cZzgjNseXY7d22gyXL48":8400.0,"DC01SP25XS":8400.0,"LPckd25KMKM97vzJHlZo":8400.0,"DC01SP25S":8400.0,"XzkjOXtEUOs8XjcalUMH":8400.0,"DC01SP25M":8400.0,"6YUzROpZySdKJtzsNF7S":8400.0,"JA01SP25XS":15100.0,"TvOL9S9JFJxblk0T32Tg":15100.0,"JA01SP25S":15100.0,"vFNL0CGPOKB0MDUhhP7Z":15100.0,"JA01SP25M":15100.0,"88Axxpy7MV4JtfeXiaVi":15100.0,"BL02SP25XS":4100.0,"gzCfdczD3VEKdlRJHchh":4100.0,"BL02SP25S":4100.0,"fRzLfbjSoA9debssArZo":4100.0,"BL02SP25M":4100.0,"Xg8PNrdF8vkgVcIpBzVv":4100.0,"DR01NY25XS":6800.0,"az29hnxSIeRPxoXGyLx3":6800.0,"DR01NY25S":6800.0,"icFF66SrRlneO2NedbnE":6800.0,"DR01NY25M":6800.0,"ubf80ttTxFtSGfcXySdE":6800.0,"DS01SP25XS":7600.0,"PZyp7sh96ujBinBro5Xg":7600.0,"DS01SP25S":7600.0,"FyF8Jfhk6S95UMZtVV5C":7600.0,"DS01SP25M":7600.0,"KFzrBRpBTFAU6HkOAUBX":7600.0,"LJ01SP25XS":18000.0,"BH6PBrLEDyxdCJ1JG6Ma":18000.0,"LJ01SP25S":18000.0,"EngPZYUFLH1H0a79yAx3":18000.0,"LJ01SP25M":18000.0,"zC94kIP7b79C4JP8R6Xn":18000.0,"LC02SP25XS":5200.0,"t8csDfJ8ty9gyuyiFtrM":5200.0,"LC02SP25S":5200.0,"VStN9zb59eTfl0K1imZE":5200.0,"LC02SP25M":5200.0,"TgBGI9Co4Ph8sCF3nFlh":5200.0,"SB03SP25XS":3800.0,"6vfZmfUdjjaLEI8Rhi8X":3800.0,"SB03SP25S":3800.0,"zgYyY3NrK4Mfb26AHAHo":3800.0,"SB03SP25M":3800.0,"xj7ckhXDYpkVkN17mMSd":3800.0,"BL01NY26XS":9600.0,"ErKj4V5Y7GfFDDije4Dz":9600.0,"BL01NY26S":9600.0,"fid1cGFs1FZzEfvPJjgx":9600.0,"BL01NY26M":9600.0,"pEejhSFFmAySz1Yov14o":9600.0,"SJ01SP25XS":13200.0,"4Ans66E0P56LALGYhleJ":13200.0,"SJ01SP25S":13200.0,"pCv1SrIpods3jDZ90I0A":13200.0,"SJ01SP25M":13200.0,"j2OakcFgeaB0Zr4Z0xdD":13200.0,"LW01SP25XS":5200.0,"5Ik2Ml3u9rg6ACZGZSJ7":5200.0,"LW01SP25S":5200.0,"cudiDbVnsCfiLKYC49Pu":5200.0,"LW01SP25M":5200.0,"15OSZbkP3XsFTjHm2OCL":5200.0,"BCH1SM25XS":10000.0,"YgUl336FH3umaB2xKBCv":10000.0,"BCH1SM25S":10000.0,"K9LzUkgTSkXZskpyCmmc":10000.0,"BCH1SM25M":10000.0,"HvOmStBBi6Uc1jDFogrc":10000.0,"DR02NY25XS":3900.0,"enn8ZHzPPUtsaxE9kehT":3900.0,"DR02NY25S":3900.0,"BUvPioAUxDDD0Ybr7NvX":3900.0,"DR02NY25M":3900.0,"NYkrKPSM1FcnRmijSDnE":3900.0,"SB02SP25XS":6300.0,"F1JfaKoEYfD0y25E1oeZ":6300.0,"SB02SP25S":6300.0,"fc7L8bkdr5hgeX4xFJmz":6300.0,"SB02SP25M":6300.0,"R9X10HNnIgLr4CnUKj80":6300.0,"RB01SS26XS":16000.0,"xLKD5FeOIECK6lekm6Tp":16000.0,"RB01SS26S":16000.0,"91B5SEUtIoU6Ieb4BsAo":16000.0,"RB01SS26M":16000.0,"hCjPIZOt6G5ZxiyrJitX":16000.0,"P02NY25GXS":8400.0,"rZaXK7CIAtemSivyIhmT":8400.0,"P02NY25GS":8400.0,"lj3udmi4hok745GPD8Ml":8400.0,"P02NY25GM":8400.0,"V6df4OsnlLzNMvCHrrtn":8400.0,"BO01SM25XS":14000.0,"a00EaokAnDmJiYlaZetp":14000.0,"BO01SM25S":14000.0,"OABGYB0uTyEkBbMxjchO":14000.0,"BO01SM25M":14000.0,"vG5u3StKlB5GubkYJzHx":14000.0,"BL01SP25XS":6900.0,"sxet4KDAVzaObcZZYuA1":6900.0,"BL01SP25S":6900.0,"KPrGtIgmEyZZAKs5uZkv":6900.0,"BL01SP25M":6900.0,"MOrTyuoo3MiDAtY40ydt":6900.0,"TB01SS26XS":12000.0,"Au0Lm4OPDVxys36syRJi":12000.0,"TB01SS26S":12000.0,"tAj0fKM8FGfnRR8to0Vm":12000.0,"TB01SS26M":12000.0,"2MkbLibbHgPInyVplGtc":12000.0,"BO02SM25XS":14000.0,"RBKK8R12hHoMI7fEakic":14000.0,"BO02SM25S":14000.0,"9LKZuDKIo65RkSPH6d3H":14000.0,"BO02SM25M":14000.0,"hvDH7ukKTSUEVrmiGHND":14000.0,"SBL01SS26XS":13500.0,"J6t2rRdfPYZSVRxYOb5b":13500.0,"SBL01SS26S":13500.0,"5g2MKmE50UgX1bflC5so":13500.0,"SBL01SS26M":13500.0,"IH4zpfGFfE899dGTziAL":13500.0,"SM02SP25XS":6300.0,"pr29DrES1z6b33g6gbjx":6300.0,"SM02SP25S":6300.0,"IeKdre5OT8e70m3Kjimn":6300.0,"SM02SP25M":6300.0,"tfYpp3gMhvkR1dvbJXYP":6300.0,"TS02SP25XS":4500.0,"8SUdINZAsTA8MO7AtnMK":4500.0,"TS02SP25S":4500.0,"3m6mCyVPJUJ1adxgNVNV":4500.0,"TS02SP25M":4500.0,"JmeIm6Xoo7L4jtOBji6M":4500.0,"RP02SS26XS":13600.0,"0jmKsDe8SULygu9UTGKB":13600.0,"RP02SS26S":13600.0,"rbjO1fxDLPJrt0eJHz7V":13600.0,"RP02SS26M":13600.0,"EYEbyJNxjn4l51SuLBGI":13600.0,"P01NY25XS":11000.0,"HjejNkYIVrjYVsAHIFA6":11000.0,"P01NY25S":11000.0,"0dPpsNZ0PirYzod7Rk06":11000.0,"P01NY25M":11000.0,"cX6IzYbHG714Vk0fhjpk":11000.0,"SHP02SS26XS":8300.0,"xiFz1PmIIPftBsiNrlbB":8300.0,"SHP02SS26S":8300.0,"35osUkOEtKHosX8OjuCB":8300.0,"SHP02SS26M":8300.0,"LIS5jiXVAJO4ToERzEzn":8300.0,"HW01AU25XS":6400.0,"nrjAnB2DI5bSTItosiv8":6400.0,"HW01AU25S":6400.0,"dyo3AxoF1xEDCAdpyueR":6400.0,"HW01AU25M":6400.0,"FhgzRU12SaXaeEf6kELv":6400.0,"HW02AU25XS":8000.0,"FMyy44CaypOJZbcRbO7u":8000.0,"HW02AU25S":8000.0,"cTfzONU70aySotiSrzGr":8000.0,"HW02AU25M":8000.0,"DsX1aSj6tySlcV6Sg9h9":8000.0,"HG01AU25XS":6400.0,"ibG97IjIrrXuDaGJYFb6":6400.0,"HG01AU25S":6400.0,"PUaT3zM1TUReEmsFMZti":6400.0,"HG01AU25M":6400.0,"N7GRNZVxvVP3OuvXiUtH":6400.0,"7UN23BCP32":1440.0,"BaN3u0VP4ab31Td2gHBA":1440.0,"7UN23BCP34":1440.0,"pyFlLpr9kABk04ic5jhd":1440.0,"7UN23BCP36":1440.0,"6Vk0h5k5s0Rm7LyRKh1T":1440.0,"SD01SM25XS":2560.0,"oXpR9CJ4oemPUzOHdgPL":2560.0,"SD01SM25S":2560.0,"TMa7Rg0J4bnOekgOl4gj":2560.0,"SD01SM25M":2560.0,"HlVhf2m9C8DPxBnzTOME":2560.0,"FR01SP25XS":7800.0,"vE10YLF4Znnjaj1kz2d2":7800.0,"FR01SP25SM":7800.0,"7fDZMUDH70RoBOlGsOK2":7800.0,"SM24GPLXS":3170.0,"uJxkc6alT3p2kZxcaEn9":3170.0,"SM24GPLS":3170.0,"TN1DF5PSUHvCCobHF2JZ":3170.0,"SM24GPLM":3170.0,"7k96vBcNaGf5ZTAgyhe0":3170.0,"SM24GPLL":3170.0,"UT15m37p09lrCTTucFHC":3170.0,"SM24PBXS":2480.0,"m3sungVJeUAjxMRIS2Jr":2480.0,"SM24PBS":2480.0,"G8zGpZb1h6vG5Amuaz0m":2480.0,"SM24PBM":2480.0,"zBD9tSBJ4MOjPHejSE6A":2480.0,"SM24PBL":2480.0,"bupUO6NRvscebfuF57d7":2480.0,"7UN22TDP40":950.0,"EzxFjaIkp6M9o0lnSX2P":950.0,"7UN22TDP42":950.0,"8bG3ua09syGB76rGrKpi":950.0,"7UN22TDP44":950.0,"LloXyBtvdJnG2ZzOiMVV":950.0,"7UN22TDO40":950.0,"DBvM98ucmFklkfI6Hf1Y":950.0,"7UN22TDO42":950.0,"PkT2nDmlZ2DRF0HSBbxC":950.0,"7UN22TDO44":950.0,"OMCY5m2yv46goXeIvb97":950.0,"7UN22TSP40":1060.0,"YKOh6iE9dagl19DzG5jS":1060.0,"7UN22TSP42":1060.0,"9Ologncx8Lh3Lji59PiA":1060.0,"7UN22TSP44":1060.0,"ruz04xM14hj9ykUdgUtE":1060.0,"7UN22TSO40":1060.0,"I7vlsegpG8BV16lHToLy":1060.0,"7UN22TSO42":1060.0,"VPX3mjOa6AXjY7gjOkmN":1060.0,"7UN22TSO44":1060.0,"OsayTKl6Hdk90nzspVLK":1060.0,"7UN22TSB40":1060.0,"hnn5fdPh1JsSVjTXIGVj":1060.0,"7UN22TSB42":1060.0,"gFFnGG7i1711cOnME4hP":1060.0,"7UN22TSB44":1060.0,"dGJ7DUD7VvgBMXlPxUix":1060.0,"SM24YSKXS":2380.0,"u4XexjVixgs21cUVb4uC":2380.0,"SM24YSKS":2380.0,"kONuR8EfPihHal8II4mY":2380.0,"SM24YSKM":2380.0,"lFJBicdgKKv8Ey4TUGeX":2380.0,"SM24YSKL":2380.0,"EH01jkMjVrmS6UYkBFHG":2380.0,"SK01NY25XXS":2170.0,"F1n5mkPxmXJMsu2BoaDy":2170.0,"SK01NY25XS":2170.0,"aJlj6nTHA4axu0UB5aOI":2170.0,"SK01NY25S":2170.0,"1ysyOpul6D3RCDPGR2Oj":2170.0,"SK01NY25M":2170.0,"z8N1vPHH5lUEdR1vIANS":2170.0,"LS01SP25XS":10300.0,"2xGosHVz55sU970Txlxn":10300.0,"LS01SP25S":10300.0,"xxUXOTAvJ1fM6ctek6oF":10300.0,"LS01SP25M":10300.0,"UDdi8l6yFbn7fyrsN8DO":10300.0,"SS01SP25XS":9500.0,"JYxmmKnHicGuisflIIJC":9500.0,"SS01SP25S":9500.0,"9J2LDOu5g01mDnuAESiM":9500.0,"SS01SP25M":9500.0,"1vG9IxP2SxgiOvg7HrdD":9500.0,"J01NY25BXS":10200.0,"fPRMpg5z8BHHvOCl18ct":10200.0,"J01NY25BS":10200.0,"E2TRg8zkiUtDYTr1HJSE":10200.0,"J01NY25BM":10200.0,"m86II11GTXctXVbstYGN":10200.0,"SM24BBXS":3200.0,"IFScTruMBotFv3zauyu0":3200.0,"SM24BBS":3200.0,"FL8Cj9rjA4yNU3Uvx38a":3200.0,"SM24BBM":3200.0,"ZMNpZCsIzx9usbmaLz8m":3200.0,"SM24BBL":3200.0,"tlTLp9FY7xhF7xTNF54E":3200.0,"HG02AU25XS":8000.0,"dse6eNcJaEzGuErtnGth":8000.0,"HG02AU25S":8000.0,"77tgT3iI5gl7CAfHcZFF":8000.0,"HG02AU25M":8000.0,"1EbJydsbJaLpzTuVHpa7":8000.0};
+  var message = 'Архив закрыт. Удалите архивные товары из корзины и выберите вещи в действующем каталоге.';
+  function expired() {
+    var products = (window.tcart && window.tcart.products) || [];
+    return products.some(function (p) {
+      var sku = String(p.sku || p.externalid || '');
+      var raw = p.price;
+      var price = Number(String(raw == null ? '' : raw).replace(/\s/g, '').replace(',', '.'));
+      return Object.prototype.hasOwnProperty.call(retired, sku) &&
+        (raw == null || !Number.isFinite(price) || price <= retired[sku] + 1);
+    });
+  }
+  function notify(target) {
+    var form = target.closest && target.closest('form');
+    var holder = form || document.querySelector('.t706') || document.body;
+    var box = document.getElementById('uf-archive-closed-notice');
+    if (!box) {
+      box = document.createElement('div');
+      box.id = 'uf-archive-closed-notice';
+      box.setAttribute('role', 'alert');
+      box.style.cssText = 'padding:16px;margin:16px 0;background:#fbeaea;color:#7a1f2a;font:14px/1.5 Arial,sans-serif';
+      holder.prepend(box);
+    }
+    box.textContent = message;
+  }
+  document.addEventListener('click', function (e) {
+    var btn = e.target.closest && e.target.closest('.t706 .t-submit');
+    if (!btn || !expired()) return;
+    e.preventDefault(); e.stopImmediatePropagation(); notify(btn);
+  }, true);
+  document.addEventListener('submit', function (e) {
+    if (!e.target.closest || !e.target.closest('.t706') || !expired()) return;
+    e.preventDefault(); e.stopImmediatePropagation(); notify(e.target);
+  }, true);
+  function lockPage() {
+    if (!/^\/archive(?:\/|$)/.test(location.pathname)) return;
+    var style = document.createElement('style');
+    style.textContent = '.t-store,.js-store,.t-store__prod-popup,.t-store__product-popup{display:none!important}';
+    document.head.appendChild(style);
+    notify(document.body);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', lockPage);
+  else lockPage();
+})();
+
