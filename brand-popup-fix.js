@@ -6766,19 +6766,22 @@ function buildStepper(active) {
   if (document.body) start(); else document.addEventListener('DOMContentLoaded', start);
 })();
 
-// One loader for the cart, banner and looks. Production flags stay OFF until
-// release approval; the existing explicit review URL is the only remote preview.
+// One loader for the cart, banner and looks. Approved scheduled public release;
+// before Moscow midnight on 9 November only the explicit review URL can mount it.
 (function () {
   if (location.hostname !== 'unfadedstore.com') return;
   var review = location.pathname === '/' &&
     new URLSearchParams(location.search).get('uf-review') === '1111-2026';
-  window.UF1111_SETTINGS = { enabled: false, reviewEnabled: review, lamodaFullPriceSkus: [] };
-  window.UF1111_CAMPAIGN_SETTINGS = { enabled: false, reviewEnabled: review };
+  window.UF1111_SETTINGS = { enabled: true, reviewEnabled: review, lamodaFullPriceSkus: [] };
+  window.UF1111_CAMPAIGN_SETTINGS = { enabled: true, reviewEnabled: review };
   var cartEnabled = window.UF1111_SETTINGS.enabled || review;
   var campaignEnabled = window.UF1111_CAMPAIGN_SETTINGS.enabled || review;
   if (!cartEnabled && !campaignEnabled) return;
   var base = 'https://unfadedbrand.github.io/unfaded-data/';
-  var version = 'prelaunch20261103';
+  var version = 'scheduled20261105';
+  var startsAt = Date.parse('2026-11-09T00:00:00+03:00');
+  var endsAt = Date.parse('2026-11-13T00:00:00+03:00');
+  var mounted = false, launchTimer;
   function style(file) {
     if (document.querySelector('link[data-uf1111-file="' + file + '"]')) return;
     var css = document.createElement('link'); css.rel = 'stylesheet';
@@ -6786,6 +6789,8 @@ function buildStepper(active) {
     css.href = base + file + '?v=' + version; document.head.appendChild(css);
   }
   function mount() {
+    if (mounted) return;
+    mounted = true;
     if (cartEnabled) style('cart-1111.css');
     if (campaignEnabled) style('campaign-1111.css');
     function run() {
@@ -6799,8 +6804,19 @@ function buildStepper(active) {
       script.src = base + 'cart-1111.js?v=' + version; script.onload = run; document.head.appendChild(script);
     }
   }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount, { once: true });
-  else mount();
+  function scheduledMount() {
+    var now = Date.now();
+    if (review || now >= startsAt && now < endsAt) {
+      if (launchTimer) clearInterval(launchTimer);
+      mount();
+    } else if (now >= endsAt && launchTimer) clearInterval(launchTimer);
+  }
+  function ready() {
+    scheduledMount();
+    if (!mounted && Date.now() < endsAt) launchTimer = setInterval(scheduledMount, 1000);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', ready, { once: true });
+  else ready();
 })();
 
 ;// Retired October archive: deny cached prices without depending on network/catalog availability.

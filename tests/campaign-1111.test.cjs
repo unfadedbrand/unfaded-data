@@ -60,7 +60,7 @@ test('repeating pagination cursor fails closed instead of accepting an incomplet
 test('disabled loader and public preview cannot mount or fetch',()=>{
  let touched=false;const fake={document:{},location:{hostname:'unfadedstore.com'},UF1111_CAMPAIGN_SETTINGS:{enabled:false,preview:true},fetch(){touched=true;}};
  app.start(fake);assert.equal(touched,false);assert.equal(fake.__uf1111CampaignStarted,undefined);
- const source=fs.readFileSync(require.resolve('../brand-popup-fix.js'),'utf8');assert.match(source,/UF1111_CAMPAIGN_SETTINGS = \{ enabled: false(?:,| \})/);
+ const source=fs.readFileSync(require.resolve('../brand-popup-fix.js'),'utf8');assert.match(source,/UF1111_CAMPAIGN_SETTINGS = \{ enabled: true(?:,| \})/);
 });
 
 test('review mode requires an explicitly deployed flag and the exact store homepage query',()=>{
