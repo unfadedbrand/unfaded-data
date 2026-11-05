@@ -1,0 +1,16 @@
+{
+  "status": "scheduled-public-release-approved-2026-11-05",
+  "public_start_moscow": "2026-11-09T00:00:00+03:00",
+  "ends_moscow": "2026-11-13T00:00:00+03:00",
+  "cart_enabled": true,
+  "campaign_enabled": true,
+  "public_modules_load_only_in_window": true,
+  "strict_early_access_ready": true,
+  "early_access_release": "unfadedbrand/unfaded-app-api#41",
+  "tilda_discount_start_observed": "2026-11-09 00:00",
+  "tilda_settings_changed": false,
+  "release_blockers": [],
+  "real_payment_and_receipt_check": "First actual customer order, per user decision; no artificial payment",
+  "mailings_sent": false,
+  "mailings_scheduled": true
+}

@@ -7,6 +7,7 @@
 })(typeof window !== 'undefined' ? window : this, function () {
   'use strict';
   var START = Date.parse('2026-11-08T19:00:00+03:00');
+  var PUBLIC_START = Date.parse('2026-11-09T00:00:00+03:00');
   var END = Date.parse('2026-11-13T00:00:00+03:00');
   var EXCLUDED = '690719490763';
   var ARCHIVE = '491983923473';
@@ -39,6 +40,13 @@
   }
   function rate(count) { return count >= 3 ? 0.33 : count >= 2 ? 0.22 : count >= 1 ? 0.11 : 0; }
   function inWindow(time) { return time >= START && time < END; }
+  // Public UI must not expose the club evening. Strict early checkout needs
+  // server-side member/payment verification; a query parameter is not access.
+  function inPublicWindow(time) { return time >= PUBLIC_START && time < END; }
+  function reviewAllowed(settings, location) {
+    return settings.reviewEnabled === true && location.hostname === 'unfadedstore.com' &&
+      location.pathname === '/' && new URLSearchParams(location.search).get('uf-review') === '1111-2026';
+  }
   function size(value) {
     return String(value || '').trim().toUpperCase().replace(/\s+/g, '').replace(/ONE-SIZE|ONESIZE|OS|ЕДИНЫЙ/g, 'ONE');
   }
@@ -157,7 +165,7 @@
     var settings = win.UF1111_SETTINGS || {};
     var products = {}, index = [], metadata = null, pending = null, lastLoaded = 0;
     var timer = null, rendering = false, busy = false, errorText = '';
-    function enabled() { return local && settings.preview === true || settings.enabled === true && inWindow(Date.now()); }
+    function enabled() { return local && settings.preview === true || reviewAllowed(settings, win.location) || settings.enabled === true && inPublicWindow(Date.now()); }
     function currentCart() { return win.tcart && typeof win.tcart === 'object' ? win.tcart : { products: [] }; }
     function request(url) {
       var controller = new AbortController();
@@ -231,7 +239,7 @@
       }).join('') + '</div>';
     }
     function html(s, recommendations) {
-      var hint = !s.quantity ? 'Новогодняя капсула не участвует в акции.' : !s.ready ?
+      var hint = !s.quantity ? 'Выберите вещи из каталога.' : !s.ready ?
         s.promo ? 'Применён промокод. Скидки не суммируются.' : 'Обновляем скидку. Итог заказа рассчитает Тильда.' : s.quantity >= 3 ?
           'Максимальная скидка 33% — экономия ' + money(s.saving) :
           'Добавьте ещё 1 вещь — сэкономите ещё ≈ ' + money(s.estimate) + '. Сейчас экономия ' + money(s.saving);
@@ -250,7 +258,7 @@
               (s.ready ? '<p class="uf-1111-gain">с ней экономия +' + money(gain) + '</p>' : '') +
               '<button type="button" data-uf1111-add="' + escape(r.sku) + '" data-size="' + escape(r.size) + '"' + (busy ? ' disabled' : '') + '>Добавить</button></article>';
           }).join('') + '</div></section>' : '') +
-        '<p class="uf-1111-note">Не суммируется с промокодами и списанием CREDITS. Новогодняя капсула не участвует в акции.</p>' +
+        '<p class="uf-1111-note">Не суммируется с промокодами и списанием CREDITS.</p>' +
         '<p class="uf-1111-error" role="alert">' + escape(errorText) + '</p>' };
     }
     function render() {
@@ -320,6 +328,6 @@
     render();
   }
   return { start: start, isActive: function () { return !!runtime && runtime.enabled(); },
-    number: number, parts: parts, excluded: excluded, rate: rate, inWindow: inWindow, size: size, article: article,
+    number: number, parts: parts, excluded: excluded, rate: rate, inWindow: inWindow, inPublicWindow: inPublicWindow, reviewAllowed: reviewAllowed, size: size, article: article,
     category: category, state: state, recommend: recommend, cartItem: cartItem, compatibleEdition: compatibleEdition };
 });
