@@ -85,7 +85,8 @@
   }
   function campaignDiscount(discounts) {
     return (discounts || []).filter(function (d) {
-      return /11\.11/.test(d.name || '') && String(d.typeid) === '2' && Number(d.applicationid) === 3 &&
+      // Tilda uses type 1 for discount tiers based on item count.
+      return /11\.11/.test(d.name || '') && Number(d.typeid) === 1 && Number(d.applicationid) === 3 &&
         d.rules && d.rules.diff && Number(d.rules.diff['1']) === 11 && Number(d.rules.diff['2']) === 22 &&
         Number(d.rules.diff['3']) === 33 && Number(d.rules.type) === 0 &&
         (d.rules.uids || []).map(String).indexOf(EXCLUDED) !== -1;
