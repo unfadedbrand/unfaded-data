@@ -2,7 +2,7 @@
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const core = require('../cart-1111.js');
-const discount = { id: 1111, name: '11.11 — чем больше, тем больше', typeid: '2', applicationid: '3', rules: { type: 0, diff: { 1: 11, 2: 22, 3: 33 }, uids: [690719490763] } };
+const discount = { id: 1111, name: '11.11 — чем больше, тем больше', typeid: 1, applicationid: 3, rules: { type: 0, diff: { 1: '11', 2: '22', 3: '33' }, uids: [690719490763] } };
 function item(sku, price, quantity = 1, extra = {}) {
   return { sku, price, quantity, amount: price * quantity, options: [{ option: 'Размер', variant: 'S' }], ...extra };
 }
