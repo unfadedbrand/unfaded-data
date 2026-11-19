@@ -1006,7 +1006,9 @@ function buildStepper(active) {
     var name = fieldVal(box, '.t-input-group_nm input');
     var email = fieldVal(box, '.t-input-group_em input');
     var phone = fieldVal(box, '.t-input-group_ph input[type="tel"]') || fieldVal(box, '.t-input-group_ph input');
-    var tg = fieldVal(box, '.t-input-group_in input');
+    // QA rollout only: delivery inputs also use t-input-group_in.
+    var tg = fieldVal(box, location.pathname === '/qa-checkout-bf-391292509'
+      ? 'input[name="tg_username"]' : '.t-input-group_in input');
     var city = fieldVal(box, 'input[name="tildadelivery-city"]');
     var street = fieldVal(box, 'input[name="tildadelivery-street"]');
     var house = fieldVal(box, 'input[name="tildadelivery-house"]');
@@ -3512,10 +3514,35 @@ function buildStepper(active) {
     var btn = q(row, 'button');
     var msg = q(row, '.uf-co2-promo__msg');
     if (tInput.value) input.value = tInput.value;
+    var qaFix = location.pathname === '/qa-checkout-bf-391292509';
+    var applyVersion = 0;
+
+    if (qaFix) input.addEventListener('input', function () {
+      applyVersion++;
+      msg.textContent = '';
+    });
 
     function apply() {
       var code = input.value.trim();
+      var version = ++applyVersion;
       msg.textContent = '';
+      if (qaFix) {
+        // Tilda replaces the native input/button after a successful apply.
+        // Restore those same nodes and clear both native coupon stores first.
+        window.dispatchEvent(new Event('uf:checkout-promo-reset'));
+        input.value = code;
+        tInput = q(tg, 'input.t-inputpromocode');
+        tBtn = q(tg, '.t-inputpromocode__btn');
+        if (!code) {
+          msg.textContent = 'Промокод удалён';
+          input.focus();
+          return;
+        }
+        if (!tInput || !tBtn) {
+          msg.textContent = 'Не удалось подготовить поле промокода. Обновите страницу.';
+          return;
+        }
+      }
       if (!code) { input.focus(); return; }
       tInput.value = code;
       tInput.dispatchEvent(new Event('input', { bubbles: true }));
@@ -3523,6 +3550,7 @@ function buildStepper(active) {
       // Tilda answers a wrong code with its own alert; a right one lands in
       // tcart.promocode and the totals update by themselves.
       setTimeout(function () {
+        if (qaFix && version !== applyVersion) return;
         var p = window.tcart && window.tcart.promocode;
         if (p && String(p.promocode || '').toUpperCase() === code.toUpperCase()) {
           msg.textContent = 'Промокод применён';
@@ -5288,6 +5316,11 @@ function buildStepper(active) {
     showPromoMessage(text);
   }
 
+  // Isolated rollout: only the password-protected checkout test page uses it.
+  window.addEventListener('uf:checkout-promo-reset', function () {
+    if (location.pathname === '/qa-checkout-bf-391292509') removePromo('');
+  });
+
   // --- а) «Применить» ---
   window.addEventListener('click', function (e) {
     var btn = e.target && e.target.closest && e.target.closest('.t-inputpromocode__btn');
@@ -6866,4 +6899,5 @@ function buildStepper(active) {
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', lockPage);
   else lockPage();
 })();
+
 
