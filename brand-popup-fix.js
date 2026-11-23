@@ -3516,6 +3516,24 @@ function buildStepper(active) {
     if (tInput.value) input.value = tInput.value;
     var qaFix = (location.pathname === '/qa-checkout-bf-391292509' || location.pathname === '/black-friday' || /^\/(?:catalog\/[^/]+|hoodie|new)\/tproduct\/\d+-(?:103861918652|119857292983|165567482222|172333733672|174437592082|182111083742|228300448652|251778659652|343022237192|373559295862|385750245462|386577890182|398755150052|414934937332|425652318332|426802538272|431464518343|459405704572|467441454702|484860482922|496783016852|503355139922|508515978552|511193509702|556406917512|584178796632|592844552282|619633047692|630354159102|644258541513|675455827612|694749421092|714516390182|718585198742|754942146462|785756416333|786096060942|811323719112|813932141982|820161985332|831484820892|899668655623|931969528652|937344607732|938821111712|943853177082|945245686612|960166348692|988100795732)-/.test(location.pathname));
     var applyVersion = 0;
+    var pendingPromoCode = '';
+    var pendingPromoVersion = 0;
+
+    function syncNativePromoError() {
+      if (!qaFix || !pendingPromoCode || pendingPromoVersion !== applyVersion ||
+          input.value.trim() !== pendingPromoCode) return;
+      var applied = window.tcart && window.tcart.promocode;
+      if (applied && String(applied.promocode || '').toUpperCase() === pendingPromoCode.toUpperCase()) return;
+      var errors = qa(tg, '.t-input-error');
+      for (var i = 0; i < errors.length; i++) {
+        var text = errors[i].textContent.trim();
+        if (text) { msg.textContent = text; return; }
+      }
+    }
+    if (qaFix) new MutationObserver(syncNativePromoError).observe(tg, {
+      childList: true, subtree: true, characterData: true,
+      attributes: true, attributeFilter: ['style', 'class']
+    });
 
     if (qaFix) input.addEventListener('input', function () {
       applyVersion++;
@@ -3525,6 +3543,8 @@ function buildStepper(active) {
     function apply() {
       var code = input.value.trim();
       var version = ++applyVersion;
+      pendingPromoCode = code;
+      pendingPromoVersion = version;
       msg.textContent = '';
       if (qaFix) {
         // Tilda replaces the native input/button after a successful apply.
