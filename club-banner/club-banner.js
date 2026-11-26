@@ -74,3 +74,136 @@
   if (document.readyState === 'complete') run();
   else { window.addEventListener('load', function () { setTimeout(run, 300); }); setTimeout(run, 4000); }
 })();
+
+/* BLACK PRICE 2026. Homepage banner and navigation follow the /black-friday window (Moscow). */
+(function () {
+  'use strict';
+  var host = document.getElementById('rec4561751401');
+  var club = host && host.querySelector('.ufcb');
+  if (!club || !document.querySelector('#allrecords[data-tilda-page-id="31004708"]') ||
+      window.__ufBlackFridayHome2026) return;
+  window.__ufBlackFridayHome2026 = true;
+
+  var start = Date.parse('2026-11-27T10:00:00+03:00');
+  var end = Date.parse('2026-12-02T00:00:00+03:00');
+  var assets = 'https://unfadedbrand.github.io/unfaded-data/black-friday-2026/';
+  var path = '/black-friday';
+  var offset = 0;
+  var timer, menuObserver, banner, style;
+  var header = document.getElementById('rec705182193');
+  var marker = 'data-uf-bf-home-link';
+
+  function menuLink(className) {
+    var link = document.createElement('a');
+    link.className = className;
+    link.setAttribute(marker, '');
+    link.href = path;
+    link.textContent = 'BLACK FRIDAY';
+    return link;
+  }
+
+  function updateMenu() {
+    if (!header) return;
+    var nav = header.querySelector('#uf-desktop-menu');
+    if (nav && !nav.querySelector('[' + marker + ']')) nav.prepend(menuLink('uf-dm-link'));
+    var list = header.querySelector('ul[data-uf-menu="1"]');
+    if (list && !list.querySelector('[' + marker + ']')) {
+      var item = document.createElement('li');
+      item.className = 't451m__list_item';
+      item.setAttribute(marker, '');
+      item.appendChild(menuLink('t-menu__link-item'));
+      list.prepend(item);
+    }
+  }
+
+  function openCampaign() {
+    if (banner) return;
+    style = document.createElement('style');
+    style.textContent = [
+      '#rec4561751401[data-bf-home-ready] .ufcb{display:none!important}',
+      '#uf-bf-home-2026{position:relative;container-type:inline-size;background:#ededeb;width:100%;margin:0;padding:0}',
+      '#uf-bf-home-2026[hidden]{display:none!important}',
+      '#uf-bf-home-2026 picture,#uf-bf-home-2026 img{display:block;width:100%;height:auto;margin:0}',
+      '#uf-bf-home-2026 .uf-bf-home-cta{box-sizing:border-box;position:absolute;z-index:1;left:50%;top:calc(59.05% + .7cqw);transform:translateX(-50%);display:grid;place-items:center;width:min(16cqw,232px);height:min(3.35cqw,48px);padding:0 .7cqw;margin:0;border:0;border-radius:0;background:#7A1F2A;color:#FAFAFA!important;font:600 min(.8cqw,12px)/1.15 Onest,Arial,sans-serif;letter-spacing:.05em;text-align:center;text-transform:uppercase;text-decoration:none!important;white-space:nowrap}',
+      '#uf-bf-home-2026 .uf-bf-home-cta:hover{background:#5E1621}',
+      '#uf-bf-home-2026 a:focus-visible{outline:2px solid #fff;outline-offset:-4px}',
+      '#rec705182193 a[data-uf-bf-home-link]{color:#7A1F2A!important;font-weight:600}',
+      '@media(max-width:959px){#uf-bf-home-2026 img{height:650px;object-fit:contain}#uf-bf-home-2026 .uf-bf-home-cta{inset:auto 0 0;width:100%;height:44px;transform:none;padding:0 16px;font-size:12px}}'
+    ].join('\n');
+    document.head.appendChild(style);
+
+    banner = document.createElement('section');
+    banner.id = 'uf-bf-home-2026';
+    banner.hidden = true;
+    banner.setAttribute('aria-label', 'BLACK PRICE');
+    var picture = document.createElement('picture');
+    var mobile = document.createElement('source');
+    mobile.media = '(max-width:959px)';
+    mobile.srcset = assets + '1A-mobile.webp';
+    picture.appendChild(mobile);
+    var image = document.createElement('img');
+    image.width = 1920;
+    image.height = 840;
+    image.alt = 'BLACK PRICE. Скидки до 65%. 27 ноября — 1 декабря.';
+    image.fetchPriority = 'high';
+    image.onload = function () {
+      if (!banner || !banner.contains(image) || Date.now() + offset >= end) return;
+      banner.hidden = false;
+      host.setAttribute('data-bf-home-ready', '');
+    };
+    image.onerror = function () {
+      if (!banner || !banner.contains(image)) return;
+      host.removeAttribute('data-bf-home-ready');
+      banner.hidden = true;
+    };
+    picture.appendChild(image);
+    banner.appendChild(picture);
+    var cta = document.createElement('a');
+    cta.className = 'uf-bf-home-cta';
+    cta.href = path;
+    cta.textContent = 'Все вещи со скидкой';
+    banner.appendChild(cta);
+    club.before(banner);
+    image.src = assets + '1A-desktop.webp';
+
+    updateMenu();
+    if (header) {
+      menuObserver = new MutationObserver(updateMenu);
+      menuObserver.observe(header, {childList:true, subtree:true});
+    }
+  }
+
+  function closeCampaign() {
+    if (!banner) return;
+    if (menuObserver) menuObserver.disconnect();
+    if (header) header.querySelectorAll('[' + marker + ']').forEach(function (node) { node.remove(); });
+    host.removeAttribute('data-bf-home-ready');
+    banner.remove();
+    style.remove();
+    banner = null;
+  }
+
+  function render() {
+    clearTimeout(timer);
+    var now = Date.now() + offset;
+    if (now >= start && now < end) openCampaign();
+    else closeCampaign();
+    if (now < end) timer = setTimeout(render, Math.min(60000, (now < start ? start : end) - now));
+  }
+
+  // Use the same site's Date header as the offer page; timers also handle an already open tab.
+  function synchronize() {
+    fetch(location.pathname, {method:'HEAD', cache:'no-store'}).then(function (response) {
+      var serverTime = Date.parse(response.headers.get('Date'));
+      if (response.ok && Number.isFinite(serverTime)) offset = serverTime - Date.now();
+      render();
+    }).catch(render);
+  }
+
+  render();
+  window.addEventListener('pageshow', function () { render(); synchronize(); });
+  document.addEventListener('visibilitychange', function () {
+    if (!document.hidden) { render(); synchronize(); }
+  });
+  synchronize();
+})();
